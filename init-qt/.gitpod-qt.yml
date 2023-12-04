@@ -38,6 +38,9 @@ ports:
   - port: 5433
     name: ysql
     onOpen: ignore
+  - port: 15433
+    name: yugabyted-ui
+    onOpen: ignore
   - port: 13000
     name: ysql-api
     onOpen: ignore
