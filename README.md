@@ -24,12 +24,9 @@
 This will help you get started with yugabyte db and explore the distributed sql universe.
 
 ```bash
-yes | cp init-dsql/.gitpod-dsql.yml .gitpod.yml
-git add .gitpod.yml
-git commit -sm "dsql base"
-git push origin main
+./run.sh
 ```
-Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
 ## Query tuning tips and tricks
 <div align="left">
@@ -42,12 +39,9 @@ Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 This will help you get started with query tuning and have a better understanding of the distributed sql universe.
 
 ```bash
-yes | cp init-qt/.gitpod-qt.yml .gitpod.yml
-git add .gitpod.yml
-git commit -sm "qt base"
-git push origin main
+./run.sh
 ```
-Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
 ## Development innerloop workflow
 <div align="left">
@@ -59,12 +53,9 @@ Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 This will explore the development innerloop workflow and guide bulding an application from scratch. This provides a hands-on experience of interacting with yugabyte db.
 
 ```bash
-yes | cp init-iloop/.gitpod-iloop.yml .gitpod.yml
-git add .gitpod.yml
-git commit -sm "il base"
-git push origin main
+./run.sh
 ```
-Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
 ## Java microservices
 <div align="left">
@@ -104,12 +95,9 @@ This will explore securing Spring Boot application with YugabyteDB over TLS usin
 This will explore the voyager tool to migrate mysql to yugabytedb.
 
 ```bash
-yes | cp init-voyager/.gitpod-voyager.yml .gitpod.yml
-git add .gitpod.yml
-git commit -sm "voyager base"
-git push origin main
+./run.sh
 ```
-Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
 ## Change data capture(CDC) workflow from ybdb to postgres
 <div align="left">
@@ -122,12 +110,9 @@ Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 This will explore yugabytedb's change data capture.
 
 ```bash
-yes | cp init-cdc/.gitpod-cdc.yml .gitpod.yml
-git add .gitpod.yml
-git commit -sm "cdc base"
-git push origin main
+./run.sh
 ```
-Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
 ## Change data capture(CDC) streaming workflow from ysql to ycql
 <div align="left">
@@ -148,12 +133,9 @@ This will explore spring cloud stream microservices based cdc integration from y
 This will explore yugabytedb's data distribution and horizontal scalability.
 
 ```bash
-yes | cp init-scale/.gitpod-scale.yml .gitpod.yml
-git add .gitpod.yml
-git commit -sm "scale base"
-git push origin main
+./run.sh
 ```
-Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
 ## Data replication, fault tolerance and high availability
 <div align="left">
@@ -165,9 +147,6 @@ Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 This will explore yugabytedb's fault tolerance and high availability.
 
 ```bash
-yes | cp init-ft/.gitpod-ft.yml .gitpod.yml
-git add .gitpod.yml
-git commit -sm "ft base"
-git push origin main
+./run.sh
 ```
-Launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.

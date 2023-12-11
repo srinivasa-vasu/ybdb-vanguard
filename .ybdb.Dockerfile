@@ -1,7 +1,7 @@
 FROM gitpod/workspace-full
 
-ARG YB_VERSION=2.20.0.0
-ARG YB_BUILD=76
+ARG YB_VERSION=2.20.0.1
+ARG YB_BUILD=1
 ARG YB_BIN_PATH=/usr/local/yugabyte
 ARG ROLE=gitpod
 
