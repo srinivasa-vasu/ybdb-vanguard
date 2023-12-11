@@ -26,6 +26,40 @@ This will help you get started with yugabyte db and explore the distributed sql 
 ```bash
 ./run.sh
 ```
+
+<details>
+
+```bash
+Select an exercise:
+1. Into the distributed and postgres++ sql universe
+2. Query tuning tips and tricks
+3. Development innerloop workflow
+4. Java microservices
+5. Java testcontainers
+6. Securing Spring Boot Microservices
+7. Data migration workflow from mysql to ybdb
+8. Change data capture(CDC) workflow from ybdb to postgres
+9. Change data capture(CDC) streaming workflow from ysql to ycql
+10. Data distribution and scalability
+11. Data replication, fault tolerance and high availability
+Enter the number of the exercise (0 to exit): 1
+Initializing the workspace for Into the distributed and postgres++ sql universe.
+[main 5e2b86a] Into the distributed and postgres++ sql universe
+ 1 file changed, 5 insertions(+), 38 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 391 bytes | 391.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/srinivasa-vasu/ybdb-vanguard.git
+   eb1bb44..5e2b86a  main -> main
+Workspace initialized.
+```
+
+</details>
+
 Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
 ## Query tuning tips and tricks
