@@ -24,7 +24,7 @@
 This will help you get started with yugabyte db and explore the distributed sql universe.
 
 ```bash
-./run.sh
+./launch
 ```
 
 <details>
@@ -73,7 +73,7 @@ Choose the exercise index and launch the repo using [Open in Gitpod](#getting-st
 This will help you get started with query tuning and have a better understanding of the distributed sql universe.
 
 ```bash
-./run.sh
+./launch
 ```
 Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
@@ -87,7 +87,7 @@ Choose the exercise index and launch the repo using [Open in Gitpod](#getting-st
 This will explore the development innerloop workflow and guide bulding an application from scratch. This provides a hands-on experience of interacting with yugabyte db.
 
 ```bash
-./run.sh
+./launch
 ```
 Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
@@ -129,7 +129,7 @@ This will explore securing Spring Boot application with YugabyteDB over TLS usin
 This will explore the voyager tool to migrate mysql to yugabytedb.
 
 ```bash
-./run.sh
+./launch
 ```
 Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
@@ -144,7 +144,7 @@ Choose the exercise index and launch the repo using [Open in Gitpod](#getting-st
 This will explore yugabytedb's change data capture.
 
 ```bash
-./run.sh
+./launch
 ```
 Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
@@ -167,7 +167,7 @@ This will explore spring cloud stream microservices based cdc integration from y
 This will explore yugabytedb's data distribution and horizontal scalability.
 
 ```bash
-./run.sh
+./launch
 ```
 Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
@@ -181,6 +181,6 @@ Choose the exercise index and launch the repo using [Open in Gitpod](#getting-st
 This will explore yugabytedb's fault tolerance and high availability.
 
 ```bash
-./run.sh
+./launch
 ```
 Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
