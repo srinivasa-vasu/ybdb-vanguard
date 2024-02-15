@@ -4,12 +4,13 @@ ARG YB_VERSION=2.20.1.3
 ARG YB_BUILD=3
 ARG YB_BIN_PATH=/usr/local/yugabyte
 ARG ROLE=gitpod
+ARG PYTHON_VERSION=3.11.7
 
 USER $ROLE
 
-# Install python 3.11 and set it as the default
-# ycql requires python 3.11
-RUN pyenv install 3.11.7 -f && pyenv global 3.11.7
+# Install required python version and set it as the default
+# ycql dependency
+RUN pyenv install ${PYTHON_VERSION} -f && pyenv global ${PYTHON_VERSION}
 # create bin and data path
 RUN sudo mkdir -p $YB_BIN_PATH
 
