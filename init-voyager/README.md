@@ -64,7 +64,7 @@ yb-voyager import schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
         --target-db-name ${TARGET_DB_ID} \
-        --target-db-schema ${SCHEMA} --post-import-data
+        --target-db-schema ${SCHEMA} --post-snapshot-import true
 ```
 
 ### Step 7: Check the imported data status
