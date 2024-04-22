@@ -10,13 +10,13 @@ tasks:
 
   - name: init-services
     env:
-      ART_PATH: init-voyager
+      ART_PATH: init-voyager-mariadb
     init: |
       docker compose -f ${ART_PATH}/compose.yml pull
     command: |
       docker compose -f ${ART_PATH}/compose.yml up
 
-  - name: mysql
+  - name: mariadb
     env:
       SRC_USER: root
       SRC_SECRET: 'yugabyte'
