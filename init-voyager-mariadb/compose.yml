@@ -5,9 +5,9 @@ services:
     image: mariadb:10.4
     restart: always
     network_mode: host
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0 --skip-grant-tables
     environment:
       MYSQL_ROOT_PASSWORD: 'yugabyte'
-      MYSQL_INIT_COMMAND: "--skip-grant-tables"
     ports:
       - '3306:3306'
     volumes:
