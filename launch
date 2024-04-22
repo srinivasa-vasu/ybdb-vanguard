@@ -5,7 +5,7 @@
 # Define exercises and corresponding commands in separate arrays
 exercises=("Into the distributed and postgres++ sql universe" "Query tuning tips and tricks" "Development innerloop workflow" "Java microservices" "Java testcontainers" "Securing Spring Boot Microservices" "Data migration workflow from mysql to ybdb" "Data migration workflow from mariadb to ybdb" "Change data capture(CDC) workflow from ybdb to postgres" "Change data capture(CDC) streaming workflow from ysql to ycql" "Data distribution and scalability" "Data replication, fault tolerance and high availability")
 commands=("init-dsql/.gitpod-dsql.yml" "init-qt/.gitpod-qt.yml" "init-iloop/.gitpod-iloop.yml" "" "" "" "init-voyager-mysql/.gitpod-voyager.yml" "init-voyager-mariadb/.gitpod-voyager.yml" "init-cdc/.gitpod-cdc.yml" "" "init-scale/.gitpod-scale.yml" "init-ft/.gitpod-ft.yml")
-links=("" "" "" "https://github.com/srinivasa-vasu/yb-ms-data" "https://github.com/srinivasa-vasu/ybdb-boot-data" "https://github.com/srinivasa-vasu/ybdb-sealed-secrets" "" "" "https://github.com/srinivasa-vasu/yb-cdc-streams" "" "")
+links=("" "" "" "https://github.com/srinivasa-vasu/yb-ms-data" "https://github.com/srinivasa-vasu/ybdb-boot-data" "https://github.com/srinivasa-vasu/ybdb-sealed-secrets" "" "" "" "https://github.com/srinivasa-vasu/yb-cdc-streams" "" "")
 
 
 # ANSI escape codes for colors

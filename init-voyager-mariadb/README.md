@@ -3,9 +3,9 @@
 ### Export schema and data from the source database
 
 #### Step 0: Load data
-Run only Step 0 from `mysql` shell
+Run only Step 0 from `mariadb` shell
 ```
-source init-voyager/chinook.sql
+source init-voyager-mariadb/chinook.sql
 ```
 
 Run Step 1 to Step 7 from `yb-voyager` shell
