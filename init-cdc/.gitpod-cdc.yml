@@ -21,7 +21,7 @@ tasks:
     env:
       JDBC_VERSION: 10.7.4
       POSTGRES_VERSION: 2.2.1
-      YBDB_CONNECTOR: 1.9.5.y.33.SNAPSHOT
+      YBDB_CONNECTOR: 1.9.5.y.220.1
     before: |
       export CONFLUENT_HOME=${GITPOD_REPO_ROOT}/confluent
     init: |
