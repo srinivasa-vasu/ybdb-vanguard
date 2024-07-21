@@ -12,12 +12,12 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+    command: ./entrypoint.sh
     restart: on-failure
     environment:
       POSTGRES_USERNAME: postgres
       POSTGRES_PASSWORD: yugabyte
       POSTGRES_DATABASE: postgres
-      POSTGRES_INITDB_ARGS: "-c wal_level=logical"
   voyager:
     container_name: yb-voyager
     image: yugabytedb/yb-voyager:latest
