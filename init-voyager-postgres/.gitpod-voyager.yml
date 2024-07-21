@@ -32,6 +32,7 @@ tasks:
     env:
       DATA_PATH: voyager-data
       SCHEMA: public
+      SRC_HOST: 127.0.0.1
       SRC_DB_TYPE: postgresql
       SRC_DB_ID: 'Chinook'
       SRC_USER: postgres
