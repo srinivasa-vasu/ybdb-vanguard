@@ -1,0 +1,25 @@
+services:
+  postgresql:
+    container_name: postgres
+    image: postgres:16
+    network_mode: host
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: on-failure
+    environment:
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: yugabyte
+      POSTGRES_DATABASE: postgres
+  voyager:
+    container_name: yb-voyager
+    image: yugabytedb/yb-voyager:latest
+    command: "echo Hello from yb-voyager!"
+volumes:
+  postgresql_data:

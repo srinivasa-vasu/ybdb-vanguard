@@ -13,6 +13,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
   voyager:
+    container_name: yb-voyager
     image: yugabytedb/yb-voyager:latest
     command: "echo Hello from yb-voyager!"
 volumes:

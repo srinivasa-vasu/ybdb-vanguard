@@ -38,10 +38,12 @@ Select an exercise:
 5. Java testcontainers
 6. Securing Spring Boot Microservices
 7. Data migration workflow from mysql to ybdb
-8. Change data capture(CDC) workflow from ybdb to postgres
-9. Change data capture(CDC) streaming workflow from ysql to ycql
-10. Data distribution and scalability
-11. Data replication, fault tolerance and high availability
+8. Data migration workflow from mariadb to ybdb
+9. Data migration workflow from postgres to ybdb
+10. Change data capture(CDC) workflow from ybdb to postgres
+11. Change data capture(CDC) streaming workflow from ysql to ycql
+12. Data distribution and scalability
+13. Data replication, fault tolerance and high availability
 Enter the number of the exercise (0 to exit): 1
 Initializing the workspace for Into the distributed and postgres++ sql universe.
 [main 5e2b86a] Into the distributed and postgres++ sql universe
@@ -125,7 +127,37 @@ This will explore securing Spring Boot application with YugabyteDB over TLS usin
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 </div>
 
-[voyager:](init-voyager/README.md)
+[voyager:](init-voyager-mysql/README.md)
+This will explore the voyager tool to migrate mysql to yugabytedb.
+
+```bash
+./launch
+```
+Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+
+## Data migration workflow from mariadb to ybdb
+<div align="left">
+
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+</div>
+
+[voyager:](init-voyager-mariadb/README.md)
+This will explore the voyager tool to migrate mariadb to yugabytedb.
+
+```bash
+./launch
+```
+Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+
+## Data migration workflow from mysql to ybdb
+<div align="left">
+
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+</div>
+
+[voyager:](init-voyager-postgres/README.md)
 This will explore the voyager tool to migrate mysql to yugabytedb.
 
 ```bash
