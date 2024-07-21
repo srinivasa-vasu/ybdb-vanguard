@@ -127,7 +127,7 @@ This will explore securing Spring Boot application with YugabyteDB over TLS usin
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 </div>
 
-[voyager:](init-voyager-mysql/README.md)
+[yb-voyager:](init-voyager-mysql/README.md)
 This will explore the voyager tool to migrate mysql to yugabytedb.
 
 ```bash
@@ -142,7 +142,7 @@ Choose the exercise index and launch the repo using [Open in Gitpod](#getting-st
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 </div>
 
-[voyager:](init-voyager-mariadb/README.md)
+[yb-voyager:](init-voyager-mariadb/README.md)
 This will explore the voyager tool to migrate mariadb to yugabytedb.
 
 ```bash
@@ -150,15 +150,15 @@ This will explore the voyager tool to migrate mariadb to yugabytedb.
 ```
 Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
-## Data migration workflow from mysql to ybdb
+## Data migration workflow from postgres to ybdb
 <div align="left">
 
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 </div>
 
-[voyager:](init-voyager-postgres/README.md)
-This will explore the voyager tool to migrate mysql to yugabytedb.
+[yb-voyager:](init-voyager-postgres/README.md)
+This will explore the voyager tool to migrate postgres to yugabytedb.
 
 ```bash
 ./launch
