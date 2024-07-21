@@ -18,6 +18,11 @@ tasks:
       gp ports await ${YCQL_SOCK} && sleep 2
       ycqlsh
 
+  - name: readme
+    env:
+      ART_PATH: init-dsql
+    command: gp open ${ART_PATH}/README.md
+
 vscode:
   extensions:
     - ms-azuretools.vscode-docker

@@ -21,6 +21,11 @@ tasks:
       mkdir -p ${GITPOD_REPO_ROOT}/${APP_ID} && cd ${GITPOD_REPO_ROOT}/${APP_ID}
       echo "Run 'ybdb | yugabytedb' to get started!"
 
+  - name: readme
+    env:
+      ART_PATH: init-iloop
+    command: gp open ${ART_PATH}/README.md
+
 vscode:
   extensions:
     - ms-azuretools.vscode-docker

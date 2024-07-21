@@ -82,6 +82,11 @@ tasks:
       gp sync-await kafka-run
       echo "Apply connector config in this shell!"
 
+  - name: readme
+    env:
+      ART_PATH: init-cdc
+    command: gp open ${ART_PATH}/README.md
+
 vscode:
   extensions:
     - ms-azuretools.vscode-docker

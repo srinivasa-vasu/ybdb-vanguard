@@ -51,6 +51,11 @@ tasks:
       gp sync-await ybdb
       bash prompt.sh
 
+  - name: readme
+    env:
+      ART_PATH: init-scale
+    command: gp open ${ART_PATH}/README.md
+
 vscode:
   extensions:
     - ms-azuretools.vscode-docker

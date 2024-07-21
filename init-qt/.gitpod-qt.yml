@@ -17,6 +17,11 @@ tasks:
       ysqlsh -f ${GITPOD_REPO_ROOT}/${DATA_PATH}/chinook.sql -f ${GITPOD_REPO_ROOT}/${DATA_PATH}/sample.sql
       ysqlsh
 
+  - name: readme
+    env:
+      ART_PATH: init-qt
+    command: gp open ${ART_PATH}/README.md
+
 vscode:
   extensions:
     - ms-azuretools.vscode-docker
