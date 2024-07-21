@@ -37,7 +37,7 @@ yb-voyager analyze-schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} --output
 #### Step 3: Export Data
 ```
 yb-voyager export data --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
-        --source-db-type mysql \
+        --source-db-type ${SRC_DB_TYPE} \
         --source-db-host ${HOST} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
