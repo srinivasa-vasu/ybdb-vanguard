@@ -11,12 +11,14 @@ Run only Step -1 from `psql` shell
 Run Step 0 to Step 2 from `yb-voyager-export` shell
 
 #### Step 0: Assess Migration
+```
 yb-voyager assess-migration --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
   --source-db-type ${SRC_DB_TYPE} \
   --source-db-host ${SRC_HOST} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
   --source-db-name ${SRC_DB_ID} --source-db-schema ${SOURCE_DB_SCHEMA}
+```
 
 #### Step 1: Export Schema
 ```

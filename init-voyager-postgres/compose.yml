@@ -7,17 +7,12 @@ services:
       - 5432:5432
     volumes:
       - postgresql_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 30s
       timeout: 30s
       retries: 3
-    command:
-      - /bin/sh
-      - -c
-      - |
-          echo "ALTER SYSTEM SET wal_level = 'logical';" >> /docker-entrypoint-initdb.d/init.sql
-          exec gosu postgres postgres
     restart: on-failure
     environment:
       POSTGRES_USERNAME: postgres
