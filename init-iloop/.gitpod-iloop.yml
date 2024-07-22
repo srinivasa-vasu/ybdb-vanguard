@@ -4,6 +4,9 @@ tasks:
   - name: ybdb
     env:
       DATA_PATH: ybdb
+      ART_PATH: init-iloop
+    before:
+      gp open ${ART_PATH}/README.md
     command: |
       mkdir -p ${GITPOD_REPO_ROOT}/${DATA_PATH}
       yugabyted start --base_dir=${GITPOD_REPO_ROOT}/${DATA_PATH} --advertise_address=$HOST --cloud_location=ybcloud.pandora.az1 --background=true
@@ -20,11 +23,6 @@ tasks:
     command: |
       mkdir -p ${GITPOD_REPO_ROOT}/${APP_ID} && cd ${GITPOD_REPO_ROOT}/${APP_ID}
       echo "Run 'ybdb | yugabytedb' to get started!"
-
-  - name: readme
-    env:
-      ART_PATH: init-iloop
-    command: gp open ${ART_PATH}/README.md
 
 vscode:
   extensions:

@@ -4,6 +4,9 @@ tasks:
   - name: ybdb
     env:
       DATA_PATH: ybdb
+      ART_PATH: init-cdc
+    before:
+      gp open ${ART_PATH}/README.md
     command: |
       mkdir -p ${GITPOD_REPO_ROOT}/${DATA_PATH}
       yugabyted start --base_dir=${GITPOD_REPO_ROOT}/${DATA_PATH} --advertise_address=$HOST --cloud_location=ybcloud.pandora.az1 --background=true
@@ -81,11 +84,6 @@ tasks:
     command: |
       gp sync-await kafka-run
       echo "Apply connector config in this shell!"
-
-  - name: readme
-    env:
-      ART_PATH: init-cdc
-    command: gp open ${ART_PATH}/README.md
 
 vscode:
   extensions:

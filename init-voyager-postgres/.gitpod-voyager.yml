@@ -4,8 +4,12 @@ tasks:
   - name: ybdb
     env:
       DATA_PATH: ybdb
+      ART_PATH: init-voyager-postgres
+    before:
+      gp open ${ART_PATH}/README.md
     command: |
       mkdir -p ${GITPOD_REPO_ROOT}/${DATA_PATH}
+      mkdir -p ${GITPOD_REPO_ROOT}/${DATA_PATH}/backup
       yugabyted start --base_dir=${GITPOD_REPO_ROOT}/${DATA_PATH} --advertise_address=$HOST --cloud_location=ybcloud.pandora.az1 --background=true
 
   - name: init-services
@@ -23,12 +27,12 @@ tasks:
       PGHOST: 127.0.0.1
     init: |
       sudo apt-get update
-      sudo apt-get install -y postgresql-contrib
+      sudo apt-get install -y postgresql-contrib-16
     command: |
       gp ports await 5432
       psql -h $PGHOST -U $PGUSER -d postgres
 
-  - name: yb-voyager
+  - name: yb-voyager-export
     env:
       DATA_PATH: voyager-data
       SCHEMA: public
@@ -46,10 +50,37 @@ tasks:
       wget -O ./yb-voyager https://raw.githubusercontent.com/yugabyte/yb-voyager/main/docker/yb-voyager-docker && chmod +x ./yb-voyager && sudo mv yb-voyager /usr/local/bin/yb-voyager
       gp ports await 5432
 
-  - name: readme
+  - name: yb-voyager-import
     env:
-      ART_PATH: init-voyager-postgres
-    command: gp open ${ART_PATH}/README.md
+      DATA_PATH: voyager-data
+      SCHEMA: public
+      SRC_HOST: 127.0.0.1
+      SRC_DB_TYPE: postgresql
+      SRC_DB_ID: 'Chinook'
+      SRC_USER: postgres
+      SOURCE_DB_SCHEMA: public
+      SRC_SECRET: 'yugabyte'
+      TARGET_DB_ID: yugabyte
+      TARGET_USER: yugabyte
+      TARGET_SECRET: yugabyte
+    command: |
+      gp ports await 5433
+
+  - name: yb-voyager-wa
+    env:
+      DATA_PATH: voyager-data
+      SCHEMA: public
+      SRC_HOST: 127.0.0.1
+      SRC_DB_TYPE: postgresql
+      SRC_DB_ID: 'Chinook'
+      SRC_USER: postgres
+      SOURCE_DB_SCHEMA: public
+      SRC_SECRET: 'yugabyte'
+      TARGET_DB_ID: yugabyte
+      TARGET_USER: yugabyte
+      TARGET_SECRET: yugabyte
+    command: |
+      gp ports await 5433
 
 vscode:
   extensions:

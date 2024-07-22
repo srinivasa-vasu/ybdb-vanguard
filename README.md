@@ -150,7 +150,7 @@ This will explore the voyager tool to migrate mariadb to yugabytedb.
 ```
 Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
 
-## Data migration workflow from postgres to ybdb
+## Live data migration workflow from postgres to ybdb
 <div align="left">
 
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)

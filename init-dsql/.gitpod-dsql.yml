@@ -2,12 +2,17 @@ image:
   file: .ybdb.Dockerfile
 tasks:
   - name: ybdb
+    env:
+      DATA_PATH: ybdb
+      ART_PATH: init-dsql
+    before:
+      gp open ${ART_PATH}/README.md
     command: |
-      mkdir -p ${GITPOD_REPO_ROOT}/ybdb
-      yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd1 --advertise_address=$HOST_LB --cloud_location=ybcloud.pandora.az1 --fault_tolerance=zone
-      yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd2 --advertise_address=$HOST_LB2 --join=$HOST_LB --cloud_location=ybcloud.pandora.az2 --fault_tolerance=zone
-      yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd3 --advertise_address=$HOST_LB3 --join=$HOST_LB --cloud_location=ybcloud.pandora.az3 --fault_tolerance=zone
-      yugabyted configure data_placement --fault_tolerance=zone --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd1
+      mkdir -p ${GITPOD_REPO_ROOT}/${DATA_PATH}
+      yugabyted start --base_dir=${GITPOD_REPO_ROOT}/${DATA_PATH}/ybd1 --advertise_address=$HOST_LB --cloud_location=ybcloud.pandora.az1 --fault_tolerance=zone
+      yugabyted start --base_dir=${GITPOD_REPO_ROOT}/${DATA_PATH}/ybd2 --advertise_address=$HOST_LB2 --join=$HOST_LB --cloud_location=ybcloud.pandora.az2 --fault_tolerance=zone
+      yugabyted start --base_dir=${GITPOD_REPO_ROOT}/${DATA_PATH}/ybd3 --advertise_address=$HOST_LB3 --join=$HOST_LB --cloud_location=ybcloud.pandora.az3 --fault_tolerance=zone
+      yugabyted configure data_placement --fault_tolerance=zone --base_dir=${GITPOD_REPO_ROOT}/${DATA_PATH}/ybd1
       gp sync-done ybdb
   - name: ysqlsh
     command: |
@@ -17,11 +22,6 @@ tasks:
     command: |
       gp ports await ${YCQL_SOCK} && sleep 2
       ycqlsh
-
-  - name: readme
-    env:
-      ART_PATH: init-dsql
-    command: gp open ${ART_PATH}/README.md
 
 vscode:
   extensions:
