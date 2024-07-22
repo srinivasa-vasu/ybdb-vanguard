@@ -16,7 +16,7 @@ services:
       - /bin/sh
       - -c
       - |
-          sed -i 's/^#*wal_level .*$/wal_level = logical/' /var/lib/postgresql/data/postgresql.conf
+          echo "ALTER SYSTEM SET wal_level = 'logical';" >> /docker-entrypoint-initdb.d/init.sql
           exec gosu postgres postgres
     restart: on-failure
     environment:
