@@ -23,6 +23,7 @@ services:
       POSTGRES_USERNAME: postgres
       POSTGRES_PASSWORD: yugabyte
       POSTGRES_DATABASE: postgres
+      POSTGRES_INITDB_ARGS: "--data-checksums"
   voyager:
     container_name: yb-voyager
     image: yugabytedb/yb-voyager:latest
