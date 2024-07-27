@@ -4,83 +4,47 @@ tasks:
   - name: ybdb
     env:
       DATA_PATH: ybdb
-      ART_PATH: init-voyager-postgres
+      ART_PATH: init-voyager-mysql
     before:
       gp open ${ART_PATH}/README.md
     command: |
       mkdir -p ${GITPOD_REPO_ROOT}/${DATA_PATH}
-      mkdir -p ${GITPOD_REPO_ROOT}/${DATA_PATH}/backup
       yugabyted start --base_dir=${GITPOD_REPO_ROOT}/${DATA_PATH} --advertise_address=$HOST --cloud_location=ybcloud.pandora.az1 --background=true
 
   - name: init-services
     env:
-      ART_PATH: init-voyager-postgres
+      ART_PATH: init-voyager-mysql
     init: |
       docker compose -f ${ART_PATH}/compose.yml pull
     command: |
       docker compose -f ${ART_PATH}/compose.yml up
 
-  - name: psql
+  - name: mysql
     env:
-      PGUSER: postgres
-      PGPASSWORD: yugabyte
-      PGHOST: 127.0.0.1
+      SRC_USER: root
+      SRC_SECRET: 'yugabyte'
     init: |
       sudo apt-get update
-      sudo apt-get install -y postgresql-contrib
+      sudo apt-get install -y mysql-client
     command: |
-      gp ports await 5432
-      psql -h $PGHOST -U $PGUSER -d postgres
+      gp ports await 3306
+      mysql -h ${HOST} -P 3306 -u ${SRC_USER} -p${SRC_SECRET}
 
-  - name: yb-voyager-export
+  - name: yb-voyager
     env:
       DATA_PATH: voyager-data
       SCHEMA: public
-      SRC_HOST: 127.0.0.1
-      SRC_DB_TYPE: postgresql
+      SRC_DB_TYPE: mysql
       SRC_DB_ID: 'Chinook'
-      SRC_USER: postgres
-      SOURCE_DB_SCHEMA: public
+      SRC_USER: root
       SRC_SECRET: 'yugabyte'
       TARGET_DB_ID: yugabyte
       TARGET_USER: yugabyte
       TARGET_SECRET: yugabyte
     command: |
-      mkdir -p ${GITPOD_REPO_ROOT}/${DATA_PATH}
+      mkdir -p ${GITPOD_REPO_ROOT}/voyager-data
       wget -O ./yb-voyager https://raw.githubusercontent.com/yugabyte/yb-voyager/main/docker/yb-voyager-docker && chmod +x ./yb-voyager && sudo mv yb-voyager /usr/local/bin/yb-voyager
-      gp ports await 5432
-
-  - name: yb-voyager-import
-    env:
-      DATA_PATH: voyager-data
-      SCHEMA: public
-      SRC_HOST: 127.0.0.1
-      SRC_DB_TYPE: postgresql
-      SRC_DB_ID: 'Chinook'
-      SRC_USER: postgres
-      SOURCE_DB_SCHEMA: public
-      SRC_SECRET: 'yugabyte'
-      TARGET_DB_ID: yugabyte
-      TARGET_USER: yugabyte
-      TARGET_SECRET: yugabyte
-    command: |
-      gp ports await 5433
-
-  - name: yb-voyager-wa
-    env:
-      DATA_PATH: voyager-data
-      SCHEMA: public
-      SRC_HOST: 127.0.0.1
-      SRC_DB_TYPE: postgresql
-      SRC_DB_ID: 'Chinook'
-      SRC_USER: postgres
-      SOURCE_DB_SCHEMA: public
-      SRC_SECRET: 'yugabyte'
-      TARGET_DB_ID: yugabyte
-      TARGET_USER: yugabyte
-      TARGET_SECRET: yugabyte
-    command: |
-      gp ports await 5433
+      gp ports await 3306
 
 vscode:
   extensions:
@@ -115,6 +79,6 @@ ports:
   - port: 12000
     name: ycql-api
     onOpen: ignore
-  - port: 5432
-    name: psql
+  - port: 3306
+    name: mysql
     onOpen: ignore
