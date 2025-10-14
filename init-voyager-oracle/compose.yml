@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  oracle:
+    image: mgvenzl/oracle-free
+    restart: always
+    network_mode: host
+    environment:
+      # Password for the system and PDB admin users. Change for production use.
+      - ORACLE_PASSWORD=${ORACLE_PASSWORD:-B3kind1!}
+      # Optional: Name of the pluggable database. Default is FREEPDB1.
+      - ORACLE_PDB=${ORACLE_PDB:-MYPDB}
+    ports:
+      - '1521:1521'
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    shm_size: "2g"
+  oracle-client:
+    image: gvenzl/oracle-instantclient-sqlplus
+    container_name: oracle-client
+    depends_on:
+      - oracle
+    command: ["tail", "-f", "/dev/null"]
+    network_mode: host
+  voyager:
+    container_name: yb-voyager
+    image: yugabytedb/yb-voyager:latest
+    command: "echo Hello from yb-voyager!"
+volumes:
+  oracle-data:

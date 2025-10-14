@@ -1,0 +1,122 @@
+services:
+  # ybdb:
+  #   name: "YugabyteDB Cluster"
+  #   description: "Launches a 3-node local YugabyteDB cluster using yugabyted"
+  #   # env:
+  #   #   DATA_PATH: ybdb
+  #   #   ART_PATH: init-voyager-oracle
+  #   triggeredBy:
+  #     - postDevcontainerStart
+  #   commands:
+  #     start: |
+  #       set -e
+  #       echo "🚀 Starting YugabyteDB 3-node cluster..."
+  #       BASE_DIR="${containerWorkspaceFolder:-.}/${DATA_PATH}"
+  #       mkdir -p "$BASE_DIR"
+
+  #       yugabyted start --base_dir="$BASE_DIR/ybd1" \
+  #         --advertise_address=127.0.0.1 \
+  #         --cloud_location=ybcloud.pandora.az1 \
+  #         --fault_tolerance=zone
+
+  #       yugabyted start --base_dir="$BASE_DIR/ybd2" \
+  #         --advertise_address=127.0.0.2 \
+  #         --join=127.0.0.1 \
+  #         --cloud_location=ybcloud.pandora.az2 \
+  #         --fault_tolerance=zone
+
+  #       yugabyted start --base_dir="$BASE_DIR/ybd3" \
+  #         --advertise_address=127.0.0.3 \
+  #         --join=127.0.0.1 \
+  #         --cloud_location=ybcloud.pandora.az3 \
+  #         --fault_tolerance=zone
+
+  #       yugabyted configure data_placement \
+  #         --fault_tolerance=zone \
+  #         --base_dir="$BASE_DIR/ybd1"
+
+  #       echo "✅ YugabyteDB cluster is running."
+  #     ready: |
+  #       # Health check: ensure YSQL port is open
+  #       nc -z 127.0.0.1 5433
+  #     stop: |
+  #       echo "🛑 Stopping YugabyteDB cluster..."
+  #       yugabyted stop --base_dir="${containerWorkspaceFolder:-.}/${DATA_PATH}/ybd1" || true
+  #       yugabyted stop --base_dir="${containerWorkspaceFolder:-.}/${DATA_PATH}/ybd2" || true
+  #       yugabyted stop --base_dir="${containerWorkspaceFolder:-.}/${DATA_PATH}/ybd3" || true
+  #       echo "✅ Cluster stopped."
+  #   # depends_on: []
+  ybdb:
+    name: "YugabyteDB Cluster"
+    description: "Launches a single-node local YugabyteDB cluster using yugabyted"
+    # env:
+    #   DATA_PATH: ybdb
+    #   ART_PATH: init-voyager-oracle
+    triggeredBy:
+      - postDevcontainerStart
+    commands:
+      start: |
+        set -e
+        echo "🚀 Starting YugabyteDB single-node cluster..."
+        BASE_DIR="${containerWorkspaceFolder:-.}/${DATA_PATH}"
+        mkdir -p "$BASE_DIR"
+
+        yugabyted start --base_dir="$BASE_DIR/ybd1" \
+          --advertise_address=127.0.0.1 \
+          --cloud_location=ybcloud.pandora.az1
+
+        echo "✅ YugabyteDB cluster is running."
+      ready: |
+        # Health check: ensure YSQL port is open
+        nc -z 127.0.0.1 5433
+      stop: |
+        echo "🛑 Stopping YugabyteDB cluster..."
+        yugabyted stop --base_dir="${containerWorkspaceFolder:-.}/${DATA_PATH}/ybd1" || true
+        echo "✅ Cluster stopped."
+    # depends_on: []
+
+  init_services_compose:
+    name: compose services
+    description: Pull and start services defined in init-voyager-oracle/compose.yml
+    # start automatically after devcontainer is created / started
+    triggeredBy:
+      - postDevcontainerStart
+    commands:
+      start: |
+        # ensure compose file location correct relative to workspace
+        docker compose -f ${containerWorkspaceFolder:-.}/init-voyager-oracle/compose.yml pull
+        docker compose -f ${containerWorkspaceFolder:-.}/init-voyager-oracle/compose.yml up -d
+      ready: bash -c "nc -z localhost 1521"
+      stop: docker compose -f ${containerWorkspaceFolder:-.}/init-voyager-oracle/compose.yml down || true
+
+
+# Tasks are short-lived, one-off commands. They can be run manually or chained as deps.
+tasks:
+  oracle-client-shell:
+    name: Open MySQL client (interactive)
+    description: Awaits Oracle port then open a client session
+    # run manually (developer triggers it) because it's interactive
+    triggeredBy:
+      - manual
+    dependsOn:
+      - init_services_compose
+    command: |
+      # Wait for oracle to be listening, then open client
+      echo "Waiting for oracle (localhost:1521) ..."
+      until nc -z localhost 1521; do sleep 1; done
+      sqlplus system/${ORACLE_PASSWORD:-B3kind1!}@oracle-db:1521/${ORACLE_PDB:-legacy}
+  yb-voyager-shell:
+    name: Install yb-voyager binary
+    description: Downloads and installs the yb-voyager CLI binary to wrap the container image
+    triggeredBy:
+      - manual
+    dependsOn:
+      - init_services_compose
+      - ybdb
+    command: |
+      set -e
+      mkdir -p ${containerWorkspaceFolder:-.}/voyager-data
+      wget -O ./yb-voyager https://raw.githubusercontent.com/yugabyte/yb-voyager/main/docker/yb-voyager-docker
+      chmod +x ./yb-voyager
+      mv ./yb-voyager /usr/local/bin/yb-voyager
+      echo "yb-voyager installed to /usr/local/bin/yb-voyager"
