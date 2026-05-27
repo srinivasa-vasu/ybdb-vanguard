@@ -50,11 +50,20 @@ fi
 echo "   PID ${CONFLUENT_PID} | log: ${LOG_FILE}"
 
 echo ""
-echo "⏳ Waiting for PostgreSQL sink on :5432..."
+echo "⏳ Waiting for PostgreSQL sink on :5432 (up to 90s)..."
+_pg_ready=0
 for i in $(seq 1 30); do
-  nc -z 127.0.0.1 5432 2>/dev/null && break
-  sleep 2
+  if (echo >/dev/tcp/127.0.0.1/5432) 2>/dev/null; then
+    _pg_ready=1
+    break
+  fi
+  sleep 3
 done
+if [ "$_pg_ready" -eq 0 ]; then
+  echo "❌ PostgreSQL did not become ready in time. Check: docker compose -f init-cdc/compose.yml logs"
+  exit 1
+fi
+echo "✅ PostgreSQL is up."
 
 echo "📥 Loading Chinook dataset into YugabyteDB (CDC source)..."
 ysqlsh -f init-cdc/chinook.sql

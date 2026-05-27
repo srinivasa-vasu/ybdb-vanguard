@@ -44,6 +44,7 @@ start_node() {
     --advertise_address="${addr}" \
     --cloud_location="ybcloud.pandora.${az}" \
     --fault_tolerance=zone \
+    --background=true \
     ${join_flag} ${_tflags}
 }
 
@@ -70,14 +71,34 @@ else
     --base_dir="${BASE_DIR}/ybd1"
 fi
 
-echo "⏳ Waiting for YSQL to accept connections on :5433..."
-for i in $(seq 1 30); do
-  if nc -z 127.0.0.1 5433 2>/dev/null; then
+# ── YSQL readiness wait ───────────────────────────────────────────────────────
+# Use pure-bash /dev/tcp so we don't depend on nc (not installed in all images).
+# Multi-node clusters take longer to elect a leader and init YSQL; allow 3 min.
+_ysql_ready() { (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; }
+
+if [ "$NODES" -gt 1 ]; then
+  _max_attempts=60  # 60 × 3 s = 3 min
+  _interval=3
+else
+  _max_attempts=30  # 30 × 3 s = 90 s
+  _interval=3
+fi
+
+echo "⏳ Waiting for YSQL to accept connections on :5433 (up to $(( _max_attempts * _interval ))s)..."
+_ready=0
+for i in $(seq 1 "$_max_attempts"); do
+  if _ysql_ready; then
+    _ready=1
     break
   fi
-  sleep 2
+  sleep "$_interval"
 done
-nc -z 127.0.0.1 5433 2>/dev/null || { echo "❌ YSQL did not become ready in time."; exit 1; }
+
+if [ "$_ready" -eq 0 ]; then
+  echo "❌ YSQL did not become ready in time."
+  echo "   Check cluster status with: yugabyted status"
+  exit 1
+fi
 
 echo "✅ YugabyteDB ${NODES}-node cluster is ready."
 echo "   YSQL  → localhost:5433   (psql-compatible)"

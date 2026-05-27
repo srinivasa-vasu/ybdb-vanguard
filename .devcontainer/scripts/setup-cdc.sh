@@ -13,11 +13,14 @@ JDBC_VERSION="${JDBC_VERSION:-10.7.4}"
 POSTGRES_CONNECTOR_VERSION="${POSTGRES_CONNECTOR_VERSION:-2.2.1}"
 YBDB_CONNECTOR_VERSION="${YBDB_CONNECTOR_VERSION:-1.9.5.y.220.1}"
 
+# Derive MAJOR.MINOR from KAFKA_VERSION (e.g. 7.5.0 → 7.5) for the archive URL
+KAFKA_MAJOR_MINOR="${KAFKA_VERSION%.*}"
+
 # ── Confluent Platform ────────────────────────────────────────────────────────
 echo "📦 Downloading Confluent Platform ${KAFKA_VERSION} (~350 MB)..."
 mkdir -p "${CONFLUENT_HOME}"
 curl -# -o /tmp/confluent.tar.gz \
-  "https://packages.confluent.io/archive/7.5/confluent-${KAFKA_VERSION}.tar.gz"
+  "https://packages.confluent.io/archive/${KAFKA_MAJOR_MINOR}/confluent-${KAFKA_VERSION}.tar.gz"
 tar -xzf /tmp/confluent.tar.gz -C "${CONFLUENT_HOME}" --strip-components=1
 rm /tmp/confluent.tar.gz
 echo "✅ Confluent Platform extracted to ${CONFLUENT_HOME}"
