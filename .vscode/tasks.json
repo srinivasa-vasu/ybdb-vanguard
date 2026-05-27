@@ -1,0 +1,338 @@
+{
+  // VS Code tasks for all exercises in ybdb-vanguard.
+  //
+  // Launch from the Terminal menu → Run Task, or use the keyboard shortcut
+  // (default: Ctrl+Shift+P → "Tasks: Run Task" to pick any task).
+  //
+  // Each task opens in its own dedicated terminal panel, matching the shell
+  // names referenced in the exercise READMEs.
+  "version": "2.0.0",
+  "tasks": [
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-ft  — Fault Tolerance & High Availability
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── YSQL load generator ───────────────────────────────────────────────────
+    {
+      "label": "ysql-load",
+      "detail": "Start YSQL SqlInserts load against the 6-node cluster (init-ft)",
+      "type": "shell",
+      "command": "java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 5 --num_threads_write 2 --nodes ${env:HOST_LB}:5433,${env:HOST_LB2}:5433,${env:HOST_LB3}:5433 --password ${env:SECRET} --username ${env:YB_USER}",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ft-load",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // ── YCQL load generator ───────────────────────────────────────────────────
+    {
+      "label": "ycql-load",
+      "detail": "Start YCQL CassandraKeyValue load against the 6-node cluster (init-ft)",
+      "type": "shell",
+      "command": "java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 5 --num_threads_write 2 --nodes ${env:HOST_LB}:9042,${env:HOST_LB2}:9042,${env:HOST_LB3}:9042 --password ${env:SECRET} --username ${env:YB_USER}",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ft-load",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // ── Chaos / demo shell ────────────────────────────────────────────────────
+    {
+      "label": "az-fd",
+      "detail": "Open the chaos engineering demo shell (init-ft/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-ft && bash prompt.sh",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ft-demo",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // ── Convenience: launch all three at once ─────────────────────────────────
+    {
+      "label": "ft: start all",
+      "detail": "Launch ysql-load, ycql-load and az-fd together (init-ft)",
+      "dependsOn": ["ysql-load", "ycql-load", "az-fd"],
+      "dependsOrder": "parallel",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-scale  — Data Distribution & Scalability
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── YSQL load generator (2 read / 1 write threads) ────────────────────────
+    {
+      "label": "scale: ysql-load",
+      "detail": "Start YSQL SqlInserts load against the 3-node cluster (init-scale)",
+      "type": "shell",
+      "command": "java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 2 --num_threads_write 1 --nodes ${env:HOST_LB}:5433,${env:HOST_LB2}:5433,${env:HOST_LB3}:5433 --password ${env:SECRET} --username ${env:YB_USER}",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "scale-load",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // ── YCQL load generator (3 read / 1 write threads) ────────────────────────
+    {
+      "label": "scale: ycql-load",
+      "detail": "Start YCQL CassandraKeyValue load against the 3-node cluster (init-scale)",
+      "type": "shell",
+      "command": "java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 3 --num_threads_write 1 --nodes ${env:HOST_LB}:9042,${env:HOST_LB2}:9042,${env:HOST_LB3}:9042 --password ${env:SECRET} --username ${env:YB_USER}",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "scale-load",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // ── Scale-out demo shell ──────────────────────────────────────────────────
+    {
+      "label": "ybdb-scale",
+      "detail": "Open the scale-out demo shell (init-scale/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-scale && bash prompt.sh",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "scale-demo",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // ── Convenience: launch all three at once ─────────────────────────────────
+    {
+      "label": "scale: start all",
+      "detail": "Launch scale: ysql-load, scale: ycql-load and ybdb-scale together",
+      "dependsOn": ["scale: ysql-load", "scale: ycql-load", "ybdb-scale"],
+      "dependsOrder": "parallel",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-iloop  — Dev Innerloop
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "dev-inner-loop",
+      "detail": "Open the JHipster scaffold shell in the ybdbapp directory (init-iloop)",
+      "type": "shell",
+      "command": "cd ybdbapp && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "iloop",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-cdc  — Change Data Capture
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "connector-config",
+      "detail": "Open the CDC command shell for yb-admin and curl connector operations (init-cdc)",
+      "type": "shell",
+      "command": "echo '🔌 connector-config — run yb-admin and curl commands here' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "cdc",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-voyager-mysql  — MySQL → YugabyteDB migration
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── MySQL source shell ────────────────────────────────────────────────────
+    {
+      "label": "mysql",
+      "detail": "Open a MySQL client session against the source database (init-voyager-mysql)",
+      "type": "shell",
+      "command": "docker compose -f init-voyager-mysql/compose.yml exec mysql mysql -uroot -p${env:SRC_SECRET}",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-mysql",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-voyager-mariadb  — MariaDB → YugabyteDB migration
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── MariaDB source shell ──────────────────────────────────────────────────
+    {
+      "label": "mariadb",
+      "detail": "Open a MariaDB client session against the source database (init-voyager-mariadb)",
+      "type": "shell",
+      // compose service name is 'mysql' even for the mariadb image
+      "command": "docker compose -f init-voyager-mariadb/compose.yml exec mysql mariadb -uroot -p${env:SRC_SECRET}",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-mariadb",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-voyager-oracle  — Oracle → YugabyteDB migration
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── Oracle SQLPlus shell ──────────────────────────────────────────────────
+    {
+      "label": "oracle",
+      "detail": "Open a SQLPlus session against Oracle (oracle-client container) (init-voyager-oracle)",
+      "type": "shell",
+      "command": "docker exec -it oracle-client sqlplus ${env:SRC_USER}/${env:SRC_SECRET}@//127.0.0.1:1521/${env:ORACLE_PDB}",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-oracle",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Shared voyager shell — used by mysql / mariadb / oracle exercises
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "yb-voyager",
+      "detail": "Open the yb-voyager migration shell (init-voyager-mysql / mariadb / oracle)",
+      "type": "shell",
+      "command": "echo '🚀 yb-voyager — run yb-voyager export / import commands here' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-voyager-postgres  — PostgreSQL → YugabyteDB live migration
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── psql source shell ─────────────────────────────────────────────────────
+    {
+      "label": "psql",
+      "detail": "Open a psql session against the source PostgreSQL database (init-voyager-postgres)",
+      "type": "shell",
+      // PGHOST / PGUSER / PGPASSWORD are set by the devcontainer env
+      "command": "psql",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-postgres",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // ── Export shell ──────────────────────────────────────────────────────────
+    {
+      "label": "yb-voyager-export",
+      "detail": "Open the Voyager export shell (assess / export schema + data) (init-voyager-postgres)",
+      "type": "shell",
+      "command": "echo '📤 yb-voyager-export — run assess-migration / export schema / export data commands here' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-postgres",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // ── Import shell ──────────────────────────────────────────────────────────
+    {
+      "label": "yb-voyager-import",
+      "detail": "Open the Voyager import shell (import schema + data) (init-voyager-postgres)",
+      "type": "shell",
+      "command": "echo '📥 yb-voyager-import — run import schema / import data commands here' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-postgres",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // ── Write-ahead / cutover shell ───────────────────────────────────────────
+    {
+      "label": "yb-voyager-wa",
+      "detail": "Open the Voyager cutover shell (migration report / cutover / end migration) (init-voyager-postgres)",
+      "type": "shell",
+      "command": "echo '✂️  yb-voyager-wa — run get-data-migration-report / cutover / end-migration commands here' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-postgres",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+
+  ]
+}

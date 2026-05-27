@@ -1,6 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # GitHub Codespaces / devcontainer base image for ybdb-vanguard exercises.
-# Replaces the legacy gitpod/workspace-full base.
 # ─────────────────────────────────────────────────────────────────────────────
 FROM mcr.microsoft.com/devcontainers/python:3.11
 

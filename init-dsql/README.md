@@ -1,62 +1,147 @@
-## Into the distributed and postgres++ sql universe
+# Distributed SQL · Hash & Range Sharding
 
-Run the following from `ysqlsh` shell
+Hands-on exercises that show how YugabyteDB physically distributes data across tablets, and how your schema choices (hash vs range, clustering key direction, index type) directly affect query performance.
 
-### Xperience the power of YSQL
+---
 
-```
-create table sample(k int primary key, v int, t text, f float, d date, ts timestamp, tsz timestamptz, u uuid, j jsonb);
+## Prerequisites
 
-\d+ sample;
+The devcontainer starts a **3-node cluster** across 3 availability zones automatically. Connect with:
 
-insert into sample values(1, 1, 'one', 1.1, '2020-01-01', '2020-01-01 01:01:01', '2020-01-01 01:01:01', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', '{"a": 1}');
-
-create index on sample(v);
-
-\d+ sample;
-
-create table sample_01(k int primary key, v int, t text, f float, d date, ts timestamp, tsz timestamptz, u uuid, j jsonb) split into 4 tablets;
-
-create index on sample_01(v) split into 4 tablets;
-
-\d+ sample_01;
-
-create table sample_02(k int, v int, t text, f float, d date, ts timestamp, b bool, tsz timestamptz, u uuid, j jsonb, primary key(k, v asc));
-
-\d+ sample_02;
-
-create table sample_03(k int, v int, t text, f float, d date, ts timestamp, b bool, tsz timestamptz, u uuid, j jsonb, primary key((k, v) HASH, t desc));
-
-\d+ sample_03;
+```bash
+ysqlsh
 ```
 
-### Xperience the power of YCQL
+> Default connection: `yugabyte@127.0.0.1:5433` — no credentials needed.
 
-Run the following from `ycqlsh` shell
+---
 
+## Running the exercises
+
+**Option A — load the whole file and step through**
+
+```sql
+\i init-dsql/sharding.sql
 ```
-create keyspace demo;
 
-use demo;
+**Option B — paste individual blocks** from `sharding.sql` to explore interactively.
 
-create table sample(k int primary key, v int, t text, f float, d date, ts timestamp, tsz timestamp, u uuid, j jsonb);
+---
 
-desc sample;
+## What's covered
 
-insert into sample(k, v, t, f, d, ts, tsz, u, j) values(1, 1, 'one', 1.1, '2020-01-01', '2020-01-01 01:01:01', '2020-01-01 01:01:01', a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11, '{"a": 1}');
+### Part 1 · Hash Sharding
 
-# will fail
-create index on sample(v);
+| Exercise | Concept |
+|---|---|
+| 1.1 Single-column hash | Default PK → hash-routed; point lookups 1 RPC, range scans scatter |
+| 1.2 Hash + ASC clustering | Route by entity, sort by time ascending within tablet |
+| 1.3 Hash + DESC clustering | Route by entity, newest rows first — no sort needed for latest-N |
+| 1.4 Composite hash key | Hash on `(tenant, app_id)` together — prevents per-column hot partitions |
 
-create table sample_01(k int, v int, t text, f float, d date, ts timestamp, tsz timestamp, u uuid, j jsonb, primary key(k, v)) with transactions = { 'enabled' : true };
+**Key insight:** Hash sharding gives uniform write throughput across all tablets but sacrifices ordered access. Use a clustering key (`ASC` / `DESC`) to restore order *within* a partition.
 
-create index on sample_01(v);
+### Part 2 · Range Sharding
 
-desc sample_01;
+| Exercise | Concept |
+|---|---|
+| 2.1 Auto-split | `PRIMARY KEY ASC` → global sorted order; splits automatically at ~64 MB |
+| 2.2 Pre-split | `SPLIT AT VALUES` — define boundaries upfront; no cold-start hotspot |
+| 2.3 Composite range key | Multi-column range; prefix scans efficient, non-prefix scans are not |
+| 2.4 ASC vs DESC storage | Storage direction determines which query pattern is "free" |
 
-create table sample_02(k int, v int, t text, f float, d date, ts timestamp, b boolean, tsz timestamp, u uuid, j jsonb, primary key(k, v)) with transactions = { 'enabled' : true } and tablets = 4;
+**Key insight:** Range sharding enables efficient range scans and streaming ORDER BY, but sequential keys (timestamps, serial IDs) create a write hotspot on the last tablet until it auto-splits. Pre-split or use hash for write-heavy sequential workloads.
 
-create index on sample_02(v) with transactions = { 'enabled' : true } and tablets = 4;
+### Part 3 · Secondary Indexes
 
-desc sample_02;
+| Exercise | Concept |
+|---|---|
+| 3.1 Hash index | Equality lookups via separate index tablet group (2-RPC path) |
+| 3.2 Range index | Range scans and ordered access; pre-split to avoid cold-start hotspot |
+| 3.3 Covering index (`INCLUDE`) | Store extra columns in index leaf → index-only scan (1 RPC) |
+| 3.4 Partial index (`WHERE`) | Index only matching rows — smaller, faster, great for skewed predicates |
+| 3.5 Expression index | `lower(email)` stored as the key; query must match the expression exactly |
+| 3.6 Bucket index | `(yb_hash_code(ts) % N) + ts DESC` — spread monotone-key writes across N tablets |
+
+### Part 4 · Observe Tablet Metadata
+
+```sql
+SELECT * FROM yb_table_properties('your_table'::regclass);
+SELECT * FROM yb_local_tablets LIMIT 30;
+```
+
+---
+
+## Useful EXPLAIN flags
+
+```sql
+-- One-time alias for your session:
+\set explain 'EXPLAIN (ANALYZE, DIST, COSTS ON, BUFFERS OFF)'
+
+:explain SELECT ...
+```
+
+The `DIST` option shows storage-layer RPCs — the key metric for distributed query performance.
+
+---
+
+## Quick reference: sharding cheat sheet
+
+```sql
+-- Hash (default — uniform writes, no range scans)
+CREATE TABLE t (id TEXT PRIMARY KEY, ...);
+
+-- Hash + clustering key
+CREATE TABLE t (id TEXT, ts TIMESTAMPTZ, ...,
+  PRIMARY KEY (id HASH, ts DESC));
+
+-- Range (ordered — range scans, ORDER BY, but watch for hotspots)
+CREATE TABLE t (id TEXT PRIMARY KEY ASC, ...);
+
+-- Range with pre-split
+CREATE TABLE t (id TEXT PRIMARY KEY ASC, ...)
+  SPLIT AT VALUES (('G'), ('N'), ('T'));
+
+-- Range split into N tablets evenly
+CREATE TABLE t (id TEXT PRIMARY KEY ASC, ...)
+  SPLIT INTO 4 TABLETS;
+
+-- Composite hash key
+CREATE TABLE t (a TEXT, b TEXT, c TEXT, ...,
+  PRIMARY KEY ((a, b) HASH, c ASC));
+
+-- Covering index (avoid main-table fetch for common projections)
+CREATE INDEX idx ON t (email HASH) INCLUDE (name, region);
+
+-- Partial index (only index the rows you actually query)
+CREATE INDEX idx ON t (email HASH) WHERE status = 'active';
+
+-- Bucket index (monotone-key hot-key mitigation)
+CREATE INDEX idx ON t ((yb_hash_code(ts) % 4) ASC, ts DESC)
+  SPLIT AT VALUES ((1), (2), (3));
+```
+
+---
+
+## YCQL basics
+
+Connect with `ycqlsh` and run the following:
+
+```cql
+CREATE KEYSPACE demo;
+USE demo;
+
+-- Transactions must be explicitly enabled for secondary indexes on CQL tables
+CREATE TABLE events (
+  k   INT,
+  v   INT,
+  t   TEXT,
+  ts  TIMESTAMP,
+  PRIMARY KEY (k, v)
+) WITH transactions = { 'enabled' : true }
+  AND tablets = 4;
+
+CREATE INDEX ON events(v) WITH transactions = { 'enabled' : true };
+
+DESC events;
 ```

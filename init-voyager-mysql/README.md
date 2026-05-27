@@ -11,7 +11,7 @@ source init-voyager-mysql/chinook.sql
 Run Step 1 to Step 7 from `yb-voyager` shell
 #### Step 1: Export Schema
 ```
-yb-voyager export schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager export schema --export-dir ${PWD}/${DATA_PATH} \
         --source-db-type ${SRC_DB_TYPE} \
         --source-db-host ${HOST} \
         --source-db-user ${SRC_USER} \
@@ -21,13 +21,13 @@ yb-voyager export schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
 
 #### Step 2: Analyze Schema
 ```
-yb-voyager analyze-schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} --output-format html
+yb-voyager analyze-schema --export-dir ${PWD}/${DATA_PATH} --output-format html
 ```
 
 
 #### Step 3: Export Data
 ```
-yb-voyager export data --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager export data --export-dir ${PWD}/${DATA_PATH} \
         --source-db-type ${SRC_DB_TYPE} \
         --source-db-host ${HOST} \
         --source-db-user ${SRC_USER} \
@@ -39,7 +39,7 @@ yb-voyager export data --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
 
 #### Step 4: Import Schema
 ```
-yb-voyager import schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager import schema --export-dir ${PWD}/${DATA_PATH} \
         --target-db-host ${HOST} \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
@@ -49,7 +49,7 @@ yb-voyager import schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
 
 #### Step 5: Import Data
 ```
-yb-voyager import data --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager import data --export-dir ${PWD}/${DATA_PATH} \
         --target-db-host ${HOST} \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
@@ -59,7 +59,7 @@ yb-voyager import data --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
 
 #### Step 6: Import indexes and triggers
 ```
-yb-voyager import schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager import schema --export-dir ${PWD}/${DATA_PATH} \
         --target-db-host ${HOST} \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
@@ -69,5 +69,5 @@ yb-voyager import schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
 
 ### Step 7: Check the imported data status
 ```
-yb-voyager import data status --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH}
+yb-voyager import data status --export-dir ${PWD}/${DATA_PATH}
 ```

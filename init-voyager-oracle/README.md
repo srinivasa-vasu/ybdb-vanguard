@@ -1,45 +1,50 @@
-## Data migration workflow from mysql to ybdb
+## Data migration workflow from oracle to ybdb
 
 ### Export schema and data from the source database
 
 #### Step 0: Load data
-Run only Step 0 from `mysql` shell
+First, copy the Chinook schema into the Oracle client container:
+```bash
+docker cp init-voyager-oracle/chinook.sql oracle-client:/tmp/chinook.sql
 ```
-source init-voyager-mysql/chinook.sql
+
+Then run Step 0 from the `oracle` shell:
+```sql
+@/tmp/chinook.sql
 ```
 
 Run Step 1 to Step 7 from `yb-voyager` shell
 #### Step 1: Export Schema
 ```
-yb-voyager export schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager export schema --export-dir ${PWD}/${DATA_PATH} \
         --source-db-type ${SRC_DB_TYPE} \
         --source-db-host ${HOST} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID}
+        --source-db-name ${ORACLE_PDB}
 ```
 
 #### Step 2: Analyze Schema
 ```
-yb-voyager analyze-schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} --output-format html
+yb-voyager analyze-schema --export-dir ${PWD}/${DATA_PATH} --output-format html
 ```
 
 
 #### Step 3: Export Data
 ```
-yb-voyager export data --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager export data --export-dir ${PWD}/${DATA_PATH} \
         --source-db-type ${SRC_DB_TYPE} \
         --source-db-host ${HOST} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID}
+        --source-db-name ${ORACLE_PDB}
 ```
 
 ### Import schema and data into the target database
 
 #### Step 4: Import Schema
 ```
-yb-voyager import schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager import schema --export-dir ${PWD}/${DATA_PATH} \
         --target-db-host ${HOST} \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
@@ -49,7 +54,7 @@ yb-voyager import schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
 
 #### Step 5: Import Data
 ```
-yb-voyager import data --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager import data --export-dir ${PWD}/${DATA_PATH} \
         --target-db-host ${HOST} \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
@@ -59,7 +64,7 @@ yb-voyager import data --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
 
 #### Step 6: Import indexes and triggers
 ```
-yb-voyager import schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
+yb-voyager import schema --export-dir ${PWD}/${DATA_PATH} \
         --target-db-host ${HOST} \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
@@ -69,5 +74,5 @@ yb-voyager import schema --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH} \
 
 ### Step 7: Check the imported data status
 ```
-yb-voyager import data status --export-dir ${GITPOD_REPO_ROOT}/${DATA_PATH}
+yb-voyager import data status --export-dir ${PWD}/${DATA_PATH}
 ```

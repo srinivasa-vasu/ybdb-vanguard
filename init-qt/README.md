@@ -1,274 +1,113 @@
-## Query tuning tips and tricks
+# Query Tuning Tips & Tricks
 
-### explain plan
-```
-\set ea 'explain(analyze, dist, verbose, costs, buffers, timing, summary)'
+Hands-on exercises covering the full query optimisation stack in YugabyteDB — from storage-layer pushdowns and index selection through join strategies, advanced SQL, and programmability.
+
+---
+
+## Prerequisites
+
+The devcontainer starts a **3-node cluster**. `tuning.sql` is fully self-contained — it creates and seeds all exercise tables when you run it, no external datasets needed.
+
+Connect with:
+
+```bash
+ysqlsh
 ```
 
-### count(aggregate) pushdown
-``` sql
-:ea select count(1) from track;
-```
+---
 
-### distinct pushdown
+## Running the exercises
+
+**Option A — load the whole file**
+
 ```sql
-:ea select distinct albumid from track where albumid>0;
+\i init-qt/tuning.sql
 ```
 
-### expression pushdown
+**Option B — paste individual blocks** from `tuning.sql` to explore interactively.
+
+**EXPLAIN shorthand** (set once per session):
+
 ```sql
-:ea select * from track where upper(name) like 'THE TROOPER';
+\set explain 'EXPLAIN (ANALYZE, DIST, COSTS ON, BUFFERS OFF)'
+:explain SELECT ...
 ```
 
-### hash index
-```sql
-:ea select * from track where albumid = 0;
+The `DIST` flag exposes storage-layer RPC counts — the primary signal for distributed query cost.
+
+---
+
+## What's covered
+
+### Part 1 · Query Execution Patterns
+
+| Exercise | Concept |
+|---|---|
+| 1.1 Point lookup | Hash PK → 1 RPC; always O(1) regardless of table size |
+| 1.2 Range scan vs full scan | Range index prunes tablets; leading-wildcard LIKE must full-scan |
+| 1.3 ORDER BY: hash vs range | Hash → scatter-gather + sort; range → streaming (no sort node) |
+| 1.4 LIMIT pushdown | Range table: scan stops early in storage; hash: must read all tablets |
+| 1.5 Keyset vs OFFSET pagination | OFFSET grows linearly; keyset cursor is constant-cost at any depth |
+
+### Part 2 · Pushdown Operations
+
+| Exercise | Concept |
+|---|---|
+| 2.1 Aggregate pushdown | `COUNT`, `SUM` computed per tablet — only partial results travel the network |
+| 2.2 Distinct pushdown | `DISTINCT` on an indexed column resolved in storage |
+| 2.3 Expression pushdown | WHERE predicates with functions evaluated at DocDB layer (Storage Filter) |
+
+### Part 3 · Index Strategies
+
+| Exercise | Concept |
+|---|---|
+| 3.1 Hash index | Equality lookup (2-RPC path: index tablet → main tablet) |
+| 3.2 Range index | Range scan + streaming ORDER BY; pre-split to avoid cold-start hotspot |
+| 3.3 Covering index (`INCLUDE`) | Store projected columns in index leaf → 1-RPC index-only scan |
+| 3.4 Partial index | Index only rows matching a WHERE condition — smaller, faster |
+| 3.5 Forward & backward scan | Single range index serves both ASC and DESC efficiently |
+| 3.6 Expression index | `lower(email)` as index key — query must match the exact expression |
+
+### Part 4 · Join Optimization
+
+| Exercise | Concept |
+|---|---|
+| 4.1 Join order hints | `/*+Leading(...)*/` forces join order; pick the most selective side first |
+| 4.2 Batch Nested Loop | `yb_bnl_batch_size` — batch inner-side keys into fewer storage RPCs |
+
+### Part 5 · Advanced SQL
+
+| Exercise | Concept |
+|---|---|
+| 5.1 Prepared statements | Plan once, execute many times — eliminates per-query planning overhead |
+| 5.2 CTE | `WITH` — readable sub-query factoring; overlapping period detection |
+| 5.3 Recursive CTE | Walk org-chart hierarchies without application loops |
+| 5.4 Window functions | `LAG`, `RANK`, `PARTITION BY` — per-row analytics without self-joins |
+| 5.5 GROUP BY + NTILE | Equal-size bucketing with `ntile(N)` |
+
+### Part 6 · Programmability
+
+| Exercise | Concept |
+|---|---|
+| 6.1 Stored procedure | Transaction control + `RAISE EXCEPTION` for business-rule enforcement |
+| 6.2 Trigger | `BEFORE UPDATE` trigger for audit timestamps |
+| 6.3 Materialized view | Pre-compute expensive aggregates; index and refresh on demand |
+
+---
+
+## Key mental models
+
 ```
+Hash PK  → uniform writes, O(1) point lookup, scatter-gather for ORDER BY / range scan
+Range PK → ordered writes, efficient range scan + streaming ORDER BY, hotspot risk on sequential keys
 
-### range index
-```
-:ea select * from track where albumid > 0;
+Index Scan    → 2 RPCs  (index tablet → main tablet)
+Index Only    → 1 RPC   (INCLUDE covers all projected columns)
+Full Scan     → N RPCs  (one per tablet, in parallel)
 
-create index track_albumid on track(albumid asc);
+Pushdown (Storage Filter) → predicate evaluated in storage, only matching rows transferred
+Aggregate Pushdown        → partial aggregates per tablet, merged in YSQL
 
-:ea select * from track where albumid > 0;
-```
-
-### covering index
-```sql
-:ea select * from track where albumid=1;
-
-:ea select trackid, composer from track where albumid=1;
-
-create index track_albumid_1 on track(albumid) include(trackid, composer);
-```
-
-### partial index
-```
-create index employee_city on employee(city) where city not in ('Lethbridge', 'Edmonton');
-
-:ea select * from employee where city='Lethbridge';
-
-:ea select * from employee where city='Calgary';
-```
-
-### index forward and backward scan
-```sql
-create index customer_repid on customer(supportrepid asc);
-
-:ea select * from customer order by supportrepid;
-
-:ea select * from customer order by supportrepid desc;
-```
-
-### hints
-```sql
-:ea
-/*+Leading ( ( ( a t ) ar ) ) */
-SELECT t.TrackId,
-  t.Name AS track_name,
-  a.Title AS album_title,
-  ar.Name AS artist_name
-FROM Track t
-  INNER JOIN Album a ON t.AlbumId = a.AlbumId
-  INNER JOIN Artist ar ON a.ArtistId = ar.ArtistId
-WHERE t.TrackId = 5;
-
-:ea
-/*+Leading ( ( ar ( a t ) ) ) */
-SELECT t.TrackId,
-  t.Name AS track_name,
-  a.Title AS album_title,
-  ar.Name AS artist_name
-FROM Track t
-  INNER JOIN Album a ON t.AlbumId = a.AlbumId
-  INNER JOIN Artist ar ON a.ArtistId = ar.ArtistId
-WHERE t.TrackId = 5;
-```
-
-### batch nested loop
-```sql
-set yb_bnl_batch_size=512;
-
-:ea
-SELECT p.PlaylistId,
-  p.Name AS playlist_name,
-  t.Name AS track_name,
-  ar.Name AS artist_name
-FROM Playlist p
-  INNER JOIN PlaylistTrack pt ON p.PlaylistId = pt.PlaylistId
-  INNER JOIN Track t ON pt.TrackId = t.TrackId
-  INNER JOIN Album a ON t.AlbumId = a.AlbumId
-  INNER JOIN Artist ar ON a.ArtistId = ar.ArtistId
-WHERE p.PlaylistId = 3;
-```
-
-### prepare statements
-```sql
-prepare employee_salary(int) as select ename, sal from emp where empno=$1;
-
-execute employee_salary(7900);
-```
-
-### common table expression (cte)
-```sql
-with emp_evaluation_period as (
-  select ename,
-    deptno,
-    hiredate,
-    hiredate + case
-      when job in ('MANAGER', 'PRESIDENT') then interval '3 month'
-      else interval '4 weeks'
-    end evaluation_end
-  from emp
-)
-select *
-from emp_evaluation_period e1
-  join emp_evaluation_period e2 on (e1.ename > e2.ename)
-  and (e1.deptno = e2.deptno)
-where (e1.hiredate, e1.evaluation_end) overlaps (e2.hiredate, e2.evaluation_end);
-```
-
-### recursive cte
-```sql
-with recursive emp_manager as (
-  select empno,
-    ename,
-    ename as path
-  from emp
-  where ename = 'JONES'
-  union all
-  select emp.empno,
-    emp.ename,
-    emp_manager.path || ' manages ' || emp.ename
-  from emp
-    join emp_manager on emp.mgr = emp_manager.empno
-)
-select * from emp_manager;
-```
-
-### window functions
-```sql
-select dname,
-  ename,
-  job,
-  coalesce (
-    'hired ' || to_char(
-      hiredate - lag(hiredate) over (per_dept_hiredate),
-      '999'
-    ) || ' days after ' || lag(ename) over (per_dept_hiredate),
-    format('(1st hire in %L)', dname)
-  ) as "last hire in dept"
-from emp
-  join dept using(deptno) window per_dept_hiredate as (
-    partition by dname
-    order by hiredate
-  )
-order by dname,
-  hiredate;
-```
-
-### group by
-```sql
-with groups as (
-  select ntile(3) over (
-      order by empno
-    ) group_num,
-    *
-  from emp
-)
-select string_agg(format('<%s> %s', ename, email), ', ')
-from groups group by group_num;
-```
-
-### procedure
-```sql
--- create procedure
-create or replace procedure commission_transfer(empno1 int, empno2 int, amount int) as $$
-begin
-update emp set comm=comm-commission_transfer.amount
-  where empno=commission_transfer.empno1 and comm>commission_transfer.amount;
-if not found then raise exception 'Cannot transfer % from %',amount,empno1; end if;
-update emp set comm=comm+commission_transfer.amount
-  where emp.empno=commission_transfer.empno2;
-if not found then raise exception 'Cannot transfer from %',empno2; end if;
-end;
-$$ language plpgsql;
-
--- call the procedure
-call commission_transfer(7521,7654,100);
-
--- select from emp
-select * from emp where comm is not null;
-
--- call the procedure
-call commission_transfer(7521,7654,1000000);
-```
-
-### triggers
-```sql
--- add column
-alter table dept add last_update timestamptz;
-
--- create trigger
-create or replace function dept_last_update() returns trigger as $$
-begin
-  new.last_update:=transaction_timestamp();
-  return new;
-end;
-$$ language plpgsql;
-
--- add trigger
-create trigger dept_last_update
-before update on dept
-for each row
-execute procedure dept_last_update();
-
--- select table
-select deptno, dname, loc, last_update from dept;
-
--- update table
-begin transaction;
-update dept set loc='SUNNYVALE' where deptno=30;
-select pg_sleep(3);
-update dept set loc='SUNNYVALE' where deptno=40;
-commit;
-
--- select table
-select deptno, dname, loc, last_update from dept;
-```
-
-### materialized views
-```sql
--- create materialized view
-create materialized view report_sal_per_dept as
-select deptno,
-  dname,
-  sum(sal) sal_per_dept,
-  count(*) num_of_employees,
-  string_agg(distinct job, ', ') distinct_jobs
-from dept
-  join emp using(deptno)
-group by deptno,
-  dname
-order by deptno;
-
--- create index
-create index report_sal_per_dept_sal on report_sal_per_dept(sal_per_dept desc);
-
--- refresh materialized view
-refresh materialized view report_sal_per_dept;
-
--- select from materialized view
-select *
-from report_sal_per_dept
-where sal_per_dept <= 10000
-order by sal_per_dept;
-
--- explain plan
-:ea
-select *
-from report_sal_per_dept
-where sal_per_dept <= 10000
-order by sal_per_dept;
+BNL batch size 1    → 1 RPC per inner row  (baseline)
+BNL batch size 1024 → 1 RPC per 1024 inner rows  (much faster for multi-table joins)
 ```

@@ -14,8 +14,8 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  // 3-node cluster + loads Chinook + sample data, then opens ysqlsh
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && until nc -z 127.0.0.1 5433; do sleep 2; done && ysqlsh -f init-qt/chinook.sql -f init-qt/sample.sql && echo \"✅ Seed data loaded — run: ysqlsh\"'",
+  // 3-node cluster; tuning.sql is self-contained (creates and seeds all tables)
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Run: ysqlsh  then  \\\\i init-qt/tuning.sql\"'",
   "customizations": {
     "vscode": {
       "extensions": [

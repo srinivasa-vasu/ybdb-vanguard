@@ -24,7 +24,7 @@
   // Install JHipster generator once on first create
   "postCreateCommand": "npm install -g generator-jhipster-yugabytedb && mkdir -p ybdbapp && echo '✅ JHipster YugabyteDB generator ready. cd ybdbapp && run: ybdb | yugabytedb'",
   // Single-node cluster + apply init schema on every start
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && until nc -z 127.0.0.1 5433; do sleep 2; done && ysqlsh -f init-iloop/init.sql && echo \"✅ Schema applied — run: ysqlsh\"'",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && ysqlsh -f init-iloop/init.sql && echo \"\" && echo \"▶  Terminal → Run Task → dev-inner-loop   (JHipster scaffold shell)\"'",
   "customizations": {
     "vscode": {
       "extensions": [

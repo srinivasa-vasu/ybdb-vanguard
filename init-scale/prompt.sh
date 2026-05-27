@@ -6,7 +6,7 @@ TYPE_SPEED=50
 
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
-MSG="Check the load distribution at $(gp url 7000) or $(gp url 15433)! Wait for a few minutes!"
+MSG="Check the load distribution at localhost:7000 or localhost:15433! Wait for a few minutes!"
 
 clear
 
@@ -16,7 +16,7 @@ p "Press enter to trigger the scale out task!"
 
 PROMPT_TIMEOUT=0
 
-pe "yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd4 --advertise_address=\$HOST_LB4 --join=\$HOST_LB --cloud_location=ybcloud.pandora.az1 --fault_tolerance=zone"
+pe "yugabyted start --base_dir=${DATA_PATH}/ybd4 --advertise_address=\$HOST_LB4 --join=\$HOST_LB --cloud_location=ybcloud.pandora.az1 --fault_tolerance=zone --background=true"
 
 PROMPT_TIMEOUT=1
 
@@ -24,7 +24,7 @@ p "Press enter to continue"
 
 PROMPT_TIMEOUT=0
 
-pe "yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd5 --advertise_address=\$HOST_LB5 --join=\$HOST_LB --cloud_location=ybcloud.pandora.az2 --fault_tolerance=zone"
+pe "yugabyted start --base_dir=${DATA_PATH}/ybd5 --advertise_address=\$HOST_LB5 --join=\$HOST_LB --cloud_location=ybcloud.pandora.az2 --fault_tolerance=zone --background=true"
 
 PROMPT_TIMEOUT=1
 
@@ -32,9 +32,7 @@ p "Press enter to continue"
 
 PROMPT_TIMEOUT=0
 
-pe "yugabyted start --base_dir=${GITPOD_REPO_ROOT}/ybdb/ybd6 --advertise_address=\$HOST_LB6 --join=\$HOST_LB --cloud_location=ybcloud.pandora.az3 --fault_tolerance=zone"
-
-gp sync-done scale-out
+pe "yugabyted start --base_dir=${DATA_PATH}/ybd6 --advertise_address=\$HOST_LB6 --join=\$HOST_LB --cloud_location=ybcloud.pandora.az3 --fault_tolerance=zone --background=true"
 
 PROMPT_TIMEOUT=1
 
