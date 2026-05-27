@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .ybdb.Dockerfile
+      - .devcontainer/**
+  pull_request:
+    paths:
+      - .ybdb.Dockerfile
+      - .devcontainer/**
+  # Weekly run catches upstream drift (base image patches, YB release compatibility)
+  schedule:
+    - cron: '0 3 * * 1'
+
+jobs:
+  # ── 1. Validate devcontainer JSON files ─────────────────────────────────────
+  lint-devcontainer:
+    name: Lint devcontainer configs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install @devcontainers/cli
+        run: npm install -g @devcontainers/cli
+
+      - name: Validate all devcontainer.json files
+        run: |
+          find .devcontainer -name "devcontainer.json" | while read f; do
+            echo "Validating: $f"
+            # devcontainers/cli reads and validates the spec
+            devcontainer read-configuration --workspace-folder . \
+              --config "$f" > /dev/null && echo "  ✅ OK"
+          done
+
+  # ── 2. Build the base image ──────────────────────────────────────────────────
+  build-image:
+    name: Build devcontainer image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (amd64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .ybdb.Dockerfile
+          platforms: linux/amd64
+          push: false
+          # Cache layers in GitHub Actions cache to speed up re-runs
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: ybdb-vanguard:ci
+
+      - name: Smoke-test — yugabyted version
+        run: |
+          docker run --rm ybdb-vanguard:ci yugabyted version
+
+  # ── 3. Weekly drift report ───────────────────────────────────────────────────
+  check-versions:
+    name: Check for newer versions
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check latest YugabyteDB stable release
+        run: |
+          CURRENT=$(grep 'ARG YB_VERSION=' .ybdb.Dockerfile | cut -d= -f2)
+          LATEST=$(curl -s https://api.github.com/repos/yugabyte/yugabyte-db/releases/latest \
+            | jq -r '.tag_name' | sed 's/^v//')
+          echo "Pinned: $CURRENT   Latest: $LATEST"
+          if [ "$CURRENT" != "$LATEST" ]; then
+            echo "::warning::YugabyteDB has a newer release: $LATEST (pinned: $CURRENT)"
+          fi
+
+      - name: Check latest Confluent Platform
+        run: |
+          CURRENT=$(grep 'KAFKA_VERSION' .devcontainer/init-cdc/devcontainer.json \
+            | grep -o '"[0-9.]*"' | tr -d '"')
+          LATEST=$(curl -s https://api.github.com/repos/confluentinc/confluent-kafka-go/releases/latest \
+            | jq -r '.tag_name' | sed 's/^v//' || echo "unknown")
+          echo "Confluent pinned: $CURRENT"

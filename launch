@@ -1,73 +1,217 @@
 #!/bin/bash
+# ─────────────────────────────────────────────────────────────────────────────
+# launch — YugabyteDB Vanguard exercise selector for GitHub Codespaces
+#
+# Usage: ./launch
+#
+# Each exercise has a dedicated devcontainer config under .devcontainer/<name>/.
+# This script prints a Codespace creation URL for the selected exercise, and
+# optionally creates the Codespace directly using the GitHub CLI (gh).
+# ─────────────────────────────────────────────────────────────────────────────
 
 # set -x
 
-# Define exercises and corresponding commands in separate arrays
-exercises=("Into the distributed and postgres++ sql universe" "Query tuning tips and tricks" "Development innerloop workflow" "Java microservices" "Java testcontainers" "Securing Spring Boot Microservices" "Data migration workflow from mysql to ybdb" "Data migration workflow from mariadb to ybdb" "Data migration workflow from oracle to ybdb" "Live data migration workflow from postgres to ybdb" "Change data capture(CDC) workflow from ybdb to postgres" "Change data capture(CDC) streaming workflow from ysql to ycql" "Data distribution and scalability" "Data replication, fault tolerance and high availability")
-commands=("init-dsql/.gitpod-dsql.yml" "init-qt/.gitpod-qt.yml" "init-iloop/.gitpod-iloop.yml" "" "" "" "init-voyager-mysql/.gitpod-voyager.yml" "init-voyager-mariadb/.gitpod-voyager.yml" "init-voyager-oracle/" "init-voyager-postgres/.gitpod-voyager.yml" "init-cdc/.gitpod-cdc.yml" "" "init-scale/.gitpod-scale.yml" "init-ft/.gitpod-ft.yml")
-links=("" "" "" "https://github.com/srinivasa-vasu/yb-ms-data" "https://github.com/srinivasa-vasu/ybdb-boot-data" "https://github.com/srinivasa-vasu/ybdb-sealed-secrets" "" "" "" "" "" "https://github.com/srinivasa-vasu/yb-cdc-streams" "" "")
+# ── exercise registry ─────────────────────────────────────────────────────────
+# Parallel arrays: exercises, their devcontainer sub-paths, and optional links
+exercises=(
+  "Into the distributed and postgres++ SQL universe"
+  "Query tuning tips and tricks"
+  "Development innerloop workflow"
+  "Java microservices"
+  "Java testcontainers"
+  "Securing Spring Boot Microservices"
+  "Data migration workflow from MySQL to YugabyteDB"
+  "Data migration workflow from MariaDB to YugabyteDB"
+  "Data migration workflow from Oracle to YugabyteDB"
+  "Live data migration workflow from PostgreSQL to YugabyteDB"
+  "Change data capture (CDC) from YugabyteDB to PostgreSQL"
+  "CDC streaming workflow from YSQL to YCQL"
+  "Data distribution and scalability"
+  "Data replication, fault tolerance and high availability"
+)
 
+# Devcontainer sub-directory under .devcontainer/ (empty = use external link)
+devcontainers=(
+  "init-dsql"
+  "init-qt"
+  "init-iloop"
+  ""
+  ""
+  ""
+  "init-voyager-mysql"
+  "init-voyager-mariadb"
+  "init-voyager-oracle"
+  "init-voyager-postgres"
+  "init-cdc"
+  ""
+  "init-scale"
+  "init-ft"
+)
 
-# ANSI escape codes for colors
+# External GitHub repos for exercises that live outside this repo
+links=(
+  ""
+  ""
+  ""
+  "https://github.com/srinivasa-vasu/yb-ms-data"
+  "https://github.com/srinivasa-vasu/ybdb-boot-data"
+  "https://github.com/srinivasa-vasu/ybdb-sealed-secrets"
+  ""
+  ""
+  ""
+  ""
+  ""
+  "https://github.com/srinivasa-vasu/yb-cdc-streams"
+  ""
+  ""
+)
+
+# ── ANSI colours ──────────────────────────────────────────────────────────────
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+CYAN='\033[0;36m'
+NC='\033[0m'
 
-# Function to display the menu
+# ── detect GitHub repo from git remote ───────────────────────────────────────
+detect_github_repo() {
+  local remote
+  remote=$(git remote get-url origin 2>/dev/null || echo "")
+  if [[ "$remote" == git@github.com:* ]]; then
+    echo "${remote#git@github.com:}" | sed 's/\.git$//'
+  elif [[ "$remote" == https://github.com/* ]]; then
+    echo "${remote#https://github.com/}" | sed 's/\.git$//'
+  else
+    echo ""
+  fi
+}
+
+# ── URL-encode a string (pure bash) ──────────────────────────────────────────
+urlencode() {
+  local string="$1"
+  local encoded=""
+  local i c
+  for (( i=0; i<${#string}; i++ )); do
+    c="${string:i:1}"
+    case "$c" in
+      [a-zA-Z0-9._~-]) encoded+="$c" ;;
+      *) printf -v hex '%%%02X' "'$c"; encoded+="$hex" ;;
+    esac
+  done
+  echo "$encoded"
+}
+
+# ── display menu ──────────────────────────────────────────────────────────────
 menu() {
-    echo -e "${YELLOW}Select an exercise:${NC}"
-    for i in "${!exercises[@]}"; do
-        echo -e "${GREEN}$((i+1)). ${exercises[i]}${NC}"
-    done
+  echo ""
+  echo -e "${YELLOW}╔══════════════════════════════════════════════════════╗${NC}"
+  echo -e "${YELLOW}║        YugabyteDB Vanguard — Exercise Launcher       ║${NC}"
+  echo -e "${YELLOW}╚══════════════════════════════════════════════════════╝${NC}"
+  echo ""
+  for i in "${!exercises[@]}"; do
+    local dc="${devcontainers[$i]}"
+    local link="${links[$i]}"
+    if [ -n "$dc" ]; then
+      echo -e "  ${GREEN}$((i+1)).${NC} ${exercises[$i]}"
+    elif [ -n "$link" ]; then
+      echo -e "  ${CYAN}$((i+1)).${NC} ${exercises[$i]} ${CYAN}(external repo)${NC}"
+    else
+      echo -e "  ${RED}$((i+1)).${NC} ${exercises[$i]} ${RED}(coming soon)${NC}"
+    fi
+  done
+  echo ""
 }
 
-# Function to execute the command based on the selected exercise
+# ── execute selection ─────────────────────────────────────────────────────────
 execute() {
-    selected_exercise_index=$(( $1 - 1 ))
-    command=${commands[$selected_exercise_index]}
-    link=${links[$selected_exercise_index]}
-    exercise=${exercises[$selected_exercise_index]}
+  local idx=$(( $1 - 1 ))
+  local exercise="${exercises[$idx]}"
+  local dc="${devcontainers[$idx]}"
+  local link="${links[$idx]}"
 
-    if [ -n "$command" ] || [ -n "$link" ]; then
-        if [ -z "$command" ]; then
-            echo -e "${GREEN}Follow the link to try this exercise: ${link}${NC}"
-            exit
-        fi
-        echo -e "${YELLOW}Initializing the workspace for ${exercises[selected_exercise_index]}.${NC}"
-        yes | (cp $command/.devcontainer/devcontainer.json .devcontainer/devcontainer.json && cp $command/.ona/automations.yaml .ona/automations.yaml)
-        git add .devcontainer/devcontainer.json .ona/automations.yaml
-        git commit -sm "${exercise}"
-        git push origin main
-        echo -e "${GREEN}Workspace initialized.${NC}"
-        exit
-    else
-        echo -e "${RED}Invalid exercise selection.${NC}"
+  echo ""
+
+  # ── external repo ─────────────────────────────────────────────────────────
+  if [ -z "$dc" ] && [ -n "$link" ]; then
+    echo -e "${GREEN}Follow this link to open the exercise:${NC}"
+    echo -e "  ${CYAN}${link}${NC}"
+    return
+  fi
+
+  if [ -z "$dc" ]; then
+    echo -e "${RED}This exercise is not yet available.${NC}"
+    return
+  fi
+
+  # ── Codespaces URL ────────────────────────────────────────────────────────
+  local dc_path=".devcontainer/${dc}/devcontainer.json"
+  local github_repo
+  github_repo=$(detect_github_repo)
+
+  echo -e "${YELLOW}Initializing: ${exercise}${NC}"
+  echo -e "  Devcontainer: ${CYAN}${dc_path}${NC}"
+  echo ""
+
+  if [ -n "$github_repo" ]; then
+    local encoded_path
+    encoded_path=$(urlencode "$dc_path")
+    local codespace_url="https://codespaces.new/${github_repo}?devcontainer_path=${encoded_path}"
+
+    echo -e "${GREEN}▶  Open this URL to create your Codespace:${NC}"
+    echo ""
+    echo -e "   ${CYAN}${codespace_url}${NC}"
+    echo ""
+
+    # ── gh CLI path ───────────────────────────────────────────────────────
+    if command -v gh &>/dev/null; then
+      echo -e "${YELLOW}Or create it directly with the GitHub CLI:${NC}"
+      echo ""
+      echo -e "   ${CYAN}gh codespace create --repo ${github_repo} --devcontainer-path ${dc_path}${NC}"
+      echo ""
+      read -p "Create the Codespace now with gh CLI? [y/N] " confirm
+      if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        gh codespace create \
+          --repo "$github_repo" \
+          --devcontainer-path "$dc_path" \
+          --display-name "$exercise"
+      fi
     fi
+  else
+    # ── no GitHub remote detected ─────────────────────────────────────────
+    echo -e "${YELLOW}No GitHub remote detected.${NC}"
+    echo -e "Push this repo to GitHub, then create a Codespace using:"
+    echo ""
+    echo -e "  ${CYAN}gh codespace create --devcontainer-path ${dc_path}${NC}"
+    echo ""
+    echo -e "Or open: ${CYAN}https://codespaces.new${NC} and select the devcontainer manually."
+  fi
 }
 
-# Check if the count of exercises, commands and links is the same
-if [ ${#exercises[@]} -ne ${#commands[@]} ]; then
-    echo -e "${RED}[Internal error]: The count of exercises and commands must be the same.${NC}"
-    exit 1
-fi
-if [ ${#exercises[@]} -ne ${#links[@]} ]; then
-    echo -e "${RED}[Internal error]: The count of exercises and links must be the same.${NC}"
-    exit 1
+# ── sanity checks ─────────────────────────────────────────────────────────────
+if [ "${#exercises[@]}" -ne "${#devcontainers[@]}" ] || \
+   [ "${#exercises[@]}" -ne "${#links[@]}" ]; then
+  echo -e "${RED}[Internal error]: Array lengths must match.${NC}"
+  exit 1
 fi
 
-# Main script
+# ── main loop ─────────────────────────────────────────────────────────────────
 while true; do
-    menu
+  menu
 
-    read -p "Enter the number of the exercise (0 to exit): " choice
+  read -p "Enter the number of the exercise (0 to exit): " choice
 
-    if [ "$choice" -eq 0 ]; then
-        echo -e "${YELLOW}Exiting the script. Goodbye!${NC}"
-        break
-    elif [ "$choice" -ge 1 ] && [ "$choice" -le ${#exercises[@]} ]; then
-        execute "$choice"
-    else
-        echo -e "${RED}Invalid exercise selection. Please choose a valid exercise.${NC}"
-    fi
+  # Reject non-numeric input before any arithmetic comparison
+  if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
+    echo -e "${RED}Please enter a number between 0 and ${#exercises[@]}.${NC}"
+    continue
+  fi
+
+  if [[ "$choice" -eq 0 ]]; then
+    echo -e "${YELLOW}Goodbye!${NC}"
+    break
+  elif [[ "$choice" -ge 1 && "$choice" -le "${#exercises[@]}" ]]; then
+    execute "$choice"
+  else
+    echo -e "${RED}Invalid selection. Please choose a number between 1 and ${#exercises[@]}.${NC}"
+  fi
 done

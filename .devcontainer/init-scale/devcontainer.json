@@ -1,0 +1,55 @@
+{
+  "name": "Data Distribution & Scalability",
+  "build": {
+    "dockerfile": "../../.ybdb.Dockerfile",
+    "context": "../.."
+  },
+  "runArgs": ["--init"],
+  "containerEnv": {
+    "DATA_PATH": "ybdb",
+    "ART_PATH": "init-scale",
+    "SCRIPT_PATH": "init-scale",
+    // load-generator credentials (used by yb-sample-apps.jar)
+    "SECRET": "yugabyte",
+    "YB_USER": "yugabyte",
+    // bump this when a new yb-sample-apps release is available
+    "YB_SAMPLE_APPS_VERSION": "1.4.1"
+  },
+  "hostRequirements": {
+    // 8-core recommended: 3-node cluster (scales to 6) + yb-sample-apps load
+    "cpus": 8,
+    "memory": "16gb",
+    "storage": "32gb"
+  },
+  "features": {
+    // Java runtime for yb-sample-apps.jar
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21",
+      "jdkDistro": "ms"
+    }
+  },
+  // One-time: install pv (pipe viewer for demo-magic), download demo-magic + sample apps
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-scale/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-scale/pscript init-scale/prompt.sh && wget -q https://github.com/yugabyte/yb-sample-apps/releases/download/v${YB_SAMPLE_APPS_VERSION}/yb-sample-apps.jar && echo \"✅ Scale exercise ready\"'",
+  // 3-node cluster with shard flags (matches original Gitpod config)
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 ysql_num_shards_per_tserver=2,yb_num_shards_per_tserver=2 && echo \"\" && echo \"▶  Demo:      cd init-scale && bash prompt.sh\" && echo \"▶  YSQL load: java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 2 --num_threads_write 1 --nodes ${HOST_LB}:5433,${HOST_LB2}:5433,${HOST_LB3}:5433 --password ${SECRET} --username ${YB_USER}\" && echo \"▶  YCQL load: java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 3 --num_threads_write 1 --nodes ${HOST_LB}:9042,${HOST_LB2}:9042,${HOST_LB3}:9042 --password ${SECRET} --username ${YB_USER}\"'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "forwardPorts": [7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000],
+  "portsAttributes": {
+    "7000":  { "label": "yb-master-web",  "onAutoForward": "ignore" },
+    "9000":  { "label": "yb-tserver-web", "onAutoForward": "ignore" },
+    "7100":  { "label": "yb-master-rpc",  "onAutoForward": "ignore" },
+    "9100":  { "label": "yb-tserver-rpc", "onAutoForward": "ignore" },
+    "5433":  { "label": "ysql",           "onAutoForward": "ignore" },
+    "15433": { "label": "yugabyted-ui",   "onAutoForward": "notify" },
+    "13000": { "label": "ysql-api",       "onAutoForward": "ignore" },
+    "9042":  { "label": "ycql",           "onAutoForward": "ignore" },
+    "12000": { "label": "ycql-api",       "onAutoForward": "ignore" }
+  },
+  "remoteUser": "vscode"
+}

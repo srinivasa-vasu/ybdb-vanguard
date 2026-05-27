@@ -1,12 +1,8 @@
 {
-  // ── Default Codespace configuration ──────────────────────────────────────
-  // This is the "Distributed SQL Basics" exercise (init-dsql).
-  // To launch a different exercise, use the devcontainer picker when creating
-  // a new Codespace, or run: ./launch
-  "name": "YugabyteDB · DSQL Basics (default)",
+  "name": "DSQL Basics — into the distributed SQL universe",
   "build": {
-    "dockerfile": "../.ybdb.Dockerfile",
-    "context": ".."
+    "dockerfile": "../../.ybdb.Dockerfile",
+    "context": "../.."
   },
   "runArgs": ["--init"],
   "containerEnv": {
@@ -18,7 +14,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  // Start a 3-node zone-aware cluster on every Codespace resume
+  // 3-node zone-aware cluster — brings up YSQL (5433) and YCQL (9042)
   "postStartCommand": "bash .devcontainer/scripts/start-ybdb.sh 3",
   "customizations": {
     "vscode": {

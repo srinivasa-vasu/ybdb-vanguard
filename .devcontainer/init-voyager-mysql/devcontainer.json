@@ -1,0 +1,53 @@
+{
+  "name": "Voyager — MySQL → YugabyteDB migration",
+  "build": {
+    "dockerfile": "../../.ybdb.Dockerfile",
+    "context": "../.."
+  },
+  "runArgs": ["--init"],
+  "containerEnv": {
+    "DATA_PATH": "ybdb",
+    "ART_PATH": "init-voyager-mysql",
+    "SRC_DB_TYPE": "mysql",
+    "SRC_DB_ID": "Chinook",
+    "SRC_USER": "root",
+    "SRC_SECRET": "yugabyte",
+    "TARGET_DB_ID": "yugabyte",
+    "TARGET_USER": "yugabyte",
+    "TARGET_SECRET": "yugabyte",
+    "SCHEMA": "public"
+  },
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  // One-time: install mysql-client, pull MySQL image, install yb-voyager wrapper
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client && docker compose -f init-voyager-mysql/compose.yml pull && wget -q -O /tmp/yb-voyager https://raw.githubusercontent.com/yugabyte/yb-voyager/main/docker/yb-voyager-docker && chmod +x /tmp/yb-voyager && sudo mv /tmp/yb-voyager /usr/local/bin/yb-voyager && mkdir -p voyager-data && echo \"✅ MySQL Voyager exercise ready\"'",
+  // Every start: launch YugabyteDB + MySQL
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && docker compose -f init-voyager-mysql/compose.yml up -d && echo \"✅ YugabyteDB and MySQL are running\"'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "forwardPorts": [7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000, 3306],
+  "portsAttributes": {
+    "7000":  { "label": "yb-master-web",  "onAutoForward": "ignore" },
+    "9000":  { "label": "yb-tserver-web", "onAutoForward": "ignore" },
+    "7100":  { "label": "yb-master-rpc",  "onAutoForward": "ignore" },
+    "9100":  { "label": "yb-tserver-rpc", "onAutoForward": "ignore" },
+    "5433":  { "label": "ysql",           "onAutoForward": "ignore" },
+    "15433": { "label": "yugabyted-ui",   "onAutoForward": "notify" },
+    "13000": { "label": "ysql-api",       "onAutoForward": "ignore" },
+    "9042":  { "label": "ycql",           "onAutoForward": "ignore" },
+    "12000": { "label": "ycql-api",       "onAutoForward": "ignore" },
+    "3306":  { "label": "mysql",          "onAutoForward": "ignore" }
+  },
+  "remoteUser": "vscode"
+}

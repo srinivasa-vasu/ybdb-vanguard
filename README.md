@@ -1,218 +1,271 @@
 # ybdb-vanguard
 
-## Pre-requisites
-- github.com account
-- gitpod.io account
-- git cli (https://github.com/git-guides/install-git)
+Hands-on YugabyteDB exercises covering distributed SQL, query tuning, data migration, CDC, scalability, and fault tolerance. Each exercise runs in a fully pre-configured cloud development environment — no local YugabyteDB installation required.
 
-## Setup
-- Fork this repo
-- Run `git clone https://github.com/[REPLACE_REPO_NAME]/ybdb-vanguard.git` to clone the forked repo to the local workstation
-- Run `cd ybdb-vanguard` to change the directory to the cloned repo
+---
 
-## Getting Started with Gitpod:
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/from-referrer/)
+## Prerequisites
 
-## Into the distributed and postgres++ sql universe
-<div align="left">
+| Platform | Requirements |
+|---|---|
+| **GitHub Codespaces** | GitHub account (free tier: 60 core-hours/month) |
+| **VS Code Dev Containers** | Docker Desktop · [VS Code](https://code.visualstudio.com/) · [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) |
+| **DevPod** | Docker Desktop · [DevPod CLI](https://devpod.sh/docs/getting-started/install) |
 
-![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-</div>
+---
 
-[distributed sql:](init-dsql/README.md)
-This will help you get started with yugabyte db and explore the distributed sql universe.
+## Getting Started
+
+### 1 · Fork and clone
+
+```bash
+# Fork via GitHub UI first, then:
+git clone https://github.com/<your-github-username>/ybdb-vanguard.git
+cd ybdb-vanguard
+```
+
+### 2 · Pick a platform
+
+---
+
+#### ☁️ GitHub Codespaces
+
+The easiest path — runs entirely in your browser, no local Docker required.
+
+**Option A — `launch` script (recommended)**
 
 ```bash
 ./launch
 ```
 
-<details>
+Pick an exercise number. The script prints a `codespaces.new` URL — open it in your browser and GitHub will create a Codespace pre-configured for that exercise.
 
-```bash
-Select an exercise:
-1. Into the distributed and postgres++ sql universe
-2. Query tuning tips and tricks
-3. Development innerloop workflow
-4. Java microservices
-5. Java testcontainers
-6. Securing Spring Boot Microservices
-7. Data migration workflow from mysql to ybdb
-8. Data migration workflow from mariadb to ybdb
-9. Data migration workflow from postgres to ybdb
-10. Change data capture(CDC) workflow from ybdb to postgres
-11. Change data capture(CDC) streaming workflow from ysql to ycql
-12. Data distribution and scalability
-13. Data replication, fault tolerance and high availability
+```
+╔══════════════════════════════════════════════════════╗
+║        YugabyteDB Vanguard — Exercise Launcher       ║
+╚══════════════════════════════════════════════════════╝
+
+  1. Into the distributed and postgres++ SQL universe
+  2. Query tuning tips and tricks
+  3. Development innerloop workflow
+  ...
+
 Enter the number of the exercise (0 to exit): 1
-Initializing the workspace for Into the distributed and postgres++ sql universe.
-[main 5e2b86a] Into the distributed and postgres++ sql universe
- 1 file changed, 5 insertions(+), 38 deletions(-)
-Enumerating objects: 5, done.
-Counting objects: 100% (5/5), done.
-Delta compression using up to 12 threads
-Compressing objects: 100% (3/3), done.
-Writing objects: 100% (3/3), 391 bytes | 391.00 KiB/s, done.
-Total 3 (delta 2), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
-To https://github.com/srinivasa-vasu/ybdb-vanguard.git
-   eb1bb44..5e2b86a  main -> main
-Workspace initialized.
+
+▶  Open this URL to create your Codespace:
+
+   https://codespaces.new/<your-fork>/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-dsql%2Fdevcontainer.json
 ```
 
-</details>
+If the [GitHub CLI](https://cli.github.com/) (`gh`) is installed, the script also offers to create the Codespace directly.
 
-Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+**Option B — GitHub Codespaces picker**
 
-## Query tuning tips and tricks
-<div align="left">
+1. Navigate to your fork on GitHub
+2. Click **Code → Codespaces → New codespace**
+3. Select the exercise from the devcontainer configuration dropdown
 
+**Option C — GitHub CLI**
+
+```bash
+gh codespace create \
+  --repo <your-github-username>/ybdb-vanguard \
+  --devcontainer-path .devcontainer/init-dsql/devcontainer.json
+```
+
+Replace `init-dsql` with the exercise directory of your choice (see [exercise list](#exercises) below).
+
+---
+
+#### 🖥️ VS Code Dev Containers
+
+Runs locally in Docker. Full offline support once the image is pulled.
+
+1. Clone the repo and open it in VS Code:
+   ```bash
+   code ybdb-vanguard
+   ```
+2. When prompted **"Reopen in Container"**, click it — or open the Command Palette (`⇧⌘P`) and run **Dev Containers: Open Folder in Container…**
+3. VS Code detects multiple devcontainer configs and shows a picker. Select the exercise you want to run.
+
+> **Tip:** You can also open a specific exercise directly:  
+> Command Palette → **Dev Containers: Open Folder in Container…** → choose the repo root → select the config from the list.
+
+---
+
+#### 🚀 DevPod
+
+[DevPod](https://devpod.sh) is an open-source, provider-agnostic devcontainer runner. It uses the same `devcontainer.json` files as Codespaces — no configuration changes needed.
+
+```bash
+# Run directly from your fork (DevPod pulls the repo)
+devpod up https://github.com/<your-github-username>/ybdb-vanguard \
+  --devcontainer-path .devcontainer/init-dsql/devcontainer.json
+
+# Or, if you have the repo cloned locally
+devpod up . --devcontainer-path .devcontainer/init-dsql/devcontainer.json
+```
+
+Replace `init-dsql` with the exercise directory of your choice. DevPod opens the workspace in VS Code (or your configured IDE) automatically.
+
+---
+
+## Exercises
+
+### Distributed SQL Universe
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-</div>
 
-[sql universe:](init-qt/README.md)
-This will help you get started with query tuning and have a better understanding of the distributed sql universe.
+[README →](init-dsql/README.md) | devcontainer: `init-dsql`
 
-```bash
-./launch
-```
-Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Get started with YugabyteDB and explore the distributed SQL universe — YSQL compatibility, resilience, and geo-distribution fundamentals.
 
-## Development innerloop workflow
-<div align="left">
+---
 
-![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-</div>
-
-[inner loop:](init-iloop/README.md)
-This will explore the development innerloop workflow and guide bulding an application from scratch. This provides a hands-on experience of interacting with yugabyte db.
-
-```bash
-./launch
-```
-Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
-
-## Java microservices
-<div align="left">
-
-![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-</div>
-
-[java microservices:](https://github.com/srinivasa-vasu/yb-ms-data)
-This will explore the java microservices like spring boot, quarkus, and micronaut integration with yugabytedb.
-
-## Java testcontainers
-<div align="left">
-
-![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-</div>
-
-[testcontainers:](https://github.com/srinivasa-vasu/ybdb-boot-data)
-This will explore the java testcontainers integration with yugabytedb.
-
-## Securing Spring Boot Microservices
-<div align="left">
-
-![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-</div>
-
-[secure by default:](https://github.com/srinivasa-vasu/ybdb-sealed-secrets)
-This will explore securing Spring Boot application with YugabyteDB over TLS using the native cloud secret management services
-
-## Data migration workflow from mysql to ybdb
-<div align="left">
-
+### Query Tuning Tips and Tricks
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-</div>
 
-[yb-voyager:](init-voyager-mysql/README.md)
-This will explore the voyager tool to migrate mysql to yugabytedb.
+[README →](init-qt/README.md) | devcontainer: `init-qt`
 
-```bash
-./launch
-```
-Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Query planning, index strategies, and performance tuning in a distributed SQL context.
 
-## Data migration workflow from mariadb to ybdb
-<div align="left">
+---
 
+### Development Innerloop Workflow
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+
+[README →](init-iloop/README.md) | devcontainer: `init-iloop`
+
+Build a YugabyteDB-backed application from scratch using JHipster. Covers the full inner-loop: scaffold → connect → iterate.
+
+---
+
+### Java Microservices
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+
+[Repository →](https://github.com/srinivasa-vasu/yb-ms-data)
+
+Spring Boot, Quarkus, and Micronaut integration patterns with YugabyteDB (external repo).
+
+---
+
+### Java Testcontainers
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+
+[Repository →](https://github.com/srinivasa-vasu/ybdb-boot-data)
+
+Testcontainers integration with YugabyteDB for integration testing (external repo).
+
+---
+
+### Securing Spring Boot Microservices
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+
+[Repository →](https://github.com/srinivasa-vasu/ybdb-sealed-secrets)
+
+Secure a Spring Boot application with YugabyteDB over TLS using cloud-native secret management (external repo).
+
+---
+
+### Data Migration — MySQL → YugabyteDB
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-</div>
 
-[yb-voyager:](init-voyager-mariadb/README.md)
-This will explore the voyager tool to migrate mariadb to yugabytedb.
+[README →](init-voyager-mysql/README.md) | devcontainer: `init-voyager-mysql`
 
-```bash
-./launch
-```
-Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Offline migration from MySQL to YugabyteDB using [YB Voyager](https://docs.yugabyte.com/preview/yugabyte-voyager/).
 
-## Live data migration workflow from postgres to ybdb
-<div align="left">
+---
 
+### Data Migration — MariaDB → YugabyteDB
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-</div>
 
-[yb-voyager:](init-voyager-postgres/README.md)
-This will explore the voyager tool to migrate postgres to yugabytedb.
+[README →](init-voyager-mariadb/README.md) | devcontainer: `init-voyager-mariadb`
 
-```bash
-./launch
-```
-Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Offline migration from MariaDB to YugabyteDB using YB Voyager.
 
-## Change data capture(CDC) workflow from ybdb to postgres
-<div align="left">
+---
 
+### Data Migration — Oracle → YugabyteDB
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-</div>
 
-[cdc:](init-cdc/README.md)
-This will explore yugabytedb's change data capture.
+[README →](init-voyager-oracle/README.md) | devcontainer: `init-voyager-oracle`
 
-```bash
-./launch
-```
-Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Offline migration from Oracle Database to YugabyteDB using YB Voyager. Uses an Oracle 21c XE container as the source.
 
-## Change data capture(CDC) streaming workflow from ysql to ycql
-<div align="left">
+> **Note:** Requires 8 CPUs / 64 GB RAM — Oracle image is heavyweight.
 
+---
+
+### Live Data Migration — PostgreSQL → YugabyteDB
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-</div>
-
-[cdc-stream:](https://github.com/srinivasa-vasu/yb-cdc-streams)
-This will explore spring cloud stream microservices based cdc integration from ysql to ycql through a supplier-processor-consumer pattern.
-
-## Data distribution and scalability
-<div align="left">
-
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-</div>
 
-[scale out:](init-scale/README.md)
-This will explore yugabytedb's data distribution and horizontal scalability.
+[README →](init-voyager-postgres/README.md) | devcontainer: `init-voyager-postgres`
 
-```bash
-./launch
-```
-Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Live (online) migration from PostgreSQL to YugabyteDB with minimal downtime using YB Voyager.
 
-## Data replication, fault tolerance and high availability
-<div align="left">
+---
 
+### Change Data Capture — YugabyteDB → PostgreSQL
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-</div>
 
-[chaos engineering:](init-ft/README.md)
-This will explore yugabytedb's fault tolerance and high availability.
+[README →](init-cdc/README.md) | devcontainer: `init-cdc`
 
-```bash
-./launch
-```
-Choose the exercise index and launch the repo using [Open in Gitpod](#getting-started-with-gitpod) action.
+Stream changes from YugabyteDB to PostgreSQL using Confluent Platform (Kafka Connect + Debezium + YB Debezium connector).
+
+> **Note:** Requires 8 CPUs / 64 GB RAM — Confluent Platform is resource-intensive.
+
+---
+
+### CDC Streaming — YSQL → YCQL
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+
+[Repository →](https://github.com/srinivasa-vasu/yb-cdc-streams)
+
+Spring Cloud Stream microservices-based CDC integration from YSQL to YCQL through a supplier-processor-consumer pattern (external repo).
+
+---
+
+### Data Distribution and Scalability
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+
+[README →](init-scale/README.md) | devcontainer: `init-scale`
+
+Explore tablet-based data distribution, tablet splitting, and horizontal scale-out on a 3-node cluster under `yb-sample-apps` load.
+
+---
+
+### Fault Tolerance and High Availability
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+
+[README →](init-ft/README.md) | devcontainer: `init-ft`
+
+Chaos engineering on a 6-node cluster across 3 availability zones. Kill nodes, observe leader election, and verify zero data loss under `yb-sample-apps` load.
+
+---
+
+## Devcontainer Reference
+
+| Exercise | Directory | Nodes | CPUs | RAM |
+|---|---|---|---|---|
+| Distributed SQL | `init-dsql` | 3 | 4 | 8 GB |
+| Query Tuning | `init-qt` | 3 | 4 | 8 GB |
+| Innerloop | `init-iloop` | 1 | 4 | 8 GB |
+| MySQL Migration | `init-voyager-mysql` | 1 | 4 | 8 GB |
+| MariaDB Migration | `init-voyager-mariadb` | 1 | 4 | 8 GB |
+| Oracle Migration | `init-voyager-oracle` | 1 | 8 | 64 GB |
+| PostgreSQL Migration | `init-voyager-postgres` | 1 | 4 | 16 GB |
+| CDC | `init-cdc` | 1 | 8 | 64 GB |
+| Scalability | `init-scale` | 3 (→6) | 8 | 16 GB |
+| Fault Tolerance | `init-ft` | 6 | 8 | 16 GB |
+
+---
+
+## YugabyteDB Version
+
+This repo is pinned to **YugabyteDB 2025.2.3.0-b149**. The [CI workflow](.github/workflows/ci.yml) runs a weekly version drift check and will warn when a newer stable release is available.

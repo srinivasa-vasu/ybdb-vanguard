@@ -1,0 +1,49 @@
+{
+  "name": "Dev Innerloop — YugabyteDB app scaffolding",
+  "build": {
+    "dockerfile": "../../.ybdb.Dockerfile",
+    "context": "../.."
+  },
+  "runArgs": ["--init"],
+  "containerEnv": {
+    "DATA_PATH": "ybdb",
+    "ART_PATH": "init-iloop",
+    "APP_ID": "ybdbapp"
+  },
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "features": {
+    // Node.js for the JHipster YugabyteDB generator
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    }
+  },
+  // Install JHipster generator once on first create
+  "postCreateCommand": "npm install -g generator-jhipster-yugabytedb && mkdir -p ybdbapp && echo '✅ JHipster YugabyteDB generator ready. cd ybdbapp && run: ybdb | yugabytedb'",
+  // Single-node cluster + apply init schema on every start
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && until nc -z 127.0.0.1 5433; do sleep 2; done && ysqlsh -f init-iloop/init.sql && echo \"✅ Schema applied — run: ysqlsh\"'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "forwardPorts": [7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000, 8080],
+  "portsAttributes": {
+    "7000":  { "label": "yb-master-web",  "onAutoForward": "ignore" },
+    "9000":  { "label": "yb-tserver-web", "onAutoForward": "ignore" },
+    "7100":  { "label": "yb-master-rpc",  "onAutoForward": "ignore" },
+    "9100":  { "label": "yb-tserver-rpc", "onAutoForward": "ignore" },
+    "5433":  { "label": "ysql",           "onAutoForward": "ignore" },
+    "15433": { "label": "yugabyted-ui",   "onAutoForward": "notify" },
+    "13000": { "label": "ysql-api",       "onAutoForward": "ignore" },
+    "9042":  { "label": "ycql",           "onAutoForward": "ignore" },
+    "12000": { "label": "ycql-api",       "onAutoForward": "ignore" },
+    "8080":  { "label": "app",            "onAutoForward": "notify" }
+  },
+  "remoteUser": "vscode"
+}

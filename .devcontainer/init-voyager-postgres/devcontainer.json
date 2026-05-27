@@ -1,0 +1,58 @@
+{
+  "name": "Voyager — PostgreSQL → YugabyteDB live migration",
+  "build": {
+    "dockerfile": "../../.ybdb.Dockerfile",
+    "context": "../.."
+  },
+  "runArgs": ["--init"],
+  "containerEnv": {
+    "DATA_PATH": "ybdb",
+    "ART_PATH": "init-voyager-postgres",
+    "SRC_DB_TYPE": "postgresql",
+    "SRC_HOST": "127.0.0.1",
+    "SRC_DB_ID": "Chinook",
+    "SRC_USER": "postgres",
+    "SOURCE_DB_SCHEMA": "public",
+    "SRC_SECRET": "yugabyte",
+    "TARGET_DB_ID": "yugabyte",
+    "TARGET_USER": "yugabyte",
+    "TARGET_SECRET": "yugabyte",
+    "SCHEMA": "public",
+    "PGUSER": "postgres",
+    "PGPASSWORD": "yugabyte",
+    "PGHOST": "127.0.0.1"
+  },
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  // One-time: install psql client, pull image, install yb-voyager, create dirs
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client && docker compose -f init-voyager-postgres/compose.yml pull && wget -q -O /tmp/yb-voyager https://raw.githubusercontent.com/yugabyte/yb-voyager/main/docker/yb-voyager-docker && chmod +x /tmp/yb-voyager && sudo mv /tmp/yb-voyager /usr/local/bin/yb-voyager && mkdir -p voyager-data ybdb/backup && echo \"✅ PostgreSQL Voyager exercise ready\"'",
+  // Every start: launch YugabyteDB + PostgreSQL
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && docker compose -f init-voyager-postgres/compose.yml up -d && echo \"✅ YugabyteDB and PostgreSQL are running\"'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "forwardPorts": [7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000, 5432],
+  "portsAttributes": {
+    "7000":  { "label": "yb-master-web",  "onAutoForward": "ignore" },
+    "9000":  { "label": "yb-tserver-web", "onAutoForward": "ignore" },
+    "7100":  { "label": "yb-master-rpc",  "onAutoForward": "ignore" },
+    "9100":  { "label": "yb-tserver-rpc", "onAutoForward": "ignore" },
+    "5433":  { "label": "ysql",           "onAutoForward": "ignore" },
+    "15433": { "label": "yugabyted-ui",   "onAutoForward": "notify" },
+    "13000": { "label": "ysql-api",       "onAutoForward": "ignore" },
+    "9042":  { "label": "ycql",           "onAutoForward": "ignore" },
+    "12000": { "label": "ycql-api",       "onAutoForward": "ignore" },
+    "5432":  { "label": "postgres-src",   "onAutoForward": "ignore" }
+  },
+  "remoteUser": "vscode"
+}
