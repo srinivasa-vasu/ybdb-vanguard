@@ -1,19 +1,59 @@
 version: 2
 updates:
-  # Keep the devcontainer base image current
-  - package-ecosystem: docker
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-    labels:
-      - dependencies
 
-  # Keep GitHub Actions current
+  # ── GitHub Actions ───────────────────────────────────────────────────────────
+  # Keeps action pins (actions/checkout, docker/build-push-action, etc.) current.
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
       day: monday
-    labels:
-      - dependencies
+    labels: [dependencies]
+
+  # ── Dockerfile base images ───────────────────────────────────────────────────
+  # Tracks mcr.microsoft.com/devcontainers/python and the YugabyteDB version pin
+  # (yugabytedb/yugabyte:VERSION AS yb_version_pin) in .ybdb.Dockerfile.
+  # When the yb_version_pin FROM is bumped, also update YB_VERSION + YB_BUILD.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
+  # ── CDC compose — Debezium stack + PostgreSQL sink ───────────────────────────
+  - package-ecosystem: docker
+    directory: /init-cdc
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
+  # ── Voyager source databases ─────────────────────────────────────────────────
+  - package-ecosystem: docker
+    directory: /init-voyager-mysql
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
+  - package-ecosystem: docker
+    directory: /init-voyager-mariadb
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
+  - package-ecosystem: docker
+    directory: /init-voyager-oracle
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
+  - package-ecosystem: docker
+    directory: /init-voyager-postgres
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]

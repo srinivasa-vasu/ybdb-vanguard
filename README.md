@@ -361,4 +361,4 @@ Bold = above standard. All exercises default to Ubuntu-based devcontainer image 
 
 ## YugabyteDB Version
 
-This repo is pinned to **YugabyteDB 2025.2.3.0-b149**. The [CI workflow](.github/workflows/ci.yml) runs a weekly version drift check and will warn when a newer stable release is available.
+This repo is pinned to **YugabyteDB 2025.2.3.0-b149**. CI validates all devcontainer configs and builds the base image on every push to `main`.

@@ -1,6 +1,12 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # GitHub Codespaces / devcontainer base image for ybdb-vanguard exercises.
 # ─────────────────────────────────────────────────────────────────────────────
+
+# Dependabot monitors this line for new YugabyteDB releases.
+# When Dependabot opens a PR bumping this tag, also update YB_VERSION + YB_BUILD below.
+# BuildKit skips unreferenced stages so this image is never pulled during a real build.
+FROM yugabytedb/yugabyte:2025.2.3.0-b149 AS yb_version_pin
+
 FROM mcr.microsoft.com/devcontainers/python:3.11
 
 ARG YB_VERSION=2025.2.3.0
