@@ -1,43 +1,70 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────────────────────
-# launch — YugabyteDB Vanguard exercise selector for GitHub Codespaces
+# launch — YugabyteDB Vanguard exercise selector
 #
 # Usage: ./launch
 #
-# Each exercise has a dedicated devcontainer config under .devcontainer/<name>/.
-# This script prints a Codespace creation URL for the selected exercise, and
-# optionally creates the Codespace directly using the GitHub CLI (gh).
+# Prints a GitHub Codespaces URL and DevPod command for the selected exercise.
+# Optionally creates the Codespace directly via the GitHub CLI (gh).
 # ─────────────────────────────────────────────────────────────────────────────
 
-# set -x
-
 # ── exercise registry ─────────────────────────────────────────────────────────
-# Parallel arrays: exercises, their devcontainer sub-paths, and optional links
+# Six parallel arrays — keep them in sync.
+#
+# exercises     human-readable name
+# devcontainers sub-directory under .devcontainer/ ("" = external / coming soon)
+# links         external GitHub URL ("" for internal exercises)
+# categories    section heading (contiguous — menu groups by category)
+# roles         space-separated audience tags: dev ops sre arc
+# resources     non-default resource requirement ("" = standard 4c/8g/32g)
+
 exercises=(
-  "Into the distributed and postgres++ SQL universe"
-  "Query tuning tips and tricks"
-  "Development innerloop workflow"
-  "Java microservices"
-  "Java testcontainers"
+  # ── SQL Fundamentals ─────────────────────────────────────────────────────
+  "Distributed SQL Universe"
+  "Query Tuning Tips & Tricks"
+
+  # ── Migration (YB Voyager) ────────────────────────────────────────────────
+  "MySQL → YugabyteDB"
+  "MariaDB → YugabyteDB"
+  "Oracle → YugabyteDB"
+  "PostgreSQL → YugabyteDB  (live migration)"
+
+  # ── Streaming & CDC ───────────────────────────────────────────────────────
+  "CDC — YugabyteDB → PostgreSQL  (Debezium)"
+  "CDC Streaming — YSQL → YCQL"
+
+  # ── Scalability & HA ──────────────────────────────────────────────────────
+  "Data Distribution & Scalability"
+  "Fault Tolerance & High Availability"
+
+  # ── Global Distribution ──────────────────────────────────────────────────
+  "Geo-distribution & Tablespaces"
+
+  # ── Data Protection ───────────────────────────────────────────────────────
+  "Point-in-Time Recovery (PITR)"
+  "DB Clone — instant database copies"
+  "Time Travel  (yb_read_time)"
+
+  # ── Observability ─────────────────────────────────────────────────────────
+  "Observability & Performance Diagnosis"
+
+
+  # ── Security ─────────────────────────────────────────────────────────────────
+  "Encryption at Rest (EAR) + Key Rotation"
+  "Row Level Security & Multi-tenancy"
+  "Data Privacy — Column Encryption & Anonymization"
+  # ── Dev Innerloop ─────────────────────────────────────────────────────────
+  "Development Innerloop  (JHipster)"
+
+  # ── External Resources ────────────────────────────────────────────────────
+  "Java Microservices  (Spring Boot)"
+  "Java Testcontainers"
   "Securing Spring Boot Microservices"
-  "Data migration workflow from MySQL to YugabyteDB"
-  "Data migration workflow from MariaDB to YugabyteDB"
-  "Data migration workflow from Oracle to YugabyteDB"
-  "Live data migration workflow from PostgreSQL to YugabyteDB"
-  "Change data capture (CDC) from YugabyteDB to PostgreSQL"
-  "CDC streaming workflow from YSQL to YCQL"
-  "Data distribution and scalability"
-  "Data replication, fault tolerance and high availability"
 )
 
-# Devcontainer sub-directory under .devcontainer/ (empty = use external link)
 devcontainers=(
   "init-dsql"
   "init-qt"
-  "init-iloop"
-  ""
-  ""
-  ""
   "init-voyager-mysql"
   "init-voyager-mariadb"
   "init-voyager-oracle"
@@ -46,22 +73,118 @@ devcontainers=(
   ""
   "init-scale"
   "init-ft"
+  "init-geo"
+  "init-pitr"
+  "init-clone"
+  "init-tt"
+  "init-obs"
+  "init-ear"
+  "init-rls"
+  "init-privacy"
+  "init-iloop"
+  ""
+  ""
+  ""
 )
 
-# External GitHub repos for exercises that live outside this repo
 links=(
   ""
   ""
-  ""
-  "https://github.com/srinivasa-vasu/yb-ms-data"
-  "https://github.com/srinivasa-vasu/ybdb-boot-data"
-  "https://github.com/srinivasa-vasu/ybdb-sealed-secrets"
   ""
   ""
   ""
   ""
   ""
   "https://github.com/srinivasa-vasu/yb-cdc-streams"
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  "https://github.com/srinivasa-vasu/yb-ms-data"
+  "https://github.com/srinivasa-vasu/ybdb-boot-data"
+  "https://github.com/srinivasa-vasu/ybdb-sealed-secrets"
+)
+
+categories=(
+  "SQL Fundamentals"
+  "SQL Fundamentals"
+  "Migration  (YB Voyager)"
+  "Migration  (YB Voyager)"
+  "Migration  (YB Voyager)"
+  "Migration  (YB Voyager)"
+  "Streaming & CDC"
+  "Streaming & CDC"
+  "Scalability & HA"
+  "Scalability & HA"
+  "Global Distribution"
+  "Data Protection"
+  "Data Protection"
+  "Data Protection"
+  "Observability"
+  "Security"
+  "Security"
+  "Security"
+  "Dev Innerloop"
+  "External Resources"
+  "External Resources"
+  "External Resources"
+)
+
+# Audience tags: dev  ops  sre  arc
+roles=(
+  "dev arc"
+  "dev arc"
+  "dev ops"
+  "dev ops"
+  "dev ops sre"
+  "dev ops sre"
+  "dev ops sre"
+  "dev"
+  "ops sre arc"
+  "ops sre arc"
+  "dev ops sre arc"
+  "ops sre"
+  "dev ops sre"
+  "dev ops"
+  "ops sre arc"
+  "ops sre"
+  "dev arc"
+  "dev arc"
+  "dev"
+  "dev"
+  "dev"
+  "dev"
+)
+
+# Non-default resource requirements (shown as a warning; "" = standard 4c/8g)
+resources=(
+  ""
+  ""
+  ""
+  ""
+  "8c · 16g · 64g disk"
+  ""
+  ""
+  ""
+  "8c · 16g"
+  "8c · 16g"
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
   ""
   ""
 )
@@ -71,7 +194,17 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m'
+
+# Role tag colours
+_col_dev="$CYAN"
+_col_ops="$BLUE"
+_col_sre="$YELLOW"
+_col_arc="$GREEN"
 
 # ── detect GitHub repo from git remote ───────────────────────────────────────
 detect_github_repo() {
@@ -88,9 +221,7 @@ detect_github_repo() {
 
 # ── URL-encode a string (pure bash) ──────────────────────────────────────────
 urlencode() {
-  local string="$1"
-  local encoded=""
-  local i c
+  local string="$1" encoded="" i c
   for (( i=0; i<${#string}; i++ )); do
     c="${string:i:1}"
     case "$c" in
@@ -101,24 +232,82 @@ urlencode() {
   echo "$encoded"
 }
 
+# ── render a row of role tags ─────────────────────────────────────────────────
+_render_roles() {
+  local tags="$1" out=""
+  for tag in $tags; do
+    case "$tag" in
+      dev) out+="${_col_dev}dev${NC} " ;;
+      ops) out+="${_col_ops}ops${NC} " ;;
+      sre) out+="${_col_sre}sre${NC} " ;;
+      arc) out+="${_col_arc}arc${NC} " ;;
+    esac
+  done
+  echo -en "$out"
+}
+
 # ── display menu ──────────────────────────────────────────────────────────────
 menu() {
   echo ""
   echo -e "${YELLOW}╔══════════════════════════════════════════════════════╗${NC}"
   echo -e "${YELLOW}║        YugabyteDB Vanguard — Exercise Launcher       ║${NC}"
   echo -e "${YELLOW}╚══════════════════════════════════════════════════════╝${NC}"
-  echo ""
+
+  local prev_cat=""
   for i in "${!exercises[@]}"; do
+    local cat="${categories[$i]}"
     local dc="${devcontainers[$i]}"
     local link="${links[$i]}"
-    if [ -n "$dc" ]; then
-      echo -e "  ${GREEN}$((i+1)).${NC} ${exercises[$i]}"
-    elif [ -n "$link" ]; then
-      echo -e "  ${CYAN}$((i+1)).${NC} ${exercises[$i]} ${CYAN}(external repo)${NC}"
+    local role="${roles[$i]}"
+    local res="${resources[$i]}"
+    local name="${exercises[$i]}"
+    local num=$(( i + 1 ))
+
+    # ── section header when category changes ─────────────────────────────
+    if [[ "$cat" != "$prev_cat" ]]; then
+      echo ""
+      local fill_count=$(( 54 - ${#cat} ))
+      (( fill_count < 4 )) && fill_count=4
+      local fill
+      fill=$(printf '─%.0s' $(seq 1 "$fill_count"))
+      echo -e "  ${CYAN}${BOLD}── ${cat} ${fill}${NC}"
+      prev_cat="$cat"
+    fi
+
+    # ── row: number ───────────────────────────────────────────────────────
+    printf "  %3d.  " "$num"
+
+    # ── row: name (fixed 42-char column) ─────────────────────────────────
+    printf "%-42s" "$name"
+
+    # ── row: resource warning (fixed 22-char column) ─────────────────────
+    # Printf width doesn't count ANSI escapes, so pad manually after printing.
+    if [[ -n "$res" ]]; then
+      local res_text="⚠ $res"
+      printf "${RED}%s${NC}" "$res_text"
+      local _pad=$(( 22 - ${#res_text} ))
+      (( _pad > 0 )) && printf "%${_pad}s" ""
     else
-      echo -e "  ${RED}$((i+1)).${NC} ${exercises[$i]} ${RED}(coming soon)${NC}"
+      printf "%22s" ""
+    fi
+
+    # ── row: status / role tags ───────────────────────────────────────────
+    if [[ -n "$dc" ]]; then
+      _render_roles "$role"
+      echo ""
+    elif [[ -n "$link" ]]; then
+      printf "${DIM}(external)${NC}  "
+      _render_roles "$role"
+      echo ""
+    else
+      echo -e "${DIM}(coming soon)${NC}"
     fi
   done
+
+  # ── legend ───────────────────────────────────────────────────────────────
+  echo ""
+  echo -e "  ${DIM}Tags:  ${_col_dev}dev${NC}${DIM} developer   ${_col_ops}ops${NC}${DIM} operations   ${_col_sre}sre${NC}${DIM} reliability   ${_col_arc}arc${NC}${DIM} architect${NC}"
+  echo -e "  ${DIM}⚠ = above standard requirements (default: 4 CPU · 8 GB RAM · 32 GB disk)${NC}"
   echo ""
 }
 
@@ -132,43 +321,51 @@ execute() {
   echo ""
 
   # ── external repo ─────────────────────────────────────────────────────────
-  if [ -z "$dc" ] && [ -n "$link" ]; then
-    echo -e "${GREEN}Follow this link to open the exercise:${NC}"
+  if [[ -z "$dc" && -n "$link" ]]; then
+    echo -e "${GREEN}External repository — open in your browser:${NC}"
+    echo ""
     echo -e "  ${CYAN}${link}${NC}"
+    echo ""
     return
   fi
 
-  if [ -z "$dc" ]; then
+  # ── coming soon ───────────────────────────────────────────────────────────
+  if [[ -z "$dc" ]]; then
     echo -e "${RED}This exercise is not yet available.${NC}"
     return
   fi
 
-  # ── Codespaces URL ────────────────────────────────────────────────────────
+  # ── devcontainer exercise ─────────────────────────────────────────────────
   local dc_path=".devcontainer/${dc}/devcontainer.json"
   local github_repo
   github_repo=$(detect_github_repo)
 
-  echo -e "${YELLOW}Initializing: ${exercise}${NC}"
-  echo -e "  Devcontainer: ${CYAN}${dc_path}${NC}"
+  echo -e "${BOLD}${exercise}${NC}"
+  echo -e "  Devcontainer: ${DIM}${dc_path}${NC}"
+  [[ -n "${resources[$idx]}" ]] && \
+    echo -e "  Resources:    ${RED}⚠  ${resources[$idx]}${NC}"
   echo ""
 
-  if [ -n "$github_repo" ]; then
+  if [[ -n "$github_repo" ]]; then
     local encoded_path
     encoded_path=$(urlencode "$dc_path")
     local codespace_url="https://codespaces.new/${github_repo}?devcontainer_path=${encoded_path}"
 
-    echo -e "${GREEN}▶  Open this URL to create your Codespace:${NC}"
-    echo ""
+    echo -e "${GREEN}▶  GitHub Codespaces${NC}"
     echo -e "   ${CYAN}${codespace_url}${NC}"
     echo ""
+    echo -e "${GREEN}▶  DevPod${NC}"
+    echo -e "   ${CYAN}devpod up . --devcontainer-path ${dc_path}${NC}"
+    echo ""
+    echo -e "${GREEN}▶  VS Code Dev Containers${NC}"
+    echo -e "   ${DIM}Command Palette → Dev Containers: Open Folder in Container → pick config${NC}"
+    echo ""
 
-    # ── gh CLI path ───────────────────────────────────────────────────────
     if command -v gh &>/dev/null; then
-      echo -e "${YELLOW}Or create it directly with the GitHub CLI:${NC}"
-      echo ""
+      echo -e "${YELLOW}Create Codespace directly with the GitHub CLI:${NC}"
       echo -e "   ${CYAN}gh codespace create --repo ${github_repo} --devcontainer-path ${dc_path}${NC}"
       echo ""
-      read -p "Create the Codespace now with gh CLI? [y/N] " confirm
+      read -rp "  Create now with gh CLI? [y/N] " confirm
       if [[ "$confirm" =~ ^[Yy]$ ]]; then
         gh codespace create \
           --repo "$github_repo" \
@@ -177,20 +374,29 @@ execute() {
       fi
     fi
   else
-    # ── no GitHub remote detected ─────────────────────────────────────────
     echo -e "${YELLOW}No GitHub remote detected.${NC}"
-    echo -e "Push this repo to GitHub, then create a Codespace using:"
+    echo -e "Push this repo to GitHub first, then:"
     echo ""
-    echo -e "  ${CYAN}gh codespace create --devcontainer-path ${dc_path}${NC}"
+    echo -e "${GREEN}▶  GitHub Codespaces${NC}"
+    echo -e "   ${DIM}https://codespaces.new → select devcontainer manually${NC}"
     echo ""
-    echo -e "Or open: ${CYAN}https://codespaces.new${NC} and select the devcontainer manually."
+    echo -e "${GREEN}▶  DevPod (local)${NC}"
+    echo -e "   ${CYAN}devpod up . --devcontainer-path ${dc_path}${NC}"
+    echo ""
+    echo -e "${GREEN}▶  VS Code Dev Containers (local)${NC}"
+    echo -e "   ${DIM}Command Palette → Dev Containers: Open Folder in Container${NC}"
+    echo ""
   fi
 }
 
 # ── sanity checks ─────────────────────────────────────────────────────────────
-if [ "${#exercises[@]}" -ne "${#devcontainers[@]}" ] || \
-   [ "${#exercises[@]}" -ne "${#links[@]}" ]; then
-  echo -e "${RED}[Internal error]: Array lengths must match.${NC}"
+_len=${#exercises[@]}
+if [[ "$_len" -ne "${#devcontainers[@]}" ]] || \
+   [[ "$_len" -ne "${#links[@]}"        ]] || \
+   [[ "$_len" -ne "${#categories[@]}"   ]] || \
+   [[ "$_len" -ne "${#roles[@]}"        ]] || \
+   [[ "$_len" -ne "${#resources[@]}"    ]]; then
+  echo -e "${RED}[Internal error]: All registry arrays must have the same length.${NC}"
   exit 1
 fi
 
@@ -198,20 +404,19 @@ fi
 while true; do
   menu
 
-  read -p "Enter the number of the exercise (0 to exit): " choice
+  read -rp "Enter the number of the exercise (0 to exit): " choice
 
-  # Reject non-numeric input before any arithmetic comparison
   if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
-    echo -e "${RED}Please enter a number between 0 and ${#exercises[@]}.${NC}"
+    echo -e "${RED}Please enter a number between 0 and ${_len}.${NC}"
     continue
   fi
 
   if [[ "$choice" -eq 0 ]]; then
     echo -e "${YELLOW}Goodbye!${NC}"
     break
-  elif [[ "$choice" -ge 1 && "$choice" -le "${#exercises[@]}" ]]; then
+  elif [[ "$choice" -ge 1 && "$choice" -le "$_len" ]]; then
     execute "$choice"
   else
-    echo -e "${RED}Invalid selection. Please choose a number between 1 and ${#exercises[@]}.${NC}"
+    echo -e "${RED}Invalid selection. Please choose a number between 1 and ${_len}.${NC}"
   fi
 done

@@ -34,8 +34,25 @@
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 6 && echo \"\" && echo \"▶  Terminal → Run Task → ysql-load   (YSQL load generator)\" && echo \"▶  Terminal → Run Task → ycql-load   (YCQL load generator)\" && echo \"▶  Terminal → Run Task → az-fd        (chaos demo shell)\" && echo \"▶  Terminal → Run Task → ft: start all (launch all three at once)\"'",
   "customizations": {
     "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on"
+      },
       "extensions": [
         "ms-azuretools.vscode-docker"
+      ],
+      "tasks": [
+        {
+          // Compound task: opens exercise-specific terminals when the workspace loads.
+          // ysql opens separately via its own runOn:folderOpen in the workspace tasks.json.
+          "label": "_auto-open",
+          "type": "shell",
+          "command": "code init-ft/README.md 2>/dev/null || true",
+          "dependsOn": ["az-fd"],
+          "dependsOrder": "parallel",
+          "runOptions": { "runOn": "folderOpen" },
+          "presentation": { "reveal": "never", "panel": "shared" },
+          "problemMatcher": []
+        }
       ]
     }
   },

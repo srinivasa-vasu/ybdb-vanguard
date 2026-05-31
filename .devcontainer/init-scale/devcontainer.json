@@ -34,8 +34,25 @@
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 ysql_num_shards_per_tserver=2,yb_num_shards_per_tserver=2 && echo \"\" && echo \"▶  Terminal → Run Task → scale: ysql-load   (YSQL load generator)\" && echo \"▶  Terminal → Run Task → scale: ycql-load   (YCQL load generator)\" && echo \"▶  Terminal → Run Task → ybdb-scale          (scale-out demo shell)\" && echo \"▶  Terminal → Run Task → scale: start all   (launch all three at once)\"'",
   "customizations": {
     "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on"
+      },
       "extensions": [
         "ms-azuretools.vscode-docker"
+      ],
+      "tasks": [
+        {
+          // Compound task: opens exercise-specific terminals when the workspace loads.
+          // ysql opens separately via its own runOn:folderOpen in the workspace tasks.json.
+          "label": "_auto-open",
+          "type": "shell",
+          "command": "code init-scale/README.md 2>/dev/null || true",
+          "dependsOn": ["ybdb-scale"],
+          "dependsOrder": "parallel",
+          "runOptions": { "runOn": "folderOpen" },
+          "presentation": { "reveal": "never", "panel": "shared" },
+          "problemMatcher": []
+        }
       ]
     }
   },

@@ -1,0 +1,61 @@
+{
+  "name": "Observability & Performance Diagnosis",
+  "build": {
+    "dockerfile": "../../.ybdb.Dockerfile",
+    "context": "../.."
+  },
+  "runArgs": ["--init"],
+  "containerEnv": {
+    "DATA_PATH": "ybdb",
+    "ART_PATH": "init-obs",
+    "SCRIPT_PATH": "init-obs"
+  },
+  "hostRequirements": {
+    // 3-node cluster: yb_servers() per-node load, top_level_node_id in ASH, hot-node detection
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  // One-time: install pv + demo-magic
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-obs/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-obs/pscript init-obs/prompt.sh init-obs/run-load.sh && echo \"✅ Observability exercise ready\"'",
+  // 3-node cluster with ASH at 500ms sampling + query diagnostics enabled
+  // setup.sql creates obs_demo, seeds 500k orders, and configures pg_stat_statements
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 ysql_yb_enable_ash=true,ysql_yb_ash_sampling_interval_ms=500,ysql_yb_enable_query_diagnostics=true && ysqlsh -f init-obs/setup.sql && echo \"\" && echo \"▶  Terminal → Run Task → run-load    (start background query load)\" && echo \"▶  Terminal → Run Task → ysql-obs    (YSQL shell → obs_demo)\" && echo \"▶  Terminal → Run Task → obs-demo    (guided investigation demo)\"'",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on"
+      },
+      "extensions": [
+        "ms-azuretools.vscode-docker"
+      ],
+      "tasks": [
+        {
+          // Compound task: opens exercise-specific terminals when the workspace loads.
+          // ysql opens separately via its own runOn:folderOpen in the workspace tasks.json.
+          "label": "_auto-open",
+          "type": "shell",
+          "command": "code init-obs/README.md 2>/dev/null || true",
+          "dependsOn": ["obs-demo", "run-load", "ysql-obs"],
+          "dependsOrder": "parallel",
+          "runOptions": { "runOn": "folderOpen" },
+          "presentation": { "reveal": "never", "panel": "shared" },
+          "problemMatcher": []
+        }
+      ]
+    }
+  },
+  "forwardPorts": [7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000],
+  "portsAttributes": {
+    "7000":  { "label": "yb-master-web",  "onAutoForward": "ignore" },
+    "9000":  { "label": "yb-tserver-web", "onAutoForward": "ignore" },
+    "7100":  { "label": "yb-master-rpc",  "onAutoForward": "ignore" },
+    "9100":  { "label": "yb-tserver-rpc", "onAutoForward": "ignore" },
+    "5433":  { "label": "ysql",           "onAutoForward": "ignore" },
+    "15433": { "label": "yugabyted-ui",   "onAutoForward": "notify" },
+    "13000": { "label": "ysql-api",       "onAutoForward": "ignore" },
+    "9042":  { "label": "ycql",           "onAutoForward": "ignore" },
+    "12000": { "label": "ycql-api",       "onAutoForward": "ignore" }
+  },
+  "remoteUser": "vscode"
+}

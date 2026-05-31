@@ -10,6 +10,165 @@
   "tasks": [
 
     // ═══════════════════════════════════════════════════════════════════════
+    // init-ear  — Encryption at Rest
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "ear-demo",
+      "detail": "\"The Compliance Mandate\" — enable EAR, verify, rotate encryption key (init-ear/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-ear && echo '🔐 ear-demo  —  Encryption at Rest' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ear",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-rls  — Row Level Security & Multi-tenancy
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "rls-demo",
+      "detail": "\"The SaaS Tenant Isolation Problem\" — RLS policies, session vars, BYPASSRLS (init-rls/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-rls && echo '🔒 rls-demo  —  Row Level Security & Multi-tenancy' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "rls",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-privacy  — Data Privacy: Column Encryption & Anonymization
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "privacy-demo",
+      "detail": "\"The GDPR Audit\" — pgcrypto encryption, HMAC audit logs, anonymized views (init-privacy/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-privacy && echo '🛡️  privacy-demo  —  Data Privacy & Column Encryption' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "privacy",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-geo  — Geo-distribution & Tablespaces
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "geo-demo",
+      "detail": "\"The Global Banking Platform\" — tablespaces, geo-partitioning, follower reads (init-geo/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-geo && echo '🌍 geo-demo  —  Geo-distribution & Tablespaces' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "geo",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-obs  — Observability & Performance Diagnosis
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "run-load",
+      "detail": "Continuous query load generator — keep running while exploring ASH and pg_stat_statements (init-obs)",
+      "type": "shell",
+      "command": "until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && cd init-obs && bash run-load.sh",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "obs",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ysql-obs",
+      "detail": "Open a YSQL shell connected to obs_demo (init-obs)",
+      "type": "shell",
+      "command": "echo 'Waiting for YugabyteDB on :5433...' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -d obs_demo",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "obs",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "obs-demo",
+      "detail": "\"The Case of the Disappearing SLA\" — guided ASH + pg_stat_statements investigation (init-obs/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-obs && echo '🔍 obs-demo  —  Performance Investigation' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "obs",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ysql  —  shared YSQL shell used by all exercises
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "ysql",
+      "detail": "Open a YSQL shell (ysqlsh) — available in every exercise",
+      "type": "shell",
+      "command": "echo 'Waiting for YugabyteDB on :5433...' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh",
+      "runOptions": {
+        // Auto-run when the workspace folder opens — a YSQL shell is always ready.
+        "runOn": "folderOpen"
+      },
+      "runOptions": {
+        // Auto-run when the workspace folder opens so a YSQL shell is always ready.
+        // Requires "task.allowAutomaticTasks": "on" in devcontainer customizations.
+        "runOn": "folderOpen"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ysql",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
     // init-ft  — Fault Tolerance & High Availability
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -50,7 +209,7 @@
       "label": "az-fd",
       "detail": "Open the chaos engineering demo shell (init-ft/prompt.sh)",
       "type": "shell",
-      "command": "cd init-ft && bash prompt.sh",
+      "command": "cd init-ft && echo '🔥 az-fd  —  Chaos Engineering demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -116,7 +275,7 @@
       "label": "ybdb-scale",
       "detail": "Open the scale-out demo shell (init-scale/prompt.sh)",
       "type": "shell",
-      "command": "cd init-scale && bash prompt.sh",
+      "command": "cd init-scale && echo '📈 ybdb-scale  —  Scale-out demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -166,8 +325,23 @@
     // ═══════════════════════════════════════════════════════════════════════
 
     {
+      "label": "cdc-demo",
+      "detail": "\"The Live Sync Pipeline\" — guided CDC demo: register connectors, snapshot, live INSERT/UPDATE/DELETE (init-cdc/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-cdc && echo '🔄 cdc-demo  —  CDC pipeline demo (YugabyteDB → Kafka → PostgreSQL)' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "cdc",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    {
       "label": "connector-config",
-      "detail": "Open the CDC command shell for yb-admin and curl connector operations (init-cdc)",
+      "detail": "Open the interactive CDC command shell for curl connector operations (init-cdc)",
       "type": "shell",
       "command": "echo '🔌 connector-config — run yb-admin and curl commands here' && exec bash",
       "presentation": {
@@ -224,9 +398,55 @@
     },
 
 
+    {
+      "label": "mysql-demo",
+      "detail": "\"The MySQL Migration\" — assess, export, import, finalise (init-voyager-mysql/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-voyager-mysql && echo '🐬 mysql-demo  —  MySQL → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-mysql",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "mariadb-demo",
+      "detail": "\"The MariaDB Migration\" — assess, export, import, finalise (init-voyager-mariadb/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-voyager-mariadb && echo '🦭 mariadb-demo  —  MariaDB → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-mariadb",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
     // ═══════════════════════════════════════════════════════════════════════
     // init-voyager-oracle  — Oracle → YugabyteDB migration
     // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "oracle-demo",
+      "detail": "\"The Oracle Migration\" — assess, export, import, finalise (init-voyager-oracle/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-voyager-oracle && echo '🔴 oracle-demo  —  Oracle → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-oracle",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
 
     // ── Oracle SQLPlus shell ──────────────────────────────────────────────────
     {
@@ -268,6 +488,21 @@
     // ═══════════════════════════════════════════════════════════════════════
     // init-voyager-postgres  — PostgreSQL → YugabyteDB live migration
     // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "postgres-live-demo",
+      "detail": "\"Zero-Downtime Live Migration\" — snapshot + CDC streaming, cutover (init-voyager-postgres/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-voyager-postgres && echo '🐘 postgres-live-demo  —  PostgreSQL → YugabyteDB live migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "voyager-postgres",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
 
     // ── psql source shell ─────────────────────────────────────────────────────
     {
@@ -317,6 +552,56 @@
       },
       "problemMatcher": []
     },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-pitr  — PITR & Time Travel
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "pitr-demo",
+      "detail": "\"The 2 AM Incident\" — enable PITR, simulate DELETE disaster, recover online (init-pitr/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-pitr && echo '⏪ pitr-demo  —  Point-in-Time Recovery demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "pitr",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "clone-demo",
+      "detail": "\"The Safe Migration Runway\" — clone production, test a migration, verify isolation (init-clone/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-clone && echo '🧬 clone-demo  —  DB Clone demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "clone",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "tt-demo",
+      "detail": "\"The Compliance Audit\" — forensic AS OF SYSTEM TIME flashback queries, no restore needed (init-tt/prompt.sh)",
+      "type": "shell",
+      "command": "cd init-tt && echo '⏰ tt-demo  —  Time Travel (yb_read_time) demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "tt",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
 
     // ── Write-ahead / cutover shell ───────────────────────────────────────────
     {

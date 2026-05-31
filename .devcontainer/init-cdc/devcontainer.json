@@ -8,74 +8,82 @@
   "containerEnv": {
     "DATA_PATH": "ybdb",
     "ART_PATH": "init-cdc",
-    // Confluent install location (referenced by start-cdc.sh and user scripts)
-    "CONFLUENT_HOME": "${containerWorkspaceFolder}/confluent",
-    "KAFKA_VERSION": "7.5.0",
+    // YugabyteDB source connector version — bump when a new release is available at
+    // https://github.com/yugabyte/debezium/releases
+    "YBDB_CONNECTOR_VERSION": "dz.2.5.2.yb.2025.2.3",
     "KAFKA_CONNECT_PORT": "8083",
-    // Connector versions
+    // JDBC sink connector version (downloaded to init-cdc/kafka-plugins/ by setup-cdc.sh)
     "JDBC_VERSION": "10.7.4",
-    "POSTGRES_CONNECTOR_VERSION": "2.2.1",
-    "YBDB_CONNECTOR_VERSION": "1.9.5.y.220.1",
-    // Connector env vars used in README examples
+    // Enable yboutput logical replication plugin for all new tables
+    "TSERVER_FLAGS": "ysql_yb_default_replica_identity=DEFAULT",
+    // Connector env vars referenced in README curl examples
+    "HOST": "127.0.0.1",
     "SRC_USER": "yugabyte",
     "SRC_SECRET": "yugabyte",
     "SRC_DB_OBJECT": "yugabyte",
     "TAR_USER": "postgres",
     "TAR_SECRET": "yugabyte",
     "TAR_DB_OBJECT": "postgres",
-    "MASTERS": "127.0.0.1:7100",
     "TOPIC_PREFIX": "sample",
     "SCHEMA": "public"
   },
   "hostRequirements": {
-    // Confluent Platform (ZK + Kafka + SR + Connect + KSQL + CC) is memory-hungry
-    "cpus": 8,
-    "memory": "16gb",
-    "storage": "64gb"
+    // Debezium Docker stack (ZK + Kafka + Connect) — much lighter than Confluent Platform
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
   },
   "features": {
-    // Docker-in-Docker for PostgreSQL compose container
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    // Java runtime for Confluent Platform
-    "ghcr.io/devcontainers/features/java:1": {
-      "version": "21",
-      "jdkDistro": "ms"
-    }
+    // Docker-in-Docker for the Debezium + PostgreSQL containers
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  // One-time: download Confluent, install connectors, pull Postgres image
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client && bash .devcontainer/scripts/setup-cdc.sh'",
-  // Every start: launch YugabyteDB + PostgreSQL + Confluent
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-cdc.sh && echo \"\" && echo \"▶  Terminal → Run Task → connector-config   (CDC command shell)\"'",
+  // One-time: install psql client + pv, download demo-magic, pull Debezium images, download connector JARs
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client pv && curl -ssLo init-cdc/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-cdc/pscript init-cdc/prompt.sh && bash .devcontainer/scripts/setup-cdc.sh && echo \"✅ CDC exercise ready\"'",
+  // Every start: launch YugabyteDB (with logical replication flag) + Debezium stack
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-cdc.sh && echo \"\" && echo \"▶  Terminal → Run Task → cdc-demo          (guided CDC demo script)\" && echo \"▶  Terminal → Run Task → connector-config   (interactive CDC command shell)\"'",
   "customizations": {
     "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on"
+      },
       "extensions": [
         "ms-azuretools.vscode-docker"
+      ],
+      "tasks": [
+        {
+          // Compound task: opens exercise-specific terminals when the workspace loads.
+          // ysql opens separately via its own runOn:folderOpen in the workspace tasks.json.
+          "label": "_auto-open",
+          "type": "shell",
+          "command": "code init-cdc/README.md 2>/dev/null || true",
+          "dependsOn": ["cdc-demo", "connector-config"],
+          "dependsOrder": "parallel",
+          "runOptions": { "runOn": "folderOpen" },
+          "presentation": { "reveal": "never", "panel": "shared" },
+          "problemMatcher": []
+        }
       ]
     }
   },
   "forwardPorts": [
     7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000,
     5432,
-    2181, 9092, 8081, 8082, 8083, 8088, 9021
+    2181, 9092, 8083
   ],
   "portsAttributes": {
-    "7000":  { "label": "yb-master-web",    "onAutoForward": "ignore" },
-    "9000":  { "label": "yb-tserver-web",   "onAutoForward": "ignore" },
-    "7100":  { "label": "yb-master-rpc",    "onAutoForward": "ignore" },
-    "9100":  { "label": "yb-tserver-rpc",   "onAutoForward": "ignore" },
-    "5433":  { "label": "ysql",             "onAutoForward": "ignore" },
-    "15433": { "label": "yugabyted-ui",     "onAutoForward": "notify" },
-    "13000": { "label": "ysql-api",         "onAutoForward": "ignore" },
-    "9042":  { "label": "ycql",             "onAutoForward": "ignore" },
-    "12000": { "label": "ycql-api",         "onAutoForward": "ignore" },
-    "5432":  { "label": "postgres",         "onAutoForward": "ignore" },
-    "2181":  { "label": "zookeeper",        "onAutoForward": "ignore" },
-    "9092":  { "label": "kafka-broker",     "onAutoForward": "ignore" },
-    "8081":  { "label": "schema-registry",  "onAutoForward": "ignore" },
-    "8082":  { "label": "rest-proxy",       "onAutoForward": "ignore" },
-    "8083":  { "label": "kafka-connect",    "onAutoForward": "notify" },
-    "8088":  { "label": "ksqldb",           "onAutoForward": "ignore" },
-    "9021":  { "label": "control-center",   "onAutoForward": "notify" }
+    "7000":  { "label": "yb-master-web",  "onAutoForward": "ignore" },
+    "9000":  { "label": "yb-tserver-web", "onAutoForward": "ignore" },
+    "7100":  { "label": "yb-master-rpc",  "onAutoForward": "ignore" },
+    "9100":  { "label": "yb-tserver-rpc", "onAutoForward": "ignore" },
+    "5433":  { "label": "ysql",           "onAutoForward": "ignore" },
+    "15433": { "label": "yugabyted-ui",   "onAutoForward": "notify" },
+    "13000": { "label": "ysql-api",       "onAutoForward": "ignore" },
+    "9042":  { "label": "ycql",           "onAutoForward": "ignore" },
+    "12000": { "label": "ycql-api",       "onAutoForward": "ignore" },
+    "5432":  { "label": "postgres",       "onAutoForward": "ignore" },
+    "2181":  { "label": "zookeeper",      "onAutoForward": "ignore" },
+    "9092":  { "label": "kafka-broker",   "onAutoForward": "ignore" },
+    "8083":  { "label": "kafka-connect",  "onAutoForward": "notify" }
   },
   "remoteUser": "vscode"
 }

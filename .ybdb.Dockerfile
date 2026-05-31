@@ -10,17 +10,48 @@ ARG YB_BIN_PATH=/usr/local/yugabyte
 # create the install directory
 RUN mkdir -p $YB_BIN_PATH
 
-# detect build architecture — maps Docker's amd64/arm64 to YugabyteDB's x86_64/aarch64
-ARG TARGETARCH=amd64
-RUN ARCH=$([ "${TARGETARCH}" = "arm64" ] && echo "aarch64" || echo "x86_64") \
+# BuildKit sets TARGETARCH automatically from the build platform (amd64 or arm64).
+# YugabyteDB publishes two Linux packages with different naming conventions:
+#   amd64  →  yugabyte-VERSION-bBUILD-linux-x86_64.tar.gz
+#   arm64  →  yugabyte-VERSION-bBUILD-el8-aarch64.tar.gz
+ARG TARGETARCH
+RUN if [ "${TARGETARCH}" = "arm64" ]; then \
+      YB_PKG="el8-aarch64"; \
+    else \
+      YB_PKG="linux-x86_64"; \
+    fi \
+  && echo "TARGETARCH=${TARGETARCH} → downloading yugabyte-${YB_VERSION}-b${YB_BUILD}-${YB_PKG}.tar.gz" \
   && curl -sSLo /tmp/yugabyte.tar.gz \
-      "https://downloads.yugabyte.com/releases/${YB_VERSION}/yugabyte-${YB_VERSION}-b${YB_BUILD}-linux-${ARCH}.tar.gz" \
+      "https://software.yugabyte.com/releases/${YB_VERSION}/yugabyte-${YB_VERSION}-b${YB_BUILD}-${YB_PKG}.tar.gz" \
   && tar -xvf /tmp/yugabyte.tar.gz -C $YB_BIN_PATH --strip-components=1 \
   && chmod +x $YB_BIN_PATH/bin/* \
   && rm /tmp/yugabyte.tar.gz
 
-# run the YugabyteDB post-install hook (sets up python venvs for backup/tools)
-RUN ["/usr/local/yugabyte/bin/post_install.sh"]
+# Replace fips_install.sh with a no-op before running post_install.sh.
+#
+# yugabyted calls post_install.sh → fips_install.sh on EVERY start, not just
+# at image build time. On Apple Silicon (linux/amd64 via Rosetta), the OpenSSL
+# FIPS module initialisation hits a Rosetta limitation and exits 133 (SIGTRAP),
+# which makes yugabyted report "Failed running post_install.sh" and refuse to start.
+#
+# The FIPS 140 compliance module is not required for these development exercises.
+# Replacing fips_install.sh with a no-op fixes both the build stage and runtime.
+RUN printf '#!/usr/bin/env bash\necho "FIPS init skipped (not required for lab use)"\nexit 0\n' \
+      > /usr/local/yugabyte/bin/fips_install.sh \
+  && chmod +x /usr/local/yugabyte/bin/fips_install.sh \
+  && /usr/local/yugabyte/bin/post_install.sh
+
+# Pre-configure VS Code keybinding: Ctrl+Shift+Enter → run selected text in terminal.
+# Baking this into the image means the shortcut is active the moment VS Code
+# attaches — no manual setup needed by the user.
+# Two locations cover different VS Code Server versions / storage layouts.
+RUN mkdir -p /home/vscode/.config/Code/User \
+             /home/vscode/.vscode-server/data/User \
+  && printf '[{"key":"ctrl+shift+enter","mac":"cmd+shift+enter","command":"workbench.action.terminal.runSelectedText","when":"editorTextFocus"}]\n' \
+     | tee /home/vscode/.config/Code/User/keybindings.json \
+           /home/vscode/.vscode-server/data/User/keybindings.json \
+     > /dev/null \
+  && chown -R vscode:vscode /home/vscode/.config /home/vscode/.vscode-server
 
 # hand ownership to the devcontainer user so no sudo is needed at runtime
 RUN chown -R vscode:vscode $YB_BIN_PATH

@@ -18,6 +18,16 @@ TSERVER_FLAGS="${2:-}"
 BASE_DIR="${PWD}/${DATA_PATH:-ybdb}"
 
 echo "🚀 Starting YugabyteDB ${NODES}-node cluster..."
+
+# Remove any stale data from a previous run.
+# On Codespace/devcontainer resume, postStartCommand fires again but the
+# YugabyteDB processes are gone while the data directory persists. Restarting
+# with partial Raft state causes "master process died unexpectedly."
+# Wiping the data directory guarantees a clean start every time.
+if [ -d "${BASE_DIR}" ]; then
+  echo "🧹 Clearing previous cluster data..."
+  rm -rf "${BASE_DIR}"
+fi
 mkdir -p "$BASE_DIR"
 
 # ── loopback aliases ──────────────────────────────────────────────────────────
@@ -33,6 +43,11 @@ fi
 _tflags=""
 [ -n "$TSERVER_FLAGS" ] && _tflags="--tserver_flags=${TSERVER_FLAGS}"
 
+# Optional master flags — set MASTER_FLAGS env var in the devcontainer to pass
+# extra flags to every yugabyted node (e.g. MASTER_FLAGS=enable_db_clone=true).
+_mflags=""
+[ -n "${MASTER_FLAGS:-}" ] && _mflags="--master_flags=${MASTER_FLAGS}"
+
 start_node() {
   local n="$1" addr="$2" az="$3"
   local join_flag=""
@@ -45,18 +60,43 @@ start_node() {
     --cloud_location="ybcloud.pandora.${az}" \
     --fault_tolerance=zone \
     --background=true \
-    ${join_flag} ${_tflags}
+    ${join_flag} ${_tflags} ${_mflags}
+}
+
+# ── wait for node 1's master RPC port before joining ─────────────────────────
+# Nodes 2+ use --join=127.0.0.1 which contacts the master on :7100.
+# If node 1 hasn't finished initialising its master process, the join fails
+# with "Node at the join ip provided is not reachable."
+_master_ready() { (echo >/dev/tcp/127.0.0.1/7100) 2>/dev/null; }
+
+_wait_for_master() {
+  echo "⏳ Waiting for node 1 master RPC on :7100..."
+  for i in $(seq 1 30); do
+    if _master_ready; then
+      echo "   Node 1 master is up."
+      return 0
+    fi
+    sleep 2
+  done
+  echo "❌ Node 1 master did not come up in time."
+  return 1
 }
 
 # ── start nodes ───────────────────────────────────────────────────────────────
 if [ "$NODES" -eq 1 ]; then
+  # shellcheck disable=SC2086
   yugabyted start \
     --base_dir="${BASE_DIR}/ybd1" \
     --advertise_address=127.0.0.1 \
     --cloud_location=ybcloud.pandora.az1 \
-    --background=true
+    --background=true \
+    ${_tflags} ${_mflags}
 else
   start_node 1 127.0.0.1 az1
+
+  # Wait for node 1's master to be reachable before starting join nodes
+  _wait_for_master
+
   start_node 2 127.0.0.2 az2
   start_node 3 127.0.0.3 az3
 

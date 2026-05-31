@@ -2,49 +2,44 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # setup-cdc.sh  —  one-time CDC environment setup (postCreateCommand)
 #
-# Downloads Confluent Platform, installs Kafka connectors, and pre-pulls
-# the PostgreSQL Docker image used as the CDC sink.
+# Downloads connector JARs into init-cdc/kafka-plugins/:
+#   - YugabyteDB source connector  (github.com/yugabyte/debezium/releases)
+#   - Confluent JDBC sink connector (packages.confluent.io)
+#
+# Pulls Docker images for the Debezium stack:
+#   - debezium/zookeeper, debezium/kafka, debezium/connect
+#   - postgres:14 (CDC sink)
+#
+# Bump YBDB_CONNECTOR_VERSION in devcontainer.json when a new release is out.
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
-KAFKA_VERSION="${KAFKA_VERSION:-7.5.0}"
-CONFLUENT_HOME="${CONFLUENT_HOME:-${PWD}/confluent}"
+YBDB_CONNECTOR_VERSION="${YBDB_CONNECTOR_VERSION:-dz.2.5.2.yb.2025.2.3}"
 JDBC_VERSION="${JDBC_VERSION:-10.7.4}"
-POSTGRES_CONNECTOR_VERSION="${POSTGRES_CONNECTOR_VERSION:-2.2.1}"
-YBDB_CONNECTOR_VERSION="${YBDB_CONNECTOR_VERSION:-1.9.5.y.220.1}"
+PLUGINS_DIR="${PWD}/init-cdc/kafka-plugins"
 
-# Derive MAJOR.MINOR from KAFKA_VERSION (e.g. 7.5.0 → 7.5) for the archive URL
-KAFKA_MAJOR_MINOR="${KAFKA_VERSION%.*}"
+mkdir -p "${PLUGINS_DIR}"
 
-# ── Confluent Platform ────────────────────────────────────────────────────────
-echo "📦 Downloading Confluent Platform ${KAFKA_VERSION} (~350 MB)..."
-mkdir -p "${CONFLUENT_HOME}"
-curl -# -o /tmp/confluent.tar.gz \
-  "https://packages.confluent.io/archive/${KAFKA_MAJOR_MINOR}/confluent-${KAFKA_VERSION}.tar.gz"
-tar -xzf /tmp/confluent.tar.gz -C "${CONFLUENT_HOME}" --strip-components=1
-rm /tmp/confluent.tar.gz
-echo "✅ Confluent Platform extracted to ${CONFLUENT_HOME}"
+# ── YugabyteDB source connector (jar-with-dependencies) ──────────────────────
+YB_JAR="yugabytedb-source-connector-${YBDB_CONNECTOR_VERSION}-jar-with-dependencies.jar"
+YB_JAR_URL="https://github.com/yugabyte/debezium/releases/download/${YBDB_CONNECTOR_VERSION}/${YB_JAR}"
 
-# ── Kafka connectors ──────────────────────────────────────────────────────────
-echo "🔌 Installing Kafka Connect plugins..."
-mkdir -p "${CONFLUENT_HOME}/share/confluent-hub-components"
+echo "Downloading YugabyteDB source connector ${YBDB_CONNECTOR_VERSION}..."
+curl -# -L -o "${PLUGINS_DIR}/${YB_JAR}" "${YB_JAR_URL}"
+echo "YugabyteDB connector saved to ${PLUGINS_DIR}/${YB_JAR}"
 
-"${CONFLUENT_HOME}/bin/confluent-hub" install --no-prompt \
-  --component-dir "${CONFLUENT_HOME}/share/confluent-hub-components" \
-  "confluentinc/kafka-connect-jdbc:${JDBC_VERSION}"
+# ── Confluent JDBC sink connector JAR ────────────────────────────────────────
+echo "Downloading Confluent JDBC sink connector ${JDBC_VERSION}..."
+curl -# -L \
+  -o "${PLUGINS_DIR}/kafka-connect-jdbc-${JDBC_VERSION}.jar" \
+  "https://packages.confluent.io/maven/io/confluent/kafka-connect-jdbc/${JDBC_VERSION}/kafka-connect-jdbc-${JDBC_VERSION}.jar"
+echo "JDBC sink connector saved to ${PLUGINS_DIR}/kafka-connect-jdbc-${JDBC_VERSION}.jar"
 
-"${CONFLUENT_HOME}/bin/confluent-hub" install --no-prompt \
-  --component-dir "${CONFLUENT_HOME}/share/confluent-hub-components" \
-  "debezium/debezium-connector-postgresql:${POSTGRES_CONNECTOR_VERSION}"
-
-echo "📥 Downloading YugabyteDB Debezium connector jar..."
-wget -q "https://github.com/yugabyte/debezium-connector-yugabytedb/releases/download/v${YBDB_CONNECTOR_VERSION}/debezium-connector-yugabytedb-${YBDB_CONNECTOR_VERSION}.jar" \
-  -O "/tmp/ybdb-connector.jar"
-mv /tmp/ybdb-connector.jar \
-  "${CONFLUENT_HOME}/share/java/confluent-hub-client/debezium-connector-yugabytedb-${YBDB_CONNECTOR_VERSION}.jar"
-echo "✅ All Kafka connectors installed"
-
-# ── PostgreSQL Docker image (CDC sink) ────────────────────────────────────────
-echo "🐘 Pre-pulling PostgreSQL image..."
+# ── Pull Debezium stack + PostgreSQL Docker images ────────────────────────────
+echo "Pulling Debezium and PostgreSQL Docker images..."
 docker compose -f init-cdc/compose.yml pull
-echo "✅ CDC setup complete. Run 'bash .devcontainer/scripts/start-cdc.sh' to start all services."
+echo "Docker images ready."
+
+echo ""
+echo "✅ CDC setup complete. $(ls "${PLUGINS_DIR}"/*.jar 2>/dev/null | wc -l) connector JARs in ${PLUGINS_DIR}/"
+echo "   Run 'bash .devcontainer/scripts/start-cdc.sh' to start all services."

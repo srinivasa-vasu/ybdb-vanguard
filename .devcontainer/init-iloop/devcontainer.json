@@ -27,8 +27,25 @@
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && ysqlsh -f init-iloop/init.sql && echo \"\" && echo \"▶  Terminal → Run Task → dev-inner-loop   (JHipster scaffold shell)\"'",
   "customizations": {
     "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on"
+      },
       "extensions": [
         "ms-azuretools.vscode-docker"
+      ],
+      "tasks": [
+        {
+          // Compound task: opens exercise-specific terminals when the workspace loads.
+          // ysql opens separately via its own runOn:folderOpen in the workspace tasks.json.
+          "label": "_auto-open",
+          "type": "shell",
+          "command": "code init-iloop/README.md 2>/dev/null || true",
+          "dependsOn": ["dev-inner-loop"],
+          "dependsOrder": "parallel",
+          "runOptions": { "runOn": "folderOpen" },
+          "presentation": { "reveal": "never", "panel": "shared" },
+          "problemMatcher": []
+        }
       ]
     }
   },

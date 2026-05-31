@@ -1,23 +1,59 @@
 version: '3.9'
 
+# ── CDC stack: Debezium (ZK + Kafka + Connect) + PostgreSQL sink ──────────────
+# All services use network_mode: host so they can reach the YugabyteDB
+# cluster running on 127.0.0.1 in the devcontainer.
+
 services:
+
+  zookeeper:
+    image: debezium/zookeeper:2.5.2.Final
+    network_mode: host
+    restart: on-failure
+
+  kafka:
+    image: debezium/kafka:2.5.2.Final
+    network_mode: host
+    depends_on:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=127.0.0.1:2181
+    restart: on-failure
+
+  connect:
+    # Standard Debezium Kafka Connect image — YugabyteDB source connector JAR
+    # is mounted from ./kafka-plugins/ (downloaded by setup-cdc.sh).
+    image: debezium/connect:2.5.2.Final
+    network_mode: host
+    depends_on:
+      - kafka
+    environment:
+      - BOOTSTRAP_SERVERS=127.0.0.1:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=cdc_connect_configs
+      - OFFSET_STORAGE_TOPIC=cdc_connect_offsets
+      - STATUS_STORAGE_TOPIC=cdc_connect_statuses
+      # kafka-plugins/ holds the YugabyteDB source connector + JDBC sink connector JARs
+      - CONNECT_PLUGIN_PATH=/kafka/connect,/kafka/extra-plugins
+    volumes:
+      - ./kafka-plugins:/kafka/extra-plugins:ro
+    restart: on-failure
+
   postgresql:
     container_name: postgres
     image: postgres:14
     network_mode: host
-    ports:
-      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: yugabyte
+      POSTGRES_DB: postgres
     volumes:
       - postgresql_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 6
     restart: on-failure
-    environment:
-      POSTGRES_USERNAME: postgres
-      POSTGRES_PASSWORD: yugabyte
-      POSTGRES_DATABASE: postgres
+
 volumes:
   postgresql_data:

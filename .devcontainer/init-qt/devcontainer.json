@@ -18,8 +18,21 @@
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Run: ysqlsh  then  \\\\i init-qt/tuning.sql\"'",
   "customizations": {
     "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on"
+      },
       "extensions": [
         "ms-azuretools.vscode-docker"
+      ],
+      "tasks": [
+        {
+          "label": "_auto-open",
+          "type": "shell",
+          "command": "code init-qt/README.md 2>/dev/null || true",
+          "runOptions": { "runOn": "folderOpen" },
+          "presentation": { "reveal": "never", "panel": "shared" },
+          "problemMatcher": []
+        }
       ]
     }
   },

@@ -1,43 +1,58 @@
-## Live data migration workflow from postgresql to ybdb
+## Live data migration workflow from PostgreSQL to YugabyteDB
 
-### Export schema and data from the source database and import into the target database
+Run **pre-step** from the `psql` shell.  
+Run **Steps 0–2** from the `yb-voyager-export` shell.  
+Run **Step 3** from the `yb-voyager-import` shell.  
+Run **Step 4** from the `yb-voyager-export` shell.  
+Run **Step 5** from the `yb-voyager-import` shell (keep running alongside Step 4).  
+Run **Steps 6–11** from the `yb-voyager-wa` shell.
 
-#### Step -1: Load data
-Run only Step -1 from `psql` shell
+---
+
+### Pre-step: Load source data
+
+Run from the `psql` shell:
+
 ```
 \i init-voyager-postgres/chinook.sql
 ```
 
-Run Step 0 to Step 2 from `yb-voyager-export` shell
+---
 
-#### Step 0: Assess Migration
+### Step 0: Assess Migration
+
 ```
 yb-voyager assess-migration --export-dir ${PWD}/${DATA_PATH} \
   --source-db-type ${SRC_DB_TYPE} \
   --source-db-host ${SRC_HOST} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${SRC_DB_ID} --source-db-schema ${SOURCE_DB_SCHEMA}
+  --source-db-name ${SRC_DB_ID} \
+  --source-db-schema ${SOURCE_DB_SCHEMA}
 ```
 
-#### Step 1: Export Schema
+### Step 1: Export Schema
+
 ```
 yb-voyager export schema --export-dir ${PWD}/${DATA_PATH} \
         --source-db-type ${SRC_DB_TYPE} \
         --source-db-host ${HOST} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID} --source-db-schema ${SOURCE_DB_SCHEMA}
+        --source-db-name ${SRC_DB_ID} \
+        --source-db-schema ${SOURCE_DB_SCHEMA}
 ```
 
-#### Step 2: Analyze Schema
+### Step 2: Analyze Schema
+
 ```
 yb-voyager analyze-schema --export-dir ${PWD}/${DATA_PATH} --output-format html
 ```
 
-Run Step 3 from `yb-voyager-import` shell
+---
 
-#### Step 3: Import Schema
+### Step 3: Import Schema
+
 ```
 yb-voyager import schema --export-dir ${PWD}/${DATA_PATH} \
         --target-db-host ${HOST} \
@@ -47,21 +62,23 @@ yb-voyager import schema --export-dir ${PWD}/${DATA_PATH} \
         --target-db-schema ${SCHEMA}
 ```
 
-Run Step 4 from `yb-voyager-export` shell
+---
 
-#### Step 4: Export Data
+### Step 4: Export Data (keep running — captures snapshot then streams changes)
+
 ```
 yb-voyager export data from source --export-dir ${PWD}/${DATA_PATH} \
         --source-db-type ${SRC_DB_TYPE} \
         --source-db-host ${HOST} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID} --source-db-schema ${SOURCE_DB_SCHEMA} --export-type snapshot-and-changes
+        --source-db-name ${SRC_DB_ID} \
+        --source-db-schema ${SOURCE_DB_SCHEMA} \
+        --export-type snapshot-and-changes
 ```
 
-Run Step 5 from `yb-voyager-import` shell
+### Step 5: Import Data (run alongside Step 4)
 
-#### Step 5: Import Data
 ```
 yb-voyager import data to target --export-dir ${PWD}/${DATA_PATH} \
         --target-db-host ${HOST} \
@@ -71,37 +88,54 @@ yb-voyager import data to target --export-dir ${PWD}/${DATA_PATH} \
         --target-db-schema ${SCHEMA}
 ```
 
-Run Step 6 to Step 10 from `yb-voyager-wa` shell
+---
 
-#### Step 6: Get migration report
+### Step 6: Get migration report
+
 ```
 yb-voyager get data-migration-report --export-dir ${PWD}/${DATA_PATH} \
         --target-db-password ${TARGET_SECRET}
 ```
 
-#### Step 7: Cutover to the target
-```
-yb-voyager initiate cutover to target --export-dir ${PWD}/${DATA_PATH} --prepare-for-fall-back false
+### Step 7: Cutover to the target
 
 ```
-
-#### Step 8: Check cutover status
-```
-yb-voyager cutover status --export-dir ${PWD}/${DATA_PATH} --prepare-for-fall-back false
-
+yb-voyager initiate cutover to target --export-dir ${PWD}/${DATA_PATH} \
+        --prepare-for-fall-back false
 ```
 
-#### Step 9: Import indexes and triggers
+### Step 8: Check cutover status
+
 ```
-yb-voyager import schema --export-dir ${PWD}/${DATA_PATH} \
+yb-voyager cutover status --export-dir ${PWD}/${DATA_PATH}
+```
+
+### Step 9: Finalize Schema (indexes, triggers, materialized views)
+
+```
+yb-voyager finalize-schema-post-data-import --export-dir ${PWD}/${DATA_PATH} \
         --target-db-host ${HOST} \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
         --target-db-name ${TARGET_DB_ID} \
-        --target-db-schema ${SCHEMA} --post-snapshot-import true --refresh-mviews true
+        --target-db-schema ${SCHEMA} \
+        --refresh-mviews true
 ```
 
-### Step 10: Check the imported data status
+### Step 10: Archive Changes
+
 ```
-yb-voyager end migration --export-dir ${PWD}/${DATA_PATH} --backup-log-files yes --backup-data-files no --backup-schema-files no --save-migration-reports yes --backup-dir ${PWD}/${DATA_PATH}/backup
+yb-voyager archive changes --export-dir ${PWD}/${DATA_PATH} \
+        --policy delete-on-success
+```
+
+### Step 11: End Migration
+
+```
+yb-voyager end migration --export-dir ${PWD}/${DATA_PATH} \
+        --backup-log-files yes \
+        --backup-data-files no \
+        --backup-schema-files no \
+        --save-migration-reports yes \
+        --backup-dir ${PWD}/${DATA_PATH}/backup
 ```

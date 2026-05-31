@@ -3,81 +3,75 @@
 # start-cdc.sh  —  CDC exercise service startup (postStartCommand)
 #
 # Starts:
-#   1. YugabyteDB single-node cluster
-#   2. PostgreSQL container (CDC sink) via Docker Compose
-#   3. Confluent Platform local services (Zookeeper, Kafka, Schema Registry,
-#      Kafka Connect, KSQL, Control Center) — in background
+#   1. YugabyteDB single-node cluster with logical replication tserver flag
+#   2. Debezium stack + PostgreSQL sink via Docker Compose
+#      (Zookeeper, Kafka, Kafka Connect with ybdb-debezium image, PostgreSQL)
+#
+# After startup, seeds the Chinook dataset into YugabyteDB as the CDC source.
 #
 # Useful environment variables (set in devcontainer.json containerEnv):
-#   CONFLUENT_HOME, DATA_PATH, ART_PATH
-#
-# After startup, seed the source data:
-#   ysqlsh -f init-cdc/chinook.sql
+#   YBDB_CONNECTOR_VERSION, TSERVER_FLAGS, KAFKA_CONNECT_PORT
+#   HOST, SRC_USER, SRC_SECRET, TOPIC_PREFIX, SCHEMA
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
-CONFLUENT_HOME="${CONFLUENT_HOME:-${PWD}/confluent}"
-LOG_FILE="${PWD}/confluent-start.log"
+KAFKA_CONNECT_PORT="${KAFKA_CONNECT_PORT:-8083}"
 
-# 1. YugabyteDB
-echo "🚀 Starting YugabyteDB..."
-bash .devcontainer/scripts/start-ybdb.sh 1
+# ── 1. YugabyteDB with logical replication tserver flag ──────────────────────
+# ysql_yb_default_replica_identity=DEFAULT ensures every new table gets DEFAULT
+# replica identity so the yboutput plugin can capture UPDATE/DELETE before-images
+# without requiring per-table ALTER TABLE ... REPLICA IDENTITY commands.
+echo "Starting YugabyteDB with logical replication flags..."
+bash .devcontainer/scripts/start-ybdb.sh 1 "${TSERVER_FLAGS:-ysql_yb_default_replica_identity=DEFAULT}"
 
-# 2. PostgreSQL (CDC sink)
-echo "🐘 Starting PostgreSQL CDC sink..."
+# ── 2. Debezium stack + PostgreSQL (Docker Compose) ──────────────────────────
+echo "Starting Debezium stack (Zookeeper, Kafka, Connect) and PostgreSQL..."
 docker compose -f init-cdc/compose.yml up -d
 
-# 3. Confluent Platform (background — takes ~2 min to be fully ready)
-if [ ! -f "${CONFLUENT_HOME}/bin/confluent" ]; then
-  echo "❌ Confluent not found at ${CONFLUENT_HOME}/bin/confluent"
-  echo "   Run: bash .devcontainer/scripts/setup-cdc.sh"
-  exit 1
-fi
-
-echo "📡 Starting Confluent Platform services (background)..."
-export CONFLUENT_HOME
-nohup "${CONFLUENT_HOME}/bin/confluent" local services start \
-  > "${LOG_FILE}" 2>&1 &
-CONFLUENT_PID=$!
-
-# Brief pause to catch an immediate crash
-sleep 2
-if ! kill -0 "${CONFLUENT_PID}" 2>/dev/null; then
-  echo "❌ Confluent process exited immediately. Check the log:"
-  tail -20 "${LOG_FILE}"
-  exit 1
-fi
-echo "   PID ${CONFLUENT_PID} | log: ${LOG_FILE}"
-
-echo ""
-echo "⏳ Waiting for PostgreSQL sink on :5432 (up to 90s)..."
+# ── 3. Wait for PostgreSQL ────────────────────────────────────────────────────
+echo "Waiting for PostgreSQL on :5432 (up to 90s)..."
 _pg_ready=0
 for i in $(seq 1 30); do
   if (echo >/dev/tcp/127.0.0.1/5432) 2>/dev/null; then
-    _pg_ready=1
-    break
+    _pg_ready=1; break
   fi
   sleep 3
 done
 if [ "$_pg_ready" -eq 0 ]; then
-  echo "❌ PostgreSQL did not become ready in time. Check: docker compose -f init-cdc/compose.yml logs"
+  echo "❌ PostgreSQL did not become ready in time."
+  echo "   Check: docker compose -f init-cdc/compose.yml logs postgresql"
   exit 1
 fi
 echo "✅ PostgreSQL is up."
 
-echo "📥 Loading Chinook dataset into YugabyteDB (CDC source)..."
+# ── 4. Wait for Kafka Connect REST API ───────────────────────────────────────
+# Kafka Connect starts after Zookeeper and Kafka, and then loads all connector
+# plugins — this typically takes 60–90 s on first start.
+echo "Waiting for Kafka Connect on :${KAFKA_CONNECT_PORT} (up to 2 min)..."
+_kc_ready=0
+for i in $(seq 1 60); do
+  if curl -sf "http://127.0.0.1:${KAFKA_CONNECT_PORT}/" >/dev/null 2>&1; then
+    _kc_ready=1; break
+  fi
+  sleep 2
+done
+if [ "$_kc_ready" -eq 0 ]; then
+  echo "❌ Kafka Connect did not become ready in time."
+  echo "   Check: docker compose -f init-cdc/compose.yml logs connect"
+  exit 1
+fi
+echo "✅ Kafka Connect is ready."
+
+# ── 5. Seed the CDC source data ───────────────────────────────────────────────
+echo "Loading Chinook dataset into YugabyteDB (CDC source)..."
 ysqlsh -f init-cdc/chinook.sql
-echo "✅ Chinook data loaded into YugabyteDB."
+echo "✅ Chinook data loaded."
 
 echo ""
-echo "✅ Startup complete."
-echo "   Confluent is starting in the background (~2 min to be fully ready)."
-echo "   Monitor:  tail -f ${LOG_FILE}"
-echo "   Status:   ${CONFLUENT_HOME}/bin/confluent local services status"
+echo "Kafka Connect  →  http://localhost:${KAFKA_CONNECT_PORT}/"
+echo "PostgreSQL     →  localhost:5432  (user: postgres / yugabyte)"
+echo "YugabyteDB     →  localhost:5433  (user: yugabyte / yugabyte)"
+echo "YugabyteDB UI  →  http://localhost:15433/"
 echo ""
-echo "Kafka Connect UI  →  localhost:8083"
-echo "Control Center    →  localhost:9021"
-echo "Schema Registry   →  localhost:8081"
-echo ""
-echo "Next: apply connector config — env vars are pre-set:"
-echo "   MASTERS=${MASTERS}  TOPIC_PREFIX=${TOPIC_PREFIX}  SCHEMA=${SCHEMA}"
+echo "Env vars pre-set for the connector-config shell:"
+echo "  HOST=${HOST:-127.0.0.1}  TOPIC_PREFIX=${TOPIC_PREFIX:-sample}  SCHEMA=${SCHEMA:-public}"

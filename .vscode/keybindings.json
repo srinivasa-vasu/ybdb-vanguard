@@ -1,0 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Workspace keybindings for ybdb-vanguard exercises.
+//
+// Select any SQL block in a README or .sql file, then press the shortcut
+// to send it directly to the active ysqlsh terminal — no copy-paste needed.
+// ─────────────────────────────────────────────────────────────────────────────
+[
+  {
+    // Run selected text in the active terminal
+    // Select a SQL block in README.md or any .sql file → Ctrl+Shift+Enter
+    "key": "ctrl+shift+enter",
+    "mac": "cmd+shift+enter",
+    "command": "workbench.action.terminal.runSelectedText",
+    "when": "editorTextFocus"
+  }
+]

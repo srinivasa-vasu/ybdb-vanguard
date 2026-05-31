@@ -31,13 +31,30 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
   // One-time: install psql client, pull image, install yb-voyager, create dirs
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client && docker compose -f init-voyager-postgres/compose.yml pull && wget -q -O /tmp/yb-voyager https://raw.githubusercontent.com/yugabyte/yb-voyager/main/docker/yb-voyager-docker && chmod +x /tmp/yb-voyager && sudo mv /tmp/yb-voyager /usr/local/bin/yb-voyager && mkdir -p voyager-data ybdb/backup && echo \"✅ PostgreSQL Voyager exercise ready\"'",
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client pv && curl -ssLo init-voyager-postgres/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-voyager-postgres/pscript init-voyager-postgres/prompt.sh && docker compose -f init-voyager-postgres/compose.yml pull && wget -q -O /tmp/yb-voyager https://raw.githubusercontent.com/yugabyte/yb-voyager/main/docker/yb-voyager-docker && chmod +x /tmp/yb-voyager && sudo mv /tmp/yb-voyager /usr/local/bin/yb-voyager && mkdir -p voyager-data ybdb/backup && echo \"✅ PostgreSQL Voyager exercise ready\"'",
   // Every start: launch YugabyteDB + PostgreSQL
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && docker compose -f init-voyager-postgres/compose.yml up -d && echo \"\" && echo \"▶  Terminal → Run Task → psql                (PostgreSQL source shell)\" && echo \"▶  Terminal → Run Task → yb-voyager-export   (Voyager export shell)\" && echo \"▶  Terminal → Run Task → yb-voyager-import   (Voyager import shell)\" && echo \"▶  Terminal → Run Task → yb-voyager-wa       (Voyager cutover shell)\"'",
   "customizations": {
     "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on"
+      },
       "extensions": [
         "ms-azuretools.vscode-docker"
+      ],
+      "tasks": [
+        {
+          // Compound task: opens exercise-specific terminals when the workspace loads.
+          // ysql opens separately via its own runOn:folderOpen in the workspace tasks.json.
+          "label": "_auto-open",
+          "type": "shell",
+          "command": "code init-voyager-postgres/README.md 2>/dev/null || true",
+          "dependsOn": ["postgres-live-demo", "psql", "yb-voyager-export"],
+          "dependsOrder": "parallel",
+          "runOptions": { "runOn": "folderOpen" },
+          "presentation": { "reveal": "never", "panel": "shared" },
+          "problemMatcher": []
+        }
       ]
     }
   },
