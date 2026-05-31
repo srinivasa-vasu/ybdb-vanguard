@@ -1,5 +1,7 @@
 # Time Travel — `yb_read_time`
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-tt%2Fdevcontainer.json)
+
 Read historical snapshots of your database by setting a session-level read timestamp. `SET yb_read_time` moves all subsequent reads in the session to a specific point in the past — the live data is never modified. Use it for compliance audits, forensic investigation, and before/after comparisons.
 
 ---

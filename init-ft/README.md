@@ -1,5 +1,7 @@
 # Fault Tolerance & High Availability
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-ft%2Fdevcontainer.json)
+
 Chaos engineering on a 6-node YugabyteDB cluster spread across 3 availability zones. Kill nodes, observe leader election and Raft re-replication, and verify zero data loss under continuous YSQL and YCQL load.
 
 ---

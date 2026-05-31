@@ -1,5 +1,7 @@
 # Query Tuning Tips & Tricks
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-qt%2Fdevcontainer.json)
+
 Hands-on exercises covering the full query optimisation stack in YugabyteDB — storage-layer pushdowns, index strategies, join optimisation, advanced SQL, and programmability.
 
 ---

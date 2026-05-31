@@ -1,5 +1,7 @@
 # Distributed SQL · Hash & Range Sharding
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-dsql%2Fdevcontainer.json)
+
 Hands-on exercises that show how YugabyteDB physically distributes data across tablets, and how your schema choices (hash vs range, clustering key direction, index type) directly affect query performance.
 
 ---

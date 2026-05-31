@@ -1,5 +1,7 @@
 # Geo-distribution & Tablespaces
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-geo%2Fdevcontainer.json)
+
 Multi-region data placement, row-level data residency, and low-latency follower reads on a YugabyteDB 3-node cluster simulating three geographic regions on a single machine.
 
 ---

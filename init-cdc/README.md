@@ -111,6 +111,8 @@ UPDATE public."Artist" SET "Name" = 'Updated Artist' WHERE "ArtistId" = 999;
 
 ```bash
 # PostgreSQL sink
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-cdc%2Fdevcontainer.json)
 psql -h 127.0.0.1 -p 5432 -U postgres -c 'SELECT * FROM "Artist" WHERE "ArtistId" = 999;'
 ```
 

@@ -1,5 +1,7 @@
 # Row Level Security & Multi-tenancy
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-rls%2Fdevcontainer.json)
+
 Database-enforced tenant isolation on YugabyteDB. No application changes, no middleware — policies live in the database and cannot be bypassed by application code.
 
 ---

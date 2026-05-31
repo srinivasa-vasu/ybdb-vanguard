@@ -1,5 +1,7 @@
 # PITR — Point-in-Time Recovery
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-pitr%2Fdevcontainer.json)
+
 Online, any-point database recovery on a YugabyteDB single-node cluster. Create a snapshot schedule, simulate accidental data loss (DELETE without WHERE, DROP TABLE), and restore the database to the exact second before the disaster — without stopping the cluster.
 
 > **Related exercises**

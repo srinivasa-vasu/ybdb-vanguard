@@ -4,6 +4,10 @@ Hands-on YugabyteDB exercises covering distributed SQL, query tuning, data migra
 
 ---
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Fdevcontainer.json)
+
+---
+
 ## Prerequisites
 
 | Platform | Requirements |

@@ -1,5 +1,7 @@
 # Observability & Performance Diagnosis
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-obs%2Fdevcontainer.json)
+
 End-to-end performance investigation on a YugabyteDB 3-node cluster using the full built-in observability stack — no external agents or dashboards required. Every query in this exercise is plain SQL.
 
 ---

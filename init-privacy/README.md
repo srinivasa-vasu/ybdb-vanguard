@@ -1,5 +1,7 @@
 # Data Privacy — Column Encryption & Anonymization
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-privacy%2Fdevcontainer.json)
+
 Column-level encryption with `pgcrypto`, hash-based pseudonymization, tamper-evident audit logs, and anonymized views for multi-schema data access — all in SQL, no application changes needed.
 
 ---

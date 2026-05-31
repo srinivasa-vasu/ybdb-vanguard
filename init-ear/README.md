@@ -1,5 +1,7 @@
 # Encryption at Rest (EAR)
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-ear%2Fdevcontainer.json)
+
 Enable, verify, and rotate encryption keys on a live YugabyteDB cluster — no restart required at any step.
 
 ---

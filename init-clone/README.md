@@ -1,5 +1,7 @@
 # DB Clone
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-clone%2Fdevcontainer.json)
+
 Instant database copies from any point in time — using a single SQL statement. No dump, no separate environment, no extra storage for unchanged data. Clone production to test a migration, create an isolated rollback baseline, or reproduce a past state for debugging.
 
 ---
