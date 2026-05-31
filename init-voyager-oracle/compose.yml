@@ -7,7 +7,7 @@ services:
     network_mode: host
     environment:
       # Password for the system and PDB admin users. Change for production use.
-      - ORACLE_PASSWORD=${ORACLE_PASSWORD:-B3kind1!}
+      - ORACLE_PASSWORD=${ORACLE_PASSWORD:-YbVanguard1}
       # Optional: Name of the pluggable database. Default is FREEPDB1.
       - ORACLE_PDB=${ORACLE_PDB:-MYPDB}
     ports:

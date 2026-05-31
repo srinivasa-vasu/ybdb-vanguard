@@ -8,11 +8,11 @@
   "containerEnv": {
     "DATA_PATH": "ybdb",
     "ART_PATH": "init-voyager-oracle",
-    "ORACLE_PASSWORD": "B3kind1!",
+    "ORACLE_PASSWORD": "YbVanguard1",
     "ORACLE_PDB": "legacy",
     "SRC_DB_TYPE": "oracle",
     "SRC_USER": "system",
-    "SRC_SECRET": "B3kind1!",
+    "SRC_SECRET": "YbVanguard1",
     "TARGET_DB_ID": "yugabyte",
     "TARGET_USER": "yugabyte",
     "TARGET_SECRET": "yugabyte",
