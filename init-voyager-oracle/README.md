@@ -1,3 +1,5 @@
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-voyager-oracle%2Fdevcontainer.json)
+
 ## Data migration workflow from Oracle to YugabyteDB
 
 Run **pre-step** from the `oracle` shell, then **Steps 1–8** from the `yb-voyager` shell.

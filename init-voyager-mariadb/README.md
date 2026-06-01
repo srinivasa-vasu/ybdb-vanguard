@@ -1,3 +1,5 @@
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-voyager-mariadb%2Fdevcontainer.json)
+
 ## Data migration workflow from MariaDB to YugabyteDB
 
 Run **pre-step** from the `mariadb` shell, then **Steps 1–8** from the `yb-voyager` shell.

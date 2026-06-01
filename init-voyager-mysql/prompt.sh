@@ -29,7 +29,7 @@ p "=== 'The MySQL Migration' — MySQL → YugabyteDB via yb-voyager ==="
 p ""
 p "Source: MySQL (Chinook music store database)"
 
-pe "docker compose -f init-voyager-mysql/compose.yml exec mysql \
+pe "docker-compose -f init-voyager-mysql/compose.yml exec mysql \
   mysql -uroot -p${SRC_SECRET} -e \
   'SELECT table_name, table_rows FROM information_schema.tables WHERE table_schema=\"Chinook\" ORDER BY table_rows DESC;'"
 

@@ -21,7 +21,7 @@ p "=== 'The MariaDB Migration' — MariaDB → YugabyteDB via yb-voyager ==="
 p ""
 p "Source: MariaDB (Chinook music store database)"
 
-pe "docker compose -f init-voyager-mariadb/compose.yml exec mysql \
+pe "docker-compose -f init-voyager-mariadb/compose.yml exec mysql \
   mariadb -uroot -p${SRC_SECRET} -e \
   'SELECT table_name, table_rows FROM information_schema.tables WHERE table_schema=\"Chinook\" ORDER BY table_rows DESC;'"
 

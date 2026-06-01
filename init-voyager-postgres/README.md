@@ -1,3 +1,5 @@
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-voyager-postgres%2Fdevcontainer.json)
+
 ## Live data migration workflow from PostgreSQL to YugabyteDB
 
 Run **pre-step** from the `psql` shell.  

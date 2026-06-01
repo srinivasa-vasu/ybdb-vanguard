@@ -59,6 +59,22 @@ RUN mkdir -p /home/vscode/.config/Code/User \
      > /dev/null \
   && chown -R vscode:vscode /home/vscode/.config /home/vscode/.vscode-server
 
+# Install Docker CLI + Compose v2 plugin for exercises that use docker compose
+# (CDC, Voyager). Installing here avoids the docker-in-docker / docker-outside-of-docker
+# devcontainer feature, whose install script fails on Apple Silicon / Rosetta.
+# No daemon is needed — the host Docker socket is mounted at container start.
+RUN apt-get update -qq \
+  && apt-get install -y -qq --no-install-recommends docker.io \
+  && rm -rf /var/lib/apt/lists/* \
+  && COMPOSE_ARCH=$([ "${TARGETARCH:-}" = "arm64" ] && echo "aarch64" || echo "x86_64") \
+  && curl -fsSL \
+     "https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-${COMPOSE_ARCH}" \
+     -o /usr/local/bin/docker-compose \
+  && chmod +x /usr/local/bin/docker-compose
+
+# Allow the vscode user to reach the Docker socket mounted at runtime
+RUN groupadd -f docker && usermod -aG docker vscode
+
 # hand ownership to the devcontainer user so no sudo is needed at runtime
 RUN chown -R vscode:vscode $YB_BIN_PATH
 

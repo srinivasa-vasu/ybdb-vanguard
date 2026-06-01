@@ -35,7 +35,7 @@ for i in $(seq 1 60); do
 done
 echo ""
 if [ "$_ora_ready" -eq 0 ]; then
-  echo "❌ Oracle did not become ready. Check: docker compose -f init-voyager-oracle/compose.yml logs oracle"
+  echo "❌ Oracle did not become ready. Check: docker-compose -f init-voyager-oracle/compose.yml logs oracle"
   exit 1
 fi
 

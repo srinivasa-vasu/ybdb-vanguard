@@ -14,6 +14,8 @@ services:
       - mysql-data:/var/lib/mysql
   voyager:
     container_name: yb-voyager
+    # yb-voyager is published for linux/amd64 only
+    platform: linux/amd64
     image: yugabytedb/yb-voyager:latest
     command: "echo Hello from yb-voyager!"
 volumes:

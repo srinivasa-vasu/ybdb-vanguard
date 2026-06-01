@@ -8,11 +8,13 @@ services:
 
   zookeeper:
     image: debezium/zookeeper:2.5.2.Final
+    platform: linux/amd64
     network_mode: host
     restart: on-failure
 
   kafka:
     image: debezium/kafka:2.5.2.Final
+    platform: linux/amd64
     network_mode: host
     depends_on:
       - zookeeper
@@ -21,9 +23,12 @@ services:
     restart: on-failure
 
   connect:
-    # Standard Debezium Kafka Connect image — YugabyteDB source connector JAR
-    # is mounted from ./kafka-plugins/ (downloaded by setup-cdc.sh).
+    # Standard Debezium Kafka Connect image. JARs are downloaded into the
+    # kafka-plugins named volume by setup-cdc.sh before this container starts.
+    # Using a named volume avoids bind-mount host-path issues with
+    # docker-outside-of-docker on macOS Dev Containers.
     image: debezium/connect:2.5.2.Final
+    platform: linux/amd64
     network_mode: host
     depends_on:
       - kafka
@@ -33,15 +38,15 @@ services:
       - CONFIG_STORAGE_TOPIC=cdc_connect_configs
       - OFFSET_STORAGE_TOPIC=cdc_connect_offsets
       - STATUS_STORAGE_TOPIC=cdc_connect_statuses
-      # kafka-plugins/ holds the YugabyteDB source connector + JDBC sink connector JARs
       - CONNECT_PLUGIN_PATH=/kafka/connect,/kafka/extra-plugins
     volumes:
-      - ./kafka-plugins:/kafka/extra-plugins:ro
+      - kafka-plugins:/kafka/extra-plugins:ro
     restart: on-failure
 
   postgresql:
     container_name: postgres
     image: postgres:14
+    platform: linux/amd64
     network_mode: host
     environment:
       POSTGRES_PASSWORD: yugabyte
@@ -57,3 +62,4 @@ services:
 
 volumes:
   postgresql_data:
+  kafka-plugins:

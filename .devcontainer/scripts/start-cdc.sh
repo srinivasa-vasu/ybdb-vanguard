@@ -15,6 +15,11 @@
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
+# Open the Docker socket so the vscode user can run docker-compose commands.
+# The socket is mounted from the host but owned by root:docker on the host;
+# the container's docker group GID may differ, so chmod is the reliable fix.
+sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
+
 KAFKA_CONNECT_PORT="${KAFKA_CONNECT_PORT:-8083}"
 
 # ── 1. YugabyteDB with logical replication tserver flag ──────────────────────
@@ -26,7 +31,7 @@ bash .devcontainer/scripts/start-ybdb.sh 1 "${TSERVER_FLAGS:-ysql_yb_default_rep
 
 # ── 2. Debezium stack + PostgreSQL (Docker Compose) ──────────────────────────
 echo "Starting Debezium stack (Zookeeper, Kafka, Connect) and PostgreSQL..."
-docker compose -f init-cdc/compose.yml up -d
+docker-compose -f init-cdc/compose.yml up -d
 
 # ── 3. Wait for PostgreSQL ────────────────────────────────────────────────────
 echo "Waiting for PostgreSQL on :5432 (up to 90s)..."
@@ -39,7 +44,7 @@ for i in $(seq 1 30); do
 done
 if [ "$_pg_ready" -eq 0 ]; then
   echo "❌ PostgreSQL did not become ready in time."
-  echo "   Check: docker compose -f init-cdc/compose.yml logs postgresql"
+  echo "   Check: docker-compose -f init-cdc/compose.yml logs postgresql"
   exit 1
 fi
 echo "✅ PostgreSQL is up."
@@ -57,7 +62,7 @@ for i in $(seq 1 60); do
 done
 if [ "$_kc_ready" -eq 0 ]; then
   echo "❌ Kafka Connect did not become ready in time."
-  echo "   Check: docker compose -f init-cdc/compose.yml logs connect"
+  echo "   Check: docker-compose -f init-cdc/compose.yml logs connect"
   exit 1
 fi
 echo "✅ Kafka Connect is ready."

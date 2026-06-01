@@ -10,6 +10,25 @@
   "tasks": [
 
     // ═══════════════════════════════════════════════════════════════════════
+    // Housekeeping
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "clean",
+      "detail": "Remove all runtime-generated directories (ybdb/, voyager-data/, keys, pscript files)",
+      "type": "shell",
+      "command": "rm -rf ybdb voyager-data init-ear/keys init-cdc/kafka-plugins && find . -name pscript -not -path './.git/*' -delete && echo '✅ Runtime directories cleaned.'",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
     // init-ear  — Encryption at Rest
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -364,7 +383,7 @@
       "label": "mysql",
       "detail": "Open a MySQL client session against the source database (init-voyager-mysql)",
       "type": "shell",
-      "command": "docker compose -f init-voyager-mysql/compose.yml exec mysql mysql -uroot -p${env:SRC_SECRET}",
+      "command": "docker-compose -f init-voyager-mysql/compose.yml exec mysql mysql -uroot -p${env:SRC_SECRET}",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -386,7 +405,7 @@
       "detail": "Open a MariaDB client session against the source database (init-voyager-mariadb)",
       "type": "shell",
       // compose service name is 'mysql' even for the mariadb image
-      "command": "docker compose -f init-voyager-mariadb/compose.yml exec mysql mariadb -uroot -p${env:SRC_SECRET}",
+      "command": "docker-compose -f init-voyager-mariadb/compose.yml exec mysql mariadb -uroot -p${env:SRC_SECRET}",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",

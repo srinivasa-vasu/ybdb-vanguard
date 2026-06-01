@@ -29,11 +29,9 @@ Each task opens in its own **dedicated terminal panel** — you can observe metr
 
 ## Running the chaos experiments
 
-Once both load generators are running and showing steady throughput, use the `az-fd` shell:
+Once both load generators are running and showing steady throughput, open the `az-fd` shell:
 
-```bash
-cd init-ft && bash prompt.sh
-```
+**Terminal → Run Task → `az-fd`** — then type `bash prompt.sh` when ready.
 
 The `prompt.sh` demo script walks through:
 1. Observing data placement across zones via the yugabyted UI (`localhost:15433`)

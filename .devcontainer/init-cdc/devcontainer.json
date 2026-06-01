@@ -33,12 +33,15 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  "features": {
-    // Docker-in-Docker for the Debezium + PostgreSQL containers
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
+  // Mount the host Docker socket so docker-compose commands work
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
   // One-time: install psql client + pv, download demo-magic, pull Debezium images, download connector JARs
   "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client pv && curl -ssLo init-cdc/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-cdc/pscript init-cdc/prompt.sh && bash .devcontainer/scripts/setup-cdc.sh && echo \"✅ CDC exercise ready\"'",
+  // Open workspace before postStartCommand completes so the README
+  // is visible while Docker Compose and services start in the background.
+  "waitFor": "postCreateCommand",
   // Every start: launch YugabyteDB (with logical replication flag) + Debezium stack
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-cdc.sh && echo \"\" && echo \"▶  Terminal → Run Task → cdc-demo          (guided CDC demo script)\" && echo \"▶  Terminal → Run Task → connector-config   (interactive CDC command shell)\"'",
   "customizations": {

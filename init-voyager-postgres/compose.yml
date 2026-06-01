@@ -2,26 +2,31 @@ services:
   postgresql:
     container_name: postgres
     image: postgres:14
+    # platform tag suppresses the linux/amd64 warning on Apple Silicon
+    platform: linux/amd64
     network_mode: host
-    ports:
-      - 5432:5432
+    # Pass wal_level=logical as a startup flag instead of mounting init.sql.
+    # Bind-mounting host files from a devcontainer fails with docker-outside-of-docker
+    # because the host Docker daemon cannot see paths inside the container filesystem.
+    command: postgres -c wal_level=logical -c max_replication_slots=10 -c max_wal_senders=10
     volumes:
       - postgresql_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 6
     restart: on-failure
     environment:
-      POSTGRES_USERNAME: postgres
       POSTGRES_PASSWORD: yugabyte
-      POSTGRES_DATABASE: postgres
-      POSTGRES_INITDB_ARGS: "--data-checksums"
+      POSTGRES_DB: postgres
+
   voyager:
     container_name: yb-voyager
+    # yb-voyager is published for linux/amd64 only
+    platform: linux/amd64
     image: yugabytedb/yb-voyager:latest
     command: "echo Hello from yb-voyager!"
+
 volumes:
   postgresql_data:
