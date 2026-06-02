@@ -4,12 +4,14 @@
     "dockerfile": "../../.ybdb.Dockerfile",
     "context": "../.."
   },
-  "runArgs": ["--init"],
+  // Create the shared network before container starts (initializeCommand runs on the host)
+  "initializeCommand": "docker network create ybdb-vanguard-net 2>/dev/null || true",
+  "runArgs": ["--init", "--network=ybdb-vanguard-net"],
   "containerEnv": {
     "DATA_PATH": "ybdb",
     "ART_PATH": "init-voyager-postgres",
     "SRC_DB_TYPE": "postgresql",
-    "SRC_HOST": "127.0.0.1",
+    "SRC_HOST": "postgres",
     "SRC_DB_ID": "Chinook",
     "SRC_USER": "postgres",
     "SOURCE_DB_SCHEMA": "public",
@@ -20,7 +22,7 @@
     "SCHEMA": "public",
     "PGUSER": "postgres",
     "PGPASSWORD": "yugabyte",
-    "PGHOST": "127.0.0.1"
+    "VOYAGER_EXPORT_DIR": "/workspaces/ybdb-vanguard/voyager-data"
   },
   "hostRequirements": {
     "cpus": 4,
@@ -31,8 +33,8 @@
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
-  // One-time: install psql client, pull image, install yb-voyager, create dirs
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client pv && curl -ssLo init-voyager-postgres/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-voyager-postgres/pscript init-voyager-postgres/prompt.sh && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && docker-compose -f init-voyager-postgres/compose.yml pull && wget -q -O /tmp/yb-voyager https://raw.githubusercontent.com/yugabyte/yb-voyager/main/docker/yb-voyager-docker && chmod +x /tmp/yb-voyager && sudo mv /tmp/yb-voyager /usr/local/bin/yb-voyager && mkdir -p voyager-data ybdb/backup && echo \"✅ PostgreSQL Voyager exercise ready\"'",
+  // One-time: install clients, install yb-voyager wrapper, pull images, create dirs
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client pv && { test -x /usr/bin/docker || test -x /usr/local/bin/docker || { ARCH=$(uname -m) && sudo curl -fsSL \"https://download.docker.com/linux/static/stable/${ARCH}/docker-24.0.7.tgz\" | sudo tar xz -C /usr/local/bin --strip-components=1 docker/docker; }; } && curl -ssLo init-voyager-postgres/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-voyager-postgres/pscript init-voyager-postgres/prompt.sh init-voyager-postgres/prompt-import.sh init-voyager-postgres/prompt-wa.sh init-voyager-postgres/pre-step.sh && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && sudo install -m 755 .devcontainer/scripts/yb-voyager-wrapper.sh /usr/local/bin/yb-voyager && docker-compose -f init-voyager-postgres/compose.yml pull && mkdir -p /workspaces/ybdb-vanguard/voyager-data /workspaces/ybdb-vanguard/ybdb/backup && echo \"✅ PostgreSQL Voyager exercise ready\"'",
   // Open workspace before postStartCommand completes so the README
   // is visible while Docker Compose and services start in the background.
   "waitFor": "postCreateCommand",
@@ -41,25 +43,32 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "task.allowAutomaticTasks": "on"
-      },
+        "task.allowAutomaticTasks": "on",
+        "files.exclude": {
+        ".devcontainer": true,
+        ".github": true,
+        "init-cdc": true,
+        "init-clone": true,
+        "init-dsql": true,
+        "init-ear": true,
+        "init-ft": true,
+        "init-geo": true,
+        "init-iloop": true,
+        "init-obs": true,
+        "init-pitr": true,
+        "init-privacy": true,
+        "init-qt": true,
+        "init-rls": true,
+        "init-scale": true,
+        "init-tt": true,
+        "init-voyager-mariadb": true,
+        "init-voyager-mysql": true,
+        "init-voyager-oracle": true
+        }},
       "extensions": [
         "ms-azuretools.vscode-docker"
       ],
-      "tasks": [
-        {
-          // Compound task: opens exercise-specific terminals when the workspace loads.
-          // ysql opens separately via its own runOn:folderOpen in the workspace tasks.json.
-          "label": "_auto-open",
-          "type": "shell",
-          "command": "code init-voyager-postgres/README.md 2>/dev/null || true",
-          "dependsOn": ["postgres-live-demo", "psql", "yb-voyager-export"],
-          "dependsOrder": "parallel",
-          "runOptions": { "runOn": "folderOpen" },
-          "presentation": { "reveal": "never", "panel": "shared" },
-          "problemMatcher": []
-        }
-      ]
+      "tasks": []
     }
   },
   "forwardPorts": [7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000, 5432],

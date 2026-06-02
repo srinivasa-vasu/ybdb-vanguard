@@ -16,6 +16,8 @@ ysqlsh
 
 > Default connection: `yugabyte@127.0.0.1:5433` — no credentials needed.
 
+> A **ysql** terminal opens automatically — use it directly or run `Terminal → Run Task → ysql` to open another.
+
 ---
 
 ## Running the exercises

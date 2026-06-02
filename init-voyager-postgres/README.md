@@ -24,7 +24,7 @@ Run from the `psql` shell:
 ### Step 0: Assess Migration
 
 ```
-yb-voyager assess-migration --export-dir ${PWD}/${DATA_PATH} \
+yb-voyager assess-migration --export-dir ${VOYAGER_EXPORT_DIR} \
   --source-db-type ${SRC_DB_TYPE} \
   --source-db-host ${SRC_HOST} \
   --source-db-user ${SRC_USER} \
@@ -36,9 +36,9 @@ yb-voyager assess-migration --export-dir ${PWD}/${DATA_PATH} \
 ### Step 1: Export Schema
 
 ```
-yb-voyager export schema --export-dir ${PWD}/${DATA_PATH} \
+yb-voyager export schema --export-dir ${VOYAGER_EXPORT_DIR} \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${HOST} \
+        --source-db-host ${SRC_HOST} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${SRC_DB_ID} \
@@ -48,7 +48,7 @@ yb-voyager export schema --export-dir ${PWD}/${DATA_PATH} \
 ### Step 2: Analyze Schema
 
 ```
-yb-voyager analyze-schema --export-dir ${PWD}/${DATA_PATH} --output-format html
+yb-voyager analyze-schema --export-dir ${VOYAGER_EXPORT_DIR} --output-format html
 ```
 
 ---
@@ -56,8 +56,8 @@ yb-voyager analyze-schema --export-dir ${PWD}/${DATA_PATH} --output-format html
 ### Step 3: Import Schema
 
 ```
-yb-voyager import schema --export-dir ${PWD}/${DATA_PATH} \
-        --target-db-host ${HOST} \
+yb-voyager import schema --export-dir ${VOYAGER_EXPORT_DIR} \
+        --target-db-host 127.0.0.1 \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
         --target-db-name ${TARGET_DB_ID} \
@@ -69,9 +69,9 @@ yb-voyager import schema --export-dir ${PWD}/${DATA_PATH} \
 ### Step 4: Export Data (keep running — captures snapshot then streams changes)
 
 ```
-yb-voyager export data from source --export-dir ${PWD}/${DATA_PATH} \
+yb-voyager export data from source --export-dir ${VOYAGER_EXPORT_DIR} \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${HOST} \
+        --source-db-host ${SRC_HOST} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${SRC_DB_ID} \
@@ -82,8 +82,8 @@ yb-voyager export data from source --export-dir ${PWD}/${DATA_PATH} \
 ### Step 5: Import Data (run alongside Step 4)
 
 ```
-yb-voyager import data to target --export-dir ${PWD}/${DATA_PATH} \
-        --target-db-host ${HOST} \
+yb-voyager import data to target --export-dir ${VOYAGER_EXPORT_DIR} \
+        --target-db-host 127.0.0.1 \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
         --target-db-name ${TARGET_DB_ID} \
@@ -95,28 +95,28 @@ yb-voyager import data to target --export-dir ${PWD}/${DATA_PATH} \
 ### Step 6: Get migration report
 
 ```
-yb-voyager get data-migration-report --export-dir ${PWD}/${DATA_PATH} \
+yb-voyager get data-migration-report --export-dir ${VOYAGER_EXPORT_DIR} \
         --target-db-password ${TARGET_SECRET}
 ```
 
 ### Step 7: Cutover to the target
 
 ```
-yb-voyager initiate cutover to target --export-dir ${PWD}/${DATA_PATH} \
+yb-voyager initiate cutover to target --export-dir ${VOYAGER_EXPORT_DIR} \
         --prepare-for-fall-back false
 ```
 
 ### Step 8: Check cutover status
 
 ```
-yb-voyager cutover status --export-dir ${PWD}/${DATA_PATH}
+yb-voyager cutover status --export-dir ${VOYAGER_EXPORT_DIR}
 ```
 
 ### Step 9: Finalize Schema (indexes, triggers, materialized views)
 
 ```
-yb-voyager finalize-schema-post-data-import --export-dir ${PWD}/${DATA_PATH} \
-        --target-db-host ${HOST} \
+yb-voyager finalize-schema-post-data-import --export-dir ${VOYAGER_EXPORT_DIR} \
+        --target-db-host 127.0.0.1 \
         --target-db-user ${TARGET_USER} \
         --target-db-password ${TARGET_SECRET} \
         --target-db-name ${TARGET_DB_ID} \
@@ -127,17 +127,17 @@ yb-voyager finalize-schema-post-data-import --export-dir ${PWD}/${DATA_PATH} \
 ### Step 10: Archive Changes
 
 ```
-yb-voyager archive changes --export-dir ${PWD}/${DATA_PATH} \
+yb-voyager archive changes --export-dir ${VOYAGER_EXPORT_DIR} \
         --policy delete-on-success
 ```
 
 ### Step 11: End Migration
 
 ```
-yb-voyager end migration --export-dir ${PWD}/${DATA_PATH} \
+yb-voyager end migration --export-dir ${VOYAGER_EXPORT_DIR} \
         --backup-log-files yes \
         --backup-data-files no \
         --backup-schema-files no \
         --save-migration-reports yes \
-        --backup-dir ${PWD}/${DATA_PATH}/backup
+        --backup-dir ${VOYAGER_EXPORT_DIR}/backup
 ```

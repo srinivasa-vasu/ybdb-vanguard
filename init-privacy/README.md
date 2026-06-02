@@ -15,7 +15,7 @@ Column-level encryption with `pgcrypto`, hash-based pseudonymization, tamper-evi
 The devcontainer starts a **single-node cluster**. Run `CREATE EXTENSION pgcrypto` once per database (included in `privacy.sql`).
 
 ```bash
-ysqlsh
+ysqlsh -h 127.0.0.1
 ```
 
 ---

@@ -28,7 +28,7 @@ clear
 curl -s -X DELETE "http://localhost:${KAFKA_CONNECT_PORT:-8083}/connectors/ybsource" >/dev/null 2>&1 || true
 curl -s -X DELETE "http://localhost:${KAFKA_CONNECT_PORT:-8083}/connectors/pgsink"   >/dev/null 2>&1 || true
 # Drop any leftover replication slot
-ysqlsh -c "SELECT pg_drop_replication_slot(slot_name) FROM pg_replication_slots WHERE slot_name = 'yb_replication_slot';" 2>/dev/null || true
+ysqlsh -h 127.0.0.1 -c "SELECT pg_drop_replication_slot(slot_name) FROM pg_replication_slots WHERE slot_name = 'yb_replication_slot';" 2>/dev/null || true
 
 # ── Scene 1: Verify Kafka Connect is ready ────────────────────────────────────
 
@@ -44,14 +44,14 @@ pe "curl -s http://localhost:${KAFKA_CONNECT_PORT:-8083}/connectors | python3 -m
 
 p "No connectors yet. No replication slots on YugabyteDB:"
 
-pe "ysqlsh -c \"SELECT slot_name, plugin, slot_type, active FROM pg_replication_slots;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT slot_name, plugin, slot_type, active FROM pg_replication_slots;\""
 
 # ── Scene 2: Create a live-demo table ─────────────────────────────────────────
 
 p ""
 p "Creating a demo table in YugabyteDB to track live changes:"
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 DROP TABLE IF EXISTS public.demo_events;
 CREATE TABLE public.demo_events (
   id      SERIAL PRIMARY KEY,
@@ -100,9 +100,9 @@ pe "curl -s -X POST -H 'Content-Type:application/json' \
 p ""
 p "Replication slot and publication created automatically:"
 
-pe "ysqlsh -c \"SELECT slot_name, plugin, active FROM pg_replication_slots;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT slot_name, plugin, active FROM pg_replication_slots;\""
 
-pe "ysqlsh -c \"SELECT pubname, puballtables FROM pg_publication;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT pubname, puballtables FROM pg_publication;\""
 
 # ── Scene 4: Wait for initial snapshot to complete ────────────────────────────
 
@@ -180,7 +180,7 @@ p "Snapshot complete — all Chinook Artists are in PostgreSQL."
 p ""
 p "--- Live CDC: INSERT ---"
 
-pe "ysqlsh -c \"INSERT INTO public.demo_events (event, payload) VALUES ('order_placed', '{\\\"item\\\": \\\"guitar\\\", \\\"qty\\\": 2}');\""
+pe "ysqlsh -h 127.0.0.1 -c \"INSERT INTO public.demo_events (event, payload) VALUES ('order_placed', '{\\\"item\\\": \\\"guitar\\\", \\\"qty\\\": 2}');\""
 
 sleep 5
 
@@ -194,7 +194,7 @@ pe "psql -h 127.0.0.1 -p 5432 -U ${TAR_USER:-postgres} ${TAR_DB_OBJECT:-postgres
 p ""
 p "--- Live CDC: UPDATE ---"
 
-pe "ysqlsh -c \"UPDATE public.demo_events SET payload = '{\\\"item\\\": \\\"guitar\\\", \\\"qty\\\": 5, \\\"status\\\": \\\"confirmed\\\"}' WHERE id = 1;\""
+pe "ysqlsh -h 127.0.0.1 -c \"UPDATE public.demo_events SET payload = '{\\\"item\\\": \\\"guitar\\\", \\\"qty\\\": 5, \\\"status\\\": \\\"confirmed\\\"}' WHERE id = 1;\""
 
 sleep 5
 
@@ -208,7 +208,7 @@ pe "psql -h 127.0.0.1 -p 5432 -U ${TAR_USER:-postgres} ${TAR_DB_OBJECT:-postgres
 p ""
 p "--- Live CDC: DELETE ---"
 
-pe "ysqlsh -c \"DELETE FROM public.demo_events WHERE id = 1;\""
+pe "ysqlsh -h 127.0.0.1 -c \"DELETE FROM public.demo_events WHERE id = 1;\""
 
 sleep 5
 

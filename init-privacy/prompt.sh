@@ -23,11 +23,11 @@ p "=== 'The GDPR Audit' — Data Privacy Demo ==="
 p ""
 p "Step 1: Enable the pgcrypto extension."
 
-pe "ysqlsh -c \"CREATE EXTENSION IF NOT EXISTS pgcrypto;\""
+pe "ysqlsh -h 127.0.0.1 -c \"CREATE EXTENSION IF NOT EXISTS pgcrypto;\""
 
 p "Now create a patient records table with plaintext PII — the 'before' state."
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE TABLE IF NOT EXISTS patients (
   id        SERIAL PRIMARY KEY,
   full_name TEXT   NOT NULL,
@@ -37,13 +37,13 @@ CREATE TABLE IF NOT EXISTS patients (
   diagnosis TEXT   NOT NULL
 );\""
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 INSERT INTO patients (full_name, email, phone, dob, diagnosis) VALUES
   ('Alice Johnson', 'alice@example.com', '555-0101', '1985-03-14', 'Hypertension'),
   ('Bob Williams',  'bob@example.com',   '555-0102', '1972-07-22', 'Type 2 Diabetes'),
   ('Carol Smith',   'carol@example.com', '555-0103', '1990-11-05', 'Asthma');\""
 
-pe "ysqlsh -c \"SELECT * FROM patients;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT * FROM patients;\""
 
 p "PII stored in plaintext — the auditor raises an immediate flag."
 
@@ -53,7 +53,7 @@ p ""
 p "--- Part 1: Symmetric column encryption with pgcrypto ---"
 p "Store only encrypted bytes in the sensitive columns."
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE TABLE IF NOT EXISTS patients_secure (
   id             SERIAL PRIMARY KEY,
   email_hash     TEXT   NOT NULL,           -- for lookups (one-way)
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS patients_secure (
   created_at     TIMESTAMPTZ DEFAULT now()
 );\""
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 INSERT INTO patients_secure
   (email_hash, email_enc, phone_enc, dob_enc, diagnosis_enc)
 SELECT
@@ -75,7 +75,7 @@ SELECT
   pgp_sym_encrypt(diagnosis, 'encryption_key_v1')
 FROM patients;\""
 
-pe "ysqlsh -c \"SELECT id, email_hash, encode(email_enc,'hex') AS email_enc_hex FROM patients_secure;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT id, email_hash, encode(email_enc,'hex') AS email_enc_hex FROM patients_secure;\""
 
 p "Only the SHA-256 hash and ciphertext are stored. Plaintext never touches disk."
 
@@ -84,7 +84,7 @@ p "Only the SHA-256 hash and ciphertext are stored. Plaintext never touches disk
 p ""
 p "--- Part 2: Authorized decryption for clinical staff ---"
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 SELECT
   id,
   pgp_sym_decrypt(email_enc,     'encryption_key_v1') AS email,
@@ -100,7 +100,7 @@ p "Decryption requires the key. Wrong key returns an error, not garbage data."
 p ""
 p "--- Part 3: Find a patient by email using the hash (no decryption needed) ---"
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 SELECT id, email_hash
 FROM patients_secure
 WHERE email_hash = encode(digest('alice@example.com', 'sha256'), 'hex');\""
@@ -113,7 +113,7 @@ p ""
 p "--- Part 4: Anonymization for analytics and test environments ---"
 p "Techniques: masking, pseudonymization, generalization — all in SQL."
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 SELECT
   id,
   -- Pseudonymize: deterministic hash (same input → same output, not reversible)
@@ -135,7 +135,7 @@ FROM patients_secure;\""
 p ""
 p "--- Part 5: Anonymized view — safe for the analytics team ---"
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE OR REPLACE VIEW patients_analytics AS
 SELECT
   id,
@@ -150,7 +150,7 @@ SELECT
   created_at::date AS record_date
 FROM patients_secure;\""
 
-pe "ysqlsh -c \"SELECT * FROM patients_analytics;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT * FROM patients_analytics;\""
 
 p "The analytics team queries this view. They never see email, phone, or exact DOB."
 
@@ -159,7 +159,7 @@ p "The analytics team queries this view. They never see email, phone, or exact D
 p ""
 p "--- Part 6: HMAC for a tamper-evident audit trail ---"
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE TABLE IF NOT EXISTS audit_log (
   log_id    SERIAL PRIMARY KEY,
   action    TEXT NOT NULL,
@@ -177,7 +177,7 @@ VALUES (
   hmac('VIEW_DIAGNOSIS|1|dr.jones', 'audit_hmac_secret', 'sha256')
 );\""
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 SELECT
   log_id, action, patient_id, actor, logged_at,
   CASE WHEN signature = hmac(action || '|' || patient_id || '|' || actor,

@@ -77,10 +77,10 @@ The app starts on `localhost:8080`. Open the VS Code port forwarding panel to ac
 
 ```bash
 # Connect to the pre-seeded ybdbapp database
-ysqlsh -d ybdbapp
+ysqlsh -h 127.0.0.1 -d ybdbapp
 
 # Check which tables were created after running migrations
-ysqlsh -d ybdbapp -c "\dt"
+ysqlsh -h 127.0.0.1 -d ybdbapp -c "\dt"
 
 # YugabyteDB UI (tablet distribution, metrics)
 # → Forwarded port 15433 in VS Code

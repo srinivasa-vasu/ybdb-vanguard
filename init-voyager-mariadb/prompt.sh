@@ -12,7 +12,7 @@ TYPE_SPEED=35
 NO_WAIT=false
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
-EXPORT_DIR="${PWD}/voyager-data"
+EXPORT_DIR="/workspaces/ybdb-vanguard/init-voyager-mariadb/voyager-data"
 mkdir -p "${EXPORT_DIR}"
 
 clear
@@ -30,7 +30,7 @@ p "--- Step 1: Assess Migration ---"
 
 pe "yb-voyager assess-migration --export-dir ${EXPORT_DIR} \
   --source-db-type ${SRC_DB_TYPE} \
-  --source-db-host ${HOST} \
+  --source-db-host ${SRC_HOST:-mariadb} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
   --source-db-name ${SRC_DB_ID}"
@@ -40,7 +40,7 @@ p "--- Step 2: Export Schema ---"
 
 pe "yb-voyager export schema --export-dir ${EXPORT_DIR} \
   --source-db-type ${SRC_DB_TYPE} \
-  --source-db-host ${HOST} \
+  --source-db-host ${SRC_HOST:-mariadb} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
   --source-db-name ${SRC_DB_ID}"
@@ -55,7 +55,7 @@ p "--- Step 4: Export Data ---"
 
 pe "yb-voyager export data --export-dir ${EXPORT_DIR} \
   --source-db-type ${SRC_DB_TYPE} \
-  --source-db-host ${HOST} \
+  --source-db-host ${SRC_HOST:-mariadb} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
   --source-db-name ${SRC_DB_ID}"
@@ -66,7 +66,7 @@ p ""
 p "--- Step 5: Import Schema ---"
 
 pe "yb-voyager import schema --export-dir ${EXPORT_DIR} \
-  --target-db-host ${HOST} \
+  --target-db-host 127.0.0.1 \
   --target-db-user ${TARGET_USER} \
   --target-db-password ${TARGET_SECRET} \
   --target-db-name ${TARGET_DB_ID} \
@@ -76,7 +76,7 @@ p ""
 p "--- Step 6: Import Data ---"
 
 pe "yb-voyager import data --export-dir ${EXPORT_DIR} \
-  --target-db-host ${HOST} \
+  --target-db-host 127.0.0.1 \
   --target-db-user ${TARGET_USER} \
   --target-db-password ${TARGET_SECRET} \
   --target-db-name ${TARGET_DB_ID} \
@@ -88,7 +88,7 @@ p ""
 p "--- Step 7: Finalise Schema ---"
 
 pe "yb-voyager finalize-schema-post-data-import --export-dir ${EXPORT_DIR} \
-  --target-db-host ${HOST} \
+  --target-db-host 127.0.0.1 \
   --target-db-user ${TARGET_USER} \
   --target-db-password ${TARGET_SECRET} \
   --target-db-name ${TARGET_DB_ID} \
@@ -97,7 +97,7 @@ pe "yb-voyager finalize-schema-post-data-import --export-dir ${EXPORT_DIR} \
 p ""
 p "--- Step 8: Verify ---"
 
-pe "ysqlsh -c \"SELECT COUNT(*) AS tracks FROM public.\\\"Track\\\"; \
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT COUNT(*) AS tracks FROM public.\\\"Track\\\"; \
               SELECT COUNT(*) AS artists FROM public.\\\"Artist\\\";\""
 
 p ""

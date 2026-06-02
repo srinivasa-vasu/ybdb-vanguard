@@ -22,7 +22,7 @@ p "=== 'The SaaS Tenant Isolation Problem' — RLS Demo ==="
 p ""
 p "A SaaS orders table shared by multiple customers. No isolation yet."
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 DROP TABLE IF EXISTS orders CASCADE;
 CREATE TABLE orders (
   order_id  SERIAL          PRIMARY KEY,
@@ -38,7 +38,7 @@ INSERT INTO orders (tenant_id, customer, amount) VALUES
   ('globex',  'Dave Brown',      450.00),
   ('initech', 'Eve Davis',      1750.00);\""
 
-pe "ysqlsh -c \"SELECT * FROM orders ORDER BY tenant_id;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT * FROM orders ORDER BY tenant_id;\""
 
 p "Any user with SELECT can see ALL tenants. That is a compliance failure."
 
@@ -47,12 +47,12 @@ p "Any user with SELECT can see ALL tenants. That is a compliance failure."
 p ""
 p "--- Part 1: Enable RLS and add a tenant isolation policy ---"
 
-pe "ysqlsh -c \"ALTER TABLE orders ENABLE ROW LEVEL SECURITY;\""
+pe "ysqlsh -h 127.0.0.1 -c \"ALTER TABLE orders ENABLE ROW LEVEL SECURITY;\""
 
 p "RLS enabled — table owner still sees everything (BYPASSRLS by default)."
 p "Now add the policy that enforces tenant isolation."
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE POLICY tenant_isolation ON orders
   FOR ALL
   USING (tenant_id = current_setting('app.tenant_id', true));\""
@@ -64,9 +64,9 @@ p "Policy created. Any session must SET app.tenant_id before querying."
 p ""
 p "--- Part 2: Tenant A cannot see Tenant B's rows ---"
 
-pe "ysqlsh -c \"SET app.tenant_id = 'acme'; SELECT * FROM orders;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SET app.tenant_id = 'acme'; SELECT * FROM orders;\""
 
-pe "ysqlsh -c \"SET app.tenant_id = 'globex'; SELECT * FROM orders;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SET app.tenant_id = 'globex'; SELECT * FROM orders;\""
 
 p "Each tenant sees only their own rows. The WHERE clause is injected by the DB."
 
@@ -75,7 +75,7 @@ p "Each tenant sees only their own rows. The WHERE clause is injected by the DB.
 p ""
 p "--- Part 3: Missing tenant context = zero rows (safe default) ---"
 
-pe "ysqlsh -c \"SELECT * FROM orders;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT * FROM orders;\""
 
 p "Without SET app.tenant_id, current_setting returns NULL → no rows returned."
 p "A misconfigured app leaks nothing."
@@ -85,7 +85,7 @@ p "A misconfigured app leaks nothing."
 p ""
 p "--- Part 4: Prevent cross-tenant inserts with WITH CHECK ---"
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 DROP POLICY tenant_isolation ON orders;
 CREATE POLICY tenant_isolation ON orders
   FOR ALL
@@ -94,7 +94,7 @@ CREATE POLICY tenant_isolation ON orders
 
 p "Now try to insert a row for a different tenant:"
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 SET app.tenant_id = 'acme';
 INSERT INTO orders (tenant_id, customer, amount)
 VALUES ('globex', 'Malicious Actor', 9999.99);\""
@@ -106,11 +106,11 @@ p "ERROR: new row violates row-level security policy. The WITH CHECK clause bloc
 p ""
 p "--- Part 5: Admin role bypasses RLS for maintenance tasks ---"
 
-pe "ysqlsh -c \"CREATE ROLE platform_admin LOGIN PASSWORD 'admin123';\""
-pe "ysqlsh -c \"GRANT ALL ON orders TO platform_admin;\""
-pe "ysqlsh -c \"ALTER ROLE platform_admin BYPASSRLS;\""
+pe "ysqlsh -h 127.0.0.1 -c \"CREATE ROLE platform_admin LOGIN PASSWORD 'admin123';\""
+pe "ysqlsh -h 127.0.0.1 -c \"GRANT ALL ON orders TO platform_admin;\""
+pe "ysqlsh -h 127.0.0.1 -c \"ALTER ROLE platform_admin BYPASSRLS;\""
 
-pe "ysqlsh -U platform_admin -c \"SELECT tenant_id, COUNT(*) FROM orders GROUP BY tenant_id;\""
+pe "ysqlsh -h 127.0.0.1 -U platform_admin -c \"SELECT tenant_id, COUNT(*) FROM orders GROUP BY tenant_id;\""
 
 p "platform_admin sees all tenants — needed for billing, support, backups."
 
@@ -120,7 +120,7 @@ p ""
 p "--- Part 6: SECURITY DEFINER — safe tenant-aware function ---"
 p "Applications call a function that sets the tenant context internally."
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE OR REPLACE FUNCTION get_tenant_orders(p_tenant TEXT)
 RETURNS TABLE (order_id INT, customer TEXT, amount NUMERIC, status TEXT)
 SECURITY DEFINER LANGUAGE SQL AS \$\$
@@ -129,7 +129,7 @@ SECURITY DEFINER LANGUAGE SQL AS \$\$
   WHERE tenant_id = p_tenant;
 \$\$;\""
 
-pe "ysqlsh -c \"SELECT * FROM get_tenant_orders('acme');\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT * FROM get_tenant_orders('acme');\""
 
 p "The function sets its own security context — callers cannot inject a different tenant."
 
@@ -139,9 +139,9 @@ p ""
 p "--- Part 7: Optimize with a partial index on tenant_id ---"
 p "Without an index, every RLS check does a full scan of 500k rows in production."
 
-pe "ysqlsh -c \"CREATE INDEX idx_orders_tenant ON orders (tenant_id) INCLUDE (customer, amount, status);\""
+pe "ysqlsh -h 127.0.0.1 -c \"CREATE INDEX idx_orders_tenant ON orders (tenant_id) INCLUDE (customer, amount, status);\""
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 SET app.tenant_id = 'acme';
 EXPLAIN SELECT * FROM orders;\""
 

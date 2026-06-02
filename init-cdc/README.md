@@ -1,10 +1,16 @@
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-cdc%2Fdevcontainer.json)
+
 ## Change data capture workflow from YugabyteDB to PostgreSQL
 
 YugabyteDB acts as the CDC source using **PostgreSQL logical replication** (`yboutput` plugin).  
 The **YugabyteDB Debezium connector** (`io.debezium.connector.yugabytedb.YugabyteDBConnector`) consumes the replication stream and publishes change events to Kafka.  
 A **Confluent JDBC sink connector** writes those events to the PostgreSQL sink.
 
-Run all commands below from the `connector-config` shell (`Terminal → Run Task → connector-config`).
+**Quick start:** Two terminals open automatically:
+- **`cdc-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`connector-config`** — ad-hoc shell for curl/yb-admin commands
+
+Run all manual `curl` commands below from the `connector-config` shell.
 
 ---
 
@@ -111,8 +117,6 @@ UPDATE public."Artist" SET "Name" = 'Updated Artist' WHERE "ArtistId" = 999;
 
 ```bash
 # PostgreSQL sink
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-cdc%2Fdevcontainer.json)
 psql -h 127.0.0.1 -p 5432 -U postgres -c 'SELECT * FROM "Artist" WHERE "ArtistId" = 999;'
 ```
 

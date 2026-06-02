@@ -21,7 +21,7 @@ For lookbacks beyond 15 minutes, use the PITR exercise (`init-pitr`).
 Connect with:
 
 ```bash
-ysqlsh
+ysqlsh -h 127.0.0.1
 ```
 
 ---
@@ -267,7 +267,7 @@ yb_read_time
 
 ```bash
 # Connect to YSQL
-ysqlsh
+ysqlsh -h 127.0.0.1
 ```
 
 ```sql

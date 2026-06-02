@@ -6,7 +6,7 @@ Online, any-point database recovery on a YugabyteDB single-node cluster. Create 
 
 > **Related exercises**
 > - DB Clone (`init-clone`) — instant copy-on-write database copies built on PITR snapshots
-> - Time Travel (`init-tt`) — read-only flashback queries with `AS OF SYSTEM TIME`
+> - Time Travel (`init-tt`) — read-only flashback queries with `SET yb_read_time`
 
 ---
 
@@ -21,7 +21,7 @@ The devcontainer starts a **single-node cluster**. All exercises are self-contai
 Connect with:
 
 ```bash
-ysqlsh
+ysqlsh -h 127.0.0.1
 ```
 
 ---
@@ -261,8 +261,8 @@ yb-admin -master_addresses 127.0.0.1:7100 \
   delete_snapshot_schedule <schedule_id>
 
 # Capture the current time as Unix microseconds (for use in restore command)
-ysqlsh -c "SELECT (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000000)::bigint AS ts_us;"
+ysqlsh -h 127.0.0.1 -c "SELECT (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000000)::bigint AS ts_us;"
 
 # Connect to YSQL
-ysqlsh
+ysqlsh -h 127.0.0.1
 ```

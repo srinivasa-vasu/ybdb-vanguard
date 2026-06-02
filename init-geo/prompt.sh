@@ -28,7 +28,7 @@ p "=== 'The Global Banking Platform' ==="
 p ""
 p "Three-node cluster simulating three geographic regions:"
 
-pe "ysqlsh -c \"SELECT host, cloud, region, zone, node_type FROM yb_servers() ORDER BY region;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT host, cloud, region, zone, node_type FROM yb_servers() ORDER BY region;\""
 
 p "Each IP maps to a real region. Tablespaces will pin data to these regions."
 
@@ -38,13 +38,13 @@ p ""
 p "--- Step 1: Create region-specific tablespaces ---"
 p "replica_placement JSON ties a tablespace to a cloud/region/zone."
 
-pe "ysqlsh -c \"CREATE TABLESPACE us_east_ts WITH (replica_placement = '{\\\"num_replicas\\\": 1, \\\"placement_blocks\\\": [{\\\"cloud\\\":\\\"ybcloud\\\",\\\"region\\\":\\\"us-east\\\",\\\"zone\\\":\\\"us-east-az1\\\",\\\"min_num_replicas\\\":1}]}');\""
+pe "ysqlsh -h 127.0.0.1 -c \"CREATE TABLESPACE us_east_ts WITH (replica_placement = '{\\\"num_replicas\\\": 1, \\\"placement_blocks\\\": [{\\\"cloud\\\":\\\"ybcloud\\\",\\\"region\\\":\\\"us-east\\\",\\\"zone\\\":\\\"us-east-az1\\\",\\\"min_num_replicas\\\":1}]}');\""
 
-pe "ysqlsh -c \"CREATE TABLESPACE eu_west_ts WITH (replica_placement = '{\\\"num_replicas\\\": 1, \\\"placement_blocks\\\": [{\\\"cloud\\\":\\\"ybcloud\\\",\\\"region\\\":\\\"eu-west\\\",\\\"zone\\\":\\\"eu-west-az1\\\",\\\"min_num_replicas\\\":1}]}');\""
+pe "ysqlsh -h 127.0.0.1 -c \"CREATE TABLESPACE eu_west_ts WITH (replica_placement = '{\\\"num_replicas\\\": 1, \\\"placement_blocks\\\": [{\\\"cloud\\\":\\\"ybcloud\\\",\\\"region\\\":\\\"eu-west\\\",\\\"zone\\\":\\\"eu-west-az1\\\",\\\"min_num_replicas\\\":1}]}');\""
 
-pe "ysqlsh -c \"CREATE TABLESPACE ap_south_ts WITH (replica_placement = '{\\\"num_replicas\\\": 1, \\\"placement_blocks\\\": [{\\\"cloud\\\":\\\"ybcloud\\\",\\\"region\\\":\\\"ap-south\\\",\\\"zone\\\":\\\"ap-south-az1\\\",\\\"min_num_replicas\\\":1}]}');\""
+pe "ysqlsh -h 127.0.0.1 -c \"CREATE TABLESPACE ap_south_ts WITH (replica_placement = '{\\\"num_replicas\\\": 1, \\\"placement_blocks\\\": [{\\\"cloud\\\":\\\"ybcloud\\\",\\\"region\\\":\\\"ap-south\\\",\\\"zone\\\":\\\"ap-south-az1\\\",\\\"min_num_replicas\\\":1}]}');\""
 
-pe "ysqlsh -c \"SELECT spcname AS tablespace FROM pg_tablespace WHERE spcname NOT IN ('pg_default','pg_global') ORDER BY spcname;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT spcname AS tablespace FROM pg_tablespace WHERE spcname NOT IN ('pg_default','pg_global') ORDER BY spcname;\""
 
 # ── Scene 3: Geo-partitioned table ────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ p ""
 p "--- Step 2: Geo-partitioned transactions table ---"
 p "One parent table. Each partition is pinned to its region's tablespace."
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE TABLE bank_txns (
   txn_id   BIGSERIAL  NOT NULL,
   region   TEXT       NOT NULL,
@@ -62,19 +62,19 @@ CREATE TABLE bank_txns (
   ts       TIMESTAMPTZ NOT NULL DEFAULT now()
 ) PARTITION BY LIST (region);\""
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE TABLE bank_txns_us PARTITION OF bank_txns
   (txn_id, region, customer, amount, txn_type, ts,
    PRIMARY KEY (txn_id HASH, region))
   FOR VALUES IN ('US') TABLESPACE us_east_ts;\""
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE TABLE bank_txns_eu PARTITION OF bank_txns
   (txn_id, region, customer, amount, txn_type, ts,
    PRIMARY KEY (txn_id HASH, region))
   FOR VALUES IN ('EU') TABLESPACE eu_west_ts;\""
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE TABLE bank_txns_ap PARTITION OF bank_txns
   (txn_id, region, customer, amount, txn_type, ts,
    PRIMARY KEY (txn_id HASH, region))
@@ -85,14 +85,14 @@ CREATE TABLE bank_txns_ap PARTITION OF bank_txns
 p ""
 p "--- Step 3: Routing is automatic — app just sets the region column ---"
 
-pe "ysqlsh -c \"INSERT INTO bank_txns (region, customer, amount, txn_type) VALUES
+pe "ysqlsh -h 127.0.0.1 -c \"INSERT INTO bank_txns (region, customer, amount, txn_type) VALUES
   ('EU', 'Lars Eriksson',  2500.00, 'transfer'),
   ('EU', 'Marie Dupont',    850.00, 'payment'),
   ('US', 'Alice Johnson', 1200.00, 'deposit'),
   ('US', 'Bob Williams',   430.00, 'payment'),
   ('AP', 'Priya Sharma',   950.00, 'transfer');\""
 
-pe "ysqlsh -c \"SELECT tableoid::regclass AS partition, region, customer, amount FROM bank_txns ORDER BY region, customer;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT tableoid::regclass AS partition, region, customer, amount FROM bank_txns ORDER BY region, customer;\""
 
 p "Every EU row landed in bank_txns_eu. No application-level routing needed."
 
@@ -101,7 +101,7 @@ p "Every EU row landed in bank_txns_eu. No application-level routing needed."
 p ""
 p "--- Step 4: Verify tablet leaders are in the right region ---"
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 SELECT tm.relname AS partition, sv.region, sv.zone, tm.leader
 FROM yb_tablet_metadata tm
 JOIN yb_servers() sv ON tm.leader LIKE sv.host || '%'
@@ -116,7 +116,7 @@ p "bank_txns_eu leader is on 127.0.0.2 (eu-west). EU data never leaves EU."
 p ""
 p "--- Step 5: Partition pruning — only the EU partition is scanned ---"
 
-pe "ysqlsh -c \"EXPLAIN SELECT * FROM bank_txns WHERE region = 'EU';\""
+pe "ysqlsh -h 127.0.0.1 -c \"EXPLAIN SELECT * FROM bank_txns WHERE region = 'EU';\""
 
 p "Seq Scan on bank_txns_eu only. The US and AP partitions are not touched."
 
@@ -125,7 +125,7 @@ p "Seq Scan on bank_txns_eu only. The US and AP partitions are not touched."
 p ""
 p "--- Step 6: yb_is_local_table — read only what's local to this node ---"
 
-pe "ysqlsh -c \"SELECT region, customer, amount FROM bank_txns WHERE yb_is_local_table(tableoid) ORDER BY region, customer;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT region, customer, amount FROM bank_txns WHERE yb_is_local_table(tableoid) ORDER BY region, customer;\""
 
 p "Returns only the partition whose leader is on the connected node."
 p "In production, each region's app server connects to its local node."
@@ -140,7 +140,7 @@ pe "yb-admin --master_addresses ${MASTERS} set_preferred_zones ybcloud.us-east.u
 
 sleep 3
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 SELECT tm.relname, sv.region, sv.zone, COUNT(*) AS leader_count
 FROM yb_tablet_metadata tm
 JOIN yb_servers() sv ON tm.leader LIKE sv.host || '%'
@@ -156,7 +156,7 @@ p ""
 p "--- Step 8: Follower reads — serve reads from the nearest replica ---"
 p "Ideal for analytics queries where a few seconds of staleness is acceptable."
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 BEGIN;
 SET TRANSACTION READ ONLY;
 SET LOCAL yb_read_from_followers = true;

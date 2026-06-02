@@ -74,8 +74,8 @@ yugabyted start --base_dir ${DATA_PATH}/ybd4 --advertise_address 127.0.0.4 \
   --fault_tolerance zone --background=true
 
 # Connect to YSQL
-ysqlsh
+ysqlsh -h 127.0.0.1
 
 # Connect to YCQL
-ycqlsh
+ycqlsh -h 127.0.0.1
 ```

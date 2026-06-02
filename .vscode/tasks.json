@@ -10,6 +10,24 @@
   "tasks": [
 
     // ═══════════════════════════════════════════════════════════════════════
+    // Auto-open on folder load  (runOn: folderOpen — workspace-level so VS Code
+    // reliably triggers these; devcontainer tasks do not guarantee folderOpen)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      // Opens the exercise-specific README when the workspace loads.
+      // ${workspaceFolder} and ${env:ART_PATH} are proper VS Code task variables
+      // (unlike ${PWD} which VS Code may resolve to empty before the shell sees it).
+      // ART_PATH is set per-exercise in each devcontainer's containerEnv.
+      "label": "_open-readme",
+      "type": "shell",
+      "command": "code \"${workspaceFolder}/${env:ART_PATH}/README.md\"",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": { "reveal": "never", "panel": "shared", "close": true, "showReuseMessage": false },
+      "problemMatcher": []
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
     // Housekeeping
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -36,14 +54,19 @@
       "label": "ear-demo",
       "detail": "\"The Compliance Mandate\" — enable EAR, verify, rotate encryption key (init-ear/prompt.sh)",
       "type": "shell",
-      "command": "cd init-ear && echo '🔐 ear-demo  —  Encryption at Rest' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-ear' ] || exit 0; cd init-ear && echo '🔐 ear-demo  —  Encryption at Rest' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "ear",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -56,14 +79,19 @@
       "label": "rls-demo",
       "detail": "\"The SaaS Tenant Isolation Problem\" — RLS policies, session vars, BYPASSRLS (init-rls/prompt.sh)",
       "type": "shell",
-      "command": "cd init-rls && echo '🔒 rls-demo  —  Row Level Security & Multi-tenancy' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-rls' ] || exit 0; cd init-rls && echo '🔒 rls-demo  —  Row Level Security & Multi-tenancy' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "rls",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -76,14 +104,16 @@
       "label": "privacy-demo",
       "detail": "\"The GDPR Audit\" — pgcrypto encryption, HMAC audit logs, anonymized views (init-privacy/prompt.sh)",
       "type": "shell",
-      "command": "cd init-privacy && echo '🛡️  privacy-demo  —  Data Privacy & Column Encryption' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-privacy' ] || exit 0; cd init-privacy && echo '🛡️  privacy-demo  —  Data Privacy & Column Encryption' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "privacy",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -96,14 +126,16 @@
       "label": "geo-demo",
       "detail": "\"The Global Banking Platform\" — tablespaces, geo-partitioning, follower reads (init-geo/prompt.sh)",
       "type": "shell",
-      "command": "cd init-geo && echo '🌍 geo-demo  —  Geo-distribution & Tablespaces' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-geo' ] || exit 0; cd init-geo && echo '🌍 geo-demo  —  Geo-distribution & Tablespaces' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "geo",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -116,14 +148,16 @@
       "label": "run-load",
       "detail": "Continuous query load generator — keep running while exploring ASH and pg_stat_statements (init-obs)",
       "type": "shell",
-      "command": "until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && cd init-obs && bash run-load.sh",
+      "command": "[ '${env:ART_PATH}' = 'init-obs' ] || exit 0; until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && cd init-obs && bash run-load.sh",
+      "runOptions": { "runOn": "folderOpen" },
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "obs",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -131,14 +165,15 @@
       "label": "ysql-obs",
       "detail": "Open a YSQL shell connected to obs_demo (init-obs)",
       "type": "shell",
-      "command": "echo 'Waiting for YugabyteDB on :5433...' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -d obs_demo",
+      "command": "[ '${env:ART_PATH}' = 'init-obs' ] || exit 0; echo 'Waiting for YugabyteDB on :5433...' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1 -d obs_demo",
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "obs",
         "showReuseMessage": false,
         "clear": false
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -146,14 +181,15 @@
       "label": "obs-demo",
       "detail": "\"The Case of the Disappearing SLA\" — guided ASH + pg_stat_statements investigation (init-obs/prompt.sh)",
       "type": "shell",
-      "command": "cd init-obs && echo '🔍 obs-demo  —  Performance Investigation' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-obs' ] || exit 0; cd init-obs && echo '🔍 obs-demo  —  Performance Investigation' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "obs",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -166,16 +202,8 @@
       "label": "ysql",
       "detail": "Open a YSQL shell (ysqlsh) — available in every exercise",
       "type": "shell",
-      "command": "echo 'Waiting for YugabyteDB on :5433...' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh",
-      "runOptions": {
-        // Auto-run when the workspace folder opens — a YSQL shell is always ready.
-        "runOn": "folderOpen"
-      },
-      "runOptions": {
-        // Auto-run when the workspace folder opens so a YSQL shell is always ready.
-        // Requires "task.allowAutomaticTasks": "on" in devcontainer customizations.
-        "runOn": "folderOpen"
-      },
+      "command": "echo 'Waiting for YugabyteDB on :5433...' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -196,14 +224,19 @@
       "label": "ysql-load",
       "detail": "Start YSQL SqlInserts load against the 6-node cluster (init-ft)",
       "type": "shell",
-      "command": "java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 5 --num_threads_write 2 --nodes ${env:HOST_LB}:5433,${env:HOST_LB2}:5433,${env:HOST_LB3}:5433 --password ${env:SECRET} --username ${env:YB_USER}",
+      "command": "[ '${env:ART_PATH}' = 'init-ft' ] || exit 0; java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 5 --num_threads_write 2 --nodes ${env:HOST_LB}:5433,${env:HOST_LB2}:5433,${env:HOST_LB3}:5433 --password ${env:SECRET} --username ${env:YB_USER}",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "ft-load",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -212,14 +245,19 @@
       "label": "ycql-load",
       "detail": "Start YCQL CassandraKeyValue load against the 6-node cluster (init-ft)",
       "type": "shell",
-      "command": "java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 5 --num_threads_write 2 --nodes ${env:HOST_LB}:9042,${env:HOST_LB2}:9042,${env:HOST_LB3}:9042 --password ${env:SECRET} --username ${env:YB_USER}",
+      "command": "[ '${env:ART_PATH}' = 'init-ft' ] || exit 0; java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 5 --num_threads_write 2 --nodes ${env:HOST_LB}:9042,${env:HOST_LB2}:9042,${env:HOST_LB3}:9042 --password ${env:SECRET} --username ${env:YB_USER}",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "ft-load",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -228,14 +266,19 @@
       "label": "az-fd",
       "detail": "Open the chaos engineering demo shell (init-ft/prompt.sh)",
       "type": "shell",
-      "command": "cd init-ft && echo '🔥 az-fd  —  Chaos Engineering demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-ft' ] || exit 0; cd init-ft && echo '🔥 az-fd  —  Chaos Engineering demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "ft-demo",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -262,14 +305,19 @@
       "label": "scale: ysql-load",
       "detail": "Start YSQL SqlInserts load against the 3-node cluster (init-scale)",
       "type": "shell",
-      "command": "java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 2 --num_threads_write 1 --nodes ${env:HOST_LB}:5433,${env:HOST_LB2}:5433,${env:HOST_LB3}:5433 --password ${env:SECRET} --username ${env:YB_USER}",
+      "command": "[ '${env:ART_PATH}' = 'init-scale' ] || exit 0; java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 2 --num_threads_write 1 --nodes ${env:HOST_LB}:5433,${env:HOST_LB2}:5433,${env:HOST_LB3}:5433 --password ${env:SECRET} --username ${env:YB_USER}",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "scale-load",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -278,14 +326,19 @@
       "label": "scale: ycql-load",
       "detail": "Start YCQL CassandraKeyValue load against the 3-node cluster (init-scale)",
       "type": "shell",
-      "command": "java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 3 --num_threads_write 1 --nodes ${env:HOST_LB}:9042,${env:HOST_LB2}:9042,${env:HOST_LB3}:9042 --password ${env:SECRET} --username ${env:YB_USER}",
+      "command": "[ '${env:ART_PATH}' = 'init-scale' ] || exit 0; java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 3 --num_threads_write 1 --nodes ${env:HOST_LB}:9042,${env:HOST_LB2}:9042,${env:HOST_LB3}:9042 --password ${env:SECRET} --username ${env:YB_USER}",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "scale-load",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -294,14 +347,19 @@
       "label": "ybdb-scale",
       "detail": "Open the scale-out demo shell (init-scale/prompt.sh)",
       "type": "shell",
-      "command": "cd init-scale && echo '📈 ybdb-scale  —  Scale-out demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-scale' ] || exit 0; cd init-scale && echo '📈 ybdb-scale  —  Scale-out demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "scale-demo",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -327,14 +385,19 @@
       "label": "dev-inner-loop",
       "detail": "Open the JHipster scaffold shell in the ybdbapp directory (init-iloop)",
       "type": "shell",
-      "command": "cd ybdbapp && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-iloop' ] || exit 0; cd ybdbapp && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "iloop",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -347,14 +410,16 @@
       "label": "cdc-demo",
       "detail": "\"The Live Sync Pipeline\" — guided CDC demo: register connectors, snapshot, live INSERT/UPDATE/DELETE (init-cdc/prompt.sh)",
       "type": "shell",
-      "command": "cd init-cdc && echo '🔄 cdc-demo  —  CDC pipeline demo (YugabyteDB → Kafka → PostgreSQL)' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc' ] || exit 0; cd init-cdc && echo '🔄 cdc-demo  —  CDC pipeline demo (YugabyteDB → Kafka → PostgreSQL)' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "cdc",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -362,14 +427,16 @@
       "label": "connector-config",
       "detail": "Open the interactive CDC command shell for curl connector operations (init-cdc)",
       "type": "shell",
-      "command": "echo '🔌 connector-config — run yb-admin and curl commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc' ] || exit 0; echo '🔌 connector-config — run yb-admin and curl commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "cdc",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -383,14 +450,18 @@
       "label": "mysql",
       "detail": "Open a MySQL client session against the source database (init-voyager-mysql)",
       "type": "shell",
-      "command": "docker-compose -f init-voyager-mysql/compose.yml exec mysql mysql -uroot -p${env:SRC_SECRET}",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-mysql' ] || exit 0; docker-compose -f init-voyager-mysql/compose.yml exec mysql mysql -uroot -p${env:SRC_SECRET}",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-mysql",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -405,14 +476,15 @@
       "detail": "Open a MariaDB client session against the source database (init-voyager-mariadb)",
       "type": "shell",
       // compose service name is 'mysql' even for the mariadb image
-      "command": "docker-compose -f init-voyager-mariadb/compose.yml exec mysql mariadb -uroot -p${env:SRC_SECRET}",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-mariadb' ] || exit 0; docker-compose -f init-voyager-mariadb/compose.yml exec mysql mariadb -uroot -p${env:SRC_SECRET}",
+      
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-mariadb",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -421,14 +493,18 @@
       "label": "mysql-demo",
       "detail": "\"The MySQL Migration\" — assess, export, import, finalise (init-voyager-mysql/prompt.sh)",
       "type": "shell",
-      "command": "cd init-voyager-mysql && echo '🐬 mysql-demo  —  MySQL → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-mysql' ] || exit 0; cd init-voyager-mysql && echo '🐬 mysql-demo  —  MySQL → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-mysql",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -436,14 +512,18 @@
       "label": "mariadb-demo",
       "detail": "\"The MariaDB Migration\" — assess, export, import, finalise (init-voyager-mariadb/prompt.sh)",
       "type": "shell",
-      "command": "cd init-voyager-mariadb && echo '🦭 mariadb-demo  —  MariaDB → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-mariadb' ] || exit 0; cd init-voyager-mariadb && echo '🦭 mariadb-demo  —  MariaDB → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-mariadb",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -456,14 +536,15 @@
       "label": "oracle-demo",
       "detail": "\"The Oracle Migration\" — assess, export, import, finalise (init-voyager-oracle/prompt.sh)",
       "type": "shell",
-      "command": "cd init-voyager-oracle && echo '🔴 oracle-demo  —  Oracle → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-oracle' ] || exit 0; cd init-voyager-oracle && echo '🔴 oracle-demo  —  Oracle → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-oracle",
         "showReuseMessage": false,
-        "clear": true
-      },
+        "clear": true,
+        
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -472,14 +553,15 @@
       "label": "oracle",
       "detail": "Open a SQLPlus session against Oracle (oracle-client container) (init-voyager-oracle)",
       "type": "shell",
-      "command": "docker exec -it oracle-client sqlplus ${env:SRC_USER}/${env:SRC_SECRET}@//127.0.0.1:1521/${env:ORACLE_PDB}",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-oracle' ] || exit 0; docker exec -it oracle-client sqlplus ${env:SRC_USER}/${env:SRC_SECRET}@//127.0.0.1:1521/${env:ORACLE_PDB}",
+      "runOptions": { "runOn": "folderOpen" },
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-oracle",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -492,14 +574,14 @@
       "label": "yb-voyager",
       "detail": "Open the yb-voyager migration shell (init-voyager-mysql / mariadb / oracle)",
       "type": "shell",
-      "command": "echo '🚀 yb-voyager — run yb-voyager export / import commands here' && exec bash",
+      "command": "case '${env:ART_PATH}' in init-voyager-mysql|init-voyager-mariadb|init-voyager-oracle) ;; *) exit 0 ;; esac; echo '🚀 yb-voyager — run yb-voyager export / import commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -512,14 +594,18 @@
       "label": "postgres-live-demo",
       "detail": "\"Zero-Downtime Live Migration\" — snapshot + CDC streaming, cutover (init-voyager-postgres/prompt.sh)",
       "type": "shell",
-      "command": "cd init-voyager-postgres && echo '🐘 postgres-live-demo  —  PostgreSQL → YugabyteDB live migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '═══ Zero-Downtime Live Migration: PostgreSQL → YugabyteDB ═══' && echo '' && echo '  1. psql shell          → bash pre-step.sh           (verify source)' && echo '  2. yb-voyager-export   → bash prompt.sh              (Steps 0-2 + Step 4)' && echo '  3. yb-voyager-import   → bash prompt-import.sh       (Step 3 + Step 5)' && echo '  4. yb-voyager-wa       → bash prompt-wa.sh           (Steps 6-11)' && echo '' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-postgres",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -528,15 +614,20 @@
       "label": "psql",
       "detail": "Open a psql session against the source PostgreSQL database (init-voyager-postgres)",
       "type": "shell",
-      // PGHOST / PGUSER / PGPASSWORD are set by the devcontainer env
-      "command": "psql",
+      // PGUSER / PGPASSWORD are set by the devcontainer env; -h overrides PGHOST so
+      // this task always reaches the postgres container, never YugabyteDB.
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '🐘 psql  (Pre-step → show source data)' && echo '' && echo '   Run: bash pre-step.sh' && echo '   Or connect directly: psql -h postgres' && echo '' && until (echo >/dev/tcp/postgres/5432) 2>/dev/null; do echo 'Waiting for PostgreSQL...'; sleep 3; done && echo 'PostgreSQL ready.' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-postgres",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -545,14 +636,14 @@
       "label": "yb-voyager-export",
       "detail": "Open the Voyager export shell (assess / export schema + data) (init-voyager-postgres)",
       "type": "shell",
-      "command": "echo '📤 yb-voyager-export — run assess-migration / export schema / export data commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '📤 yb-voyager-export  (Steps 0–2 → assess, export schema, analyze)' && echo '   then Step 4 → export data from source (runs until cutover)' && echo '' && echo '   Run: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-postgres",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -561,14 +652,14 @@
       "label": "yb-voyager-import",
       "detail": "Open the Voyager import shell (import schema + data) (init-voyager-postgres)",
       "type": "shell",
-      "command": "echo '📥 yb-voyager-import — run import schema / import data commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '📥 yb-voyager-import  (Step 3 → import schema; Step 5 → import data to target)' && echo '   Run Step 3 after Steps 0–2 complete in yb-voyager-export shell.' && echo '' && echo '   Run: bash prompt-import.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-postgres",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -580,14 +671,19 @@
       "label": "pitr-demo",
       "detail": "\"The 2 AM Incident\" — enable PITR, simulate DELETE disaster, recover online (init-pitr/prompt.sh)",
       "type": "shell",
-      "command": "cd init-pitr && echo '⏪ pitr-demo  —  Point-in-Time Recovery demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-pitr' ] || exit 0; cd init-pitr && echo '⏪ pitr-demo  —  Point-in-Time Recovery demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "pitr",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -595,14 +691,19 @@
       "label": "clone-demo",
       "detail": "\"The Safe Migration Runway\" — clone production, test a migration, verify isolation (init-clone/prompt.sh)",
       "type": "shell",
-      "command": "cd init-clone && echo '🧬 clone-demo  —  DB Clone demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-clone' ] || exit 0; cd init-clone && echo '🧬 clone-demo  —  DB Clone demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "clone",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -610,14 +711,19 @@
       "label": "tt-demo",
       "detail": "\"The Compliance Audit\" — forensic AS OF SYSTEM TIME flashback queries, no restore needed (init-tt/prompt.sh)",
       "type": "shell",
-      "command": "cd init-tt && echo '⏰ tt-demo  —  Time Travel (yb_read_time) demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-tt' ] || exit 0; cd init-tt && echo '⏰ tt-demo  —  Time Travel (yb_read_time) demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
         "group": "tt",
         "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     },
 
@@ -627,14 +733,18 @@
       "label": "yb-voyager-wa",
       "detail": "Open the Voyager cutover shell (migration report / cutover / end migration) (init-voyager-postgres)",
       "type": "shell",
-      "command": "echo '✂️  yb-voyager-wa — run get-data-migration-report / cutover / end-migration commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '✂️  yb-voyager-wa  (Steps 6–11 → report, cutover, finalize, archive, end, verify)' && echo '   Run after Steps 4+5 are streaming in export/import shells.' && echo '' && echo '   Run: bash prompt-wa.sh' && exec bash",
+      
+      "runOptions": { "runOn": "folderOpen" },
+      
+      
+      
       "presentation": {
-        "reveal": "always",
+        "reveal": "never",
         "panel": "dedicated",
-        "group": "voyager-postgres",
-        "showReuseMessage": false,
+                "showReuseMessage": false,
         "clear": true
-      },
+      , "close": true},
       "problemMatcher": []
     }
 

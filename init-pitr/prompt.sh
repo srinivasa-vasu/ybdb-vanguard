@@ -48,41 +48,48 @@ pe "yb-admin -master_addresses ${MASTERS} list_snapshot_schedules"
 
 p "Now let's create a payments table and seed it with 1,000 customer accounts."
 
-pe "ysqlsh -c \"DROP TABLE IF EXISTS payments;\""
+pe "ysqlsh -h 127.0.0.1 -c \"DROP TABLE IF EXISTS payments;\""
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE TABLE payments (
   id       SERIAL PRIMARY KEY,
   customer TEXT            NOT NULL,
   balance  NUMERIC(12, 2)  NOT NULL
 );\""
 
-pe "ysqlsh -c \"
+(set -f; pe "ysqlsh -h 127.0.0.1 -c \"
 INSERT INTO payments (customer, balance)
   SELECT
     'Customer ' || i,
     (random() * 9000 + 1000)::NUMERIC(12, 2)
-  FROM generate_series(1, 1000) i;\""
+  FROM generate_series(1, 1000) i;\"")
 
-pe "ysqlsh -c \"SELECT COUNT(*) AS total_accounts, ROUND(SUM(balance), 2) AS total_funds FROM payments;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT COUNT(*) AS total_accounts, ROUND(SUM(balance), 2) AS total_funds FROM payments;\""
 
 p "1,000 accounts holding real money. Now we need a snapshot to exist before we continue."
 
 # ── Scene 4: Wait for the first snapshot ──────────────────────────────────────
 
 p ""
-p "⏳ The first snapshot is taken 2 minutes after the schedule is created."
-p "   Watching the clock... (This wait only happens once per schedule.)"
+p "⏳ Waiting for the first snapshot (taken ~2 min after the schedule is created)."
+p "   Polling yb-admin every 10 s — continuing as soon as a snapshot is confirmed."
 p ""
 
 echo ""
-for n in $(seq 130 -1 1); do
-  printf "\r   ⏳ %3ds until first snapshot is confirmed..." "$n"
-  sleep 1
+_elapsed=0
+while true; do
+  _snap_count=$(yb-admin -master_addresses "${MASTERS}" list_snapshot_schedules 2>/dev/null \
+    | grep -q '"snapshot_time"'; echo $?)
+  if [ "${_snap_count:-1}" -eq 0 ]; then
+    echo ""
+    echo "   ✅ First snapshot confirmed after ${_elapsed}s — PITR is now active."
+    echo ""
+    break
+  fi
+  printf "\r   ⏳ %3ds elapsed, no snapshot yet — checking again in 10 s..." "$_elapsed"
+  sleep 10
+  _elapsed=$(( _elapsed + 10 ))
 done
-echo ""
-echo "   ✅ First snapshot window open — PITR is now protecting this database."
-echo ""
 
 pe "yb-admin -master_addresses ${MASTERS} list_snapshot_schedules"
 
@@ -92,9 +99,9 @@ p "Everything looks healthy. Let's capture our recovery target timestamp."
 
 # Capture both forms: Unix microseconds for the restore command (most reliable),
 # and a human-readable string for display.
-PITR_TS_US=$(ysqlsh -t -c \
+PITR_TS_US=$(ysqlsh -h 127.0.0.1 -t -c \
   "SELECT (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000000)::bigint" | xargs)
-PITR_TS_HR=$(ysqlsh -t -c \
+PITR_TS_HR=$(ysqlsh -h 127.0.0.1 -t -c \
   "SELECT to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')" | xargs)
 
 p "Safe restore point : ${PITR_TS_HR} UTC"
@@ -112,16 +119,43 @@ sleep 2
 p ""
 p "🚨 Simulating a DBA running DELETE FROM payments; without a WHERE clause..."
 
-pe "ysqlsh -c \"DELETE FROM payments;\""
+pe "ysqlsh -h 127.0.0.1 -c \"DELETE FROM payments;\""
 
-pe "ysqlsh -c \"SELECT COUNT(*) AS survivors FROM payments;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT COUNT(*) AS survivors FROM payments;\""
 
 p "😱 All 1,000 accounts are gone! \$1.2 M in customer funds — vanished."
-p "   Recovery target: ${PITR_TS_HR} UTC  (${PITR_TS_US} µs)"
 
-# ── Scene 7: PITR Recovery ────────────────────────────────────────────────────
+# ── Scene 7: Time Travel — read the deleted data WITHOUT restoring ────────────
 
 p ""
+p "=== Time Travel with yb_read_time ==="
+p ""
+p "The data is gone at the current timestamp. But yb_read_time lets us READ"
+p "historical data without any restore — useful for forensics or audits."
+p ""
+p "Syntax:  SET yb_read_time TO <unix_microseconds>;"
+p "         SELECT ...;   -- reads as-of that moment; NOTICE is informational"
+p "         SET yb_read_time TO 0;  -- reset to present (always do this)"
+
+p ""
+p "--- Reading the deleted data at our safe point (${PITR_TS_HR}) ---"
+p "    Notice: the table is empty NOW but yb_read_time shows the past."
+
+pe "echo 'SET yb_read_time TO ${PITR_TS_US}; SELECT COUNT(*) AS accounts_before, ROUND(SUM(balance),2) AS funds_before FROM payments; SET yb_read_time TO 0;' | ysqlsh -h 127.0.0.1"
+
+p ""
+p "--- First 5 accounts as they existed before the DELETE ---"
+
+pe "echo 'SET yb_read_time TO ${PITR_TS_US}; SELECT id, customer, balance FROM payments ORDER BY id LIMIT 5; SET yb_read_time TO 0;' | ysqlsh -h 127.0.0.1"
+
+p ""
+p "The data is still readable in the PITR window. But it is NOT restored yet —"
+p "the table is still empty in the present. For a real recovery, use PITR."
+
+# ── Scene 8: PITR Recovery ────────────────────────────────────────────────────
+
+p ""
+p "=== PITR Restore ==="
 p "Initiating restore_snapshot_schedule to ${PITR_TS_HR}..."
 
 pe "yb-admin -master_addresses ${MASTERS} restore_snapshot_schedule ${SCHEDULE_ID} ${PITR_TS_US}"
@@ -141,24 +175,24 @@ echo ""
 echo "   ✅ Restore complete."
 echo ""
 
-# ── Scene 8: Verify ───────────────────────────────────────────────────────────
+# ── Scene 9: Verify ───────────────────────────────────────────────────────────
 
 p "Reconnecting to YSQL and verifying the recovery..."
 
-pe "ysqlsh -c \"SELECT COUNT(*) AS restored_accounts, ROUND(SUM(balance), 2) AS restored_funds FROM payments;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT COUNT(*) AS restored_accounts, ROUND(SUM(balance), 2) AS restored_funds FROM payments;\""
 
-pe "ysqlsh -c \"SELECT id, customer, balance FROM payments ORDER BY id LIMIT 5;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT id, customer, balance FROM payments ORDER BY id LIMIT 5;\""
 
 p ""
 p "🎉 All 1,000 accounts restored with their original balances. Zero data loss."
 p ""
-p "YugabyteDB PITR:"
+p "Summary:"
+p "  yb_read_time  — read any past timestamp without restoring (forensics / audits)"
+p "  PITR restore  — bring the whole database back to a past state permanently"
+p ""
 p "  • Online restore — cluster never stopped"
 p "  • Any-point recovery within the retention window (24h in this demo)"
-p "  • Database-level granularity — only the yugabyte DB was affected"
-p ""
-p "Next: open a ysqlsh shell and explore AS OF SYSTEM TIME queries."
-p "  → SELECT * FROM payments AS OF SYSTEM TIME '-5 minutes';"
+p "  • Database-level granularity"
 
 cmd
 

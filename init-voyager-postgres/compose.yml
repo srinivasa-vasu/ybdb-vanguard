@@ -2,12 +2,12 @@ services:
   postgresql:
     container_name: postgres
     image: postgres:14
-    # platform tag suppresses the linux/amd64 warning on Apple Silicon
-    platform: linux/amd64
-    network_mode: host
-    # Pass wal_level=logical as a startup flag instead of mounting init.sql.
-    # Bind-mounting host files from a devcontainer fails with docker-outside-of-docker
-    # because the host Docker daemon cannot see paths inside the container filesystem.
+    # postgres:14 is multi-arch (arm64 + amd64) — no platform pin needed.
+    # Use the shared Docker network so the devcontainer can reach PostgreSQL
+    # by container name ("postgres"). This avoids all host.docker.internal /
+    # network_mode: host complications with docker-outside-of-docker on macOS.
+    networks:
+      - ybdb-vanguard-net
     command: postgres -c wal_level=logical -c max_replication_slots=10 -c max_wal_senders=10
     volumes:
       - postgresql_data:/var/lib/postgresql/data
@@ -23,10 +23,13 @@ services:
 
   voyager:
     container_name: yb-voyager
-    # yb-voyager is published for linux/amd64 only
     platform: linux/amd64
     image: yugabytedb/yb-voyager:latest
     command: "echo Hello from yb-voyager!"
+
+networks:
+  ybdb-vanguard-net:
+    external: true   # pre-created by initializeCommand in devcontainer.json
 
 volumes:
   postgresql_data:

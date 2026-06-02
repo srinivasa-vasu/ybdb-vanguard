@@ -3,20 +3,27 @@ version: '3.9'
 services:
   mysql:
     image: mysql:8.1
+    container_name: mysql
+    # Use the shared Docker network so the devcontainer (and yb-voyager) can
+    # reach MySQL by container name. SRC_HOST=mysql in devcontainer.json.
+    networks:
+      - ybdb-vanguard-net
     restart: always
-    network_mode: host
     environment:
       MYSQL_ROOT_PASSWORD: 'yugabyte'
       MYSQL_INIT_COMMAND: "--skip-grant-tables"
-    ports:
-      - '3306:3306'
     volumes:
       - mysql-data:/var/lib/mysql
+
   voyager:
     container_name: yb-voyager
-    # yb-voyager is published for linux/amd64 only
     platform: linux/amd64
     image: yugabytedb/yb-voyager:latest
     command: "echo Hello from yb-voyager!"
+
+networks:
+  ybdb-vanguard-net:
+    external: true
+
 volumes:
   mysql-data:

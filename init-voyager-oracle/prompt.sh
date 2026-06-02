@@ -15,7 +15,7 @@ TYPE_SPEED=35
 NO_WAIT=false
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
-EXPORT_DIR="${PWD}/voyager-data"
+EXPORT_DIR="/workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data"
 mkdir -p "${EXPORT_DIR}"
 
 clear
@@ -66,7 +66,7 @@ p "--- Step 1: Assess Migration ---"
 
 pe "yb-voyager assess-migration --export-dir ${EXPORT_DIR} \
   --source-db-type ${SRC_DB_TYPE} \
-  --source-db-host ${HOST} \
+  --source-db-host ${SRC_HOST:-oracle} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
   --source-db-name ${ORACLE_PDB}"
@@ -76,7 +76,7 @@ p "--- Step 2: Export Schema ---"
 
 pe "yb-voyager export schema --export-dir ${EXPORT_DIR} \
   --source-db-type ${SRC_DB_TYPE} \
-  --source-db-host ${HOST} \
+  --source-db-host ${SRC_HOST:-oracle} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
   --source-db-name ${ORACLE_PDB}"
@@ -91,7 +91,7 @@ p "--- Step 4: Export Data ---"
 
 pe "yb-voyager export data --export-dir ${EXPORT_DIR} \
   --source-db-type ${SRC_DB_TYPE} \
-  --source-db-host ${HOST} \
+  --source-db-host ${SRC_HOST:-oracle} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
   --source-db-name ${ORACLE_PDB}"
@@ -102,7 +102,7 @@ p ""
 p "--- Step 5: Import Schema ---"
 
 pe "yb-voyager import schema --export-dir ${EXPORT_DIR} \
-  --target-db-host ${HOST} \
+  --target-db-host 127.0.0.1 \
   --target-db-user ${TARGET_USER} \
   --target-db-password ${TARGET_SECRET} \
   --target-db-name ${TARGET_DB_ID} \
@@ -112,7 +112,7 @@ p ""
 p "--- Step 6: Import Data ---"
 
 pe "yb-voyager import data --export-dir ${EXPORT_DIR} \
-  --target-db-host ${HOST} \
+  --target-db-host 127.0.0.1 \
   --target-db-user ${TARGET_USER} \
   --target-db-password ${TARGET_SECRET} \
   --target-db-name ${TARGET_DB_ID} \
@@ -124,7 +124,7 @@ p ""
 p "--- Step 7: Finalise Schema ---"
 
 pe "yb-voyager finalize-schema-post-data-import --export-dir ${EXPORT_DIR} \
-  --target-db-host ${HOST} \
+  --target-db-host 127.0.0.1 \
   --target-db-user ${TARGET_USER} \
   --target-db-password ${TARGET_SECRET} \
   --target-db-name ${TARGET_DB_ID} \
@@ -133,7 +133,7 @@ pe "yb-voyager finalize-schema-post-data-import --export-dir ${EXPORT_DIR} \
 p ""
 p "--- Step 8: Verify ---"
 
-pe "ysqlsh -c \"SELECT schemaname, tablename, n_live_tup AS rows
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT schemaname, tablename, n_live_tup AS rows
 FROM pg_stat_user_tables
 ORDER BY rows DESC LIMIT 10;\""
 

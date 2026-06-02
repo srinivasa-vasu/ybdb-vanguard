@@ -3,20 +3,27 @@ version: '3.9'
 services:
   mysql:
     image: mariadb:10.4
+    container_name: mariadb
+    # Use the shared Docker network so the devcontainer (and yb-voyager) can
+    # reach MariaDB by container name. SRC_HOST=mariadb in devcontainer.json.
+    networks:
+      - ybdb-vanguard-net
     restart: always
-    network_mode: host
     command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0 --skip-grant-tables
     environment:
       MYSQL_ROOT_PASSWORD: 'yugabyte'
-    ports:
-      - '3306:3306'
     volumes:
       - mysql-data:/var/lib/mysql
+
   voyager:
     container_name: yb-voyager
-    # yb-voyager is published for linux/amd64 only
     platform: linux/amd64
     image: yugabytedb/yb-voyager:latest
     command: "echo Hello from yb-voyager!"
+
+networks:
+  ybdb-vanguard-net:
+    external: true
+
 volumes:
   mysql-data:

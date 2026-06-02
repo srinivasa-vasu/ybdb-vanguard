@@ -22,7 +22,7 @@ TYPE_SPEED=35
 NO_WAIT=false
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
-KEY_DIR="${PWD}/init-ear/keys"
+KEY_DIR="${PWD}/keys"
 mkdir -p "$KEY_DIR"
 
 clear
@@ -42,7 +42,7 @@ p "DISABLED — all data on disk is plaintext. The audit team wants this fixed."
 p ""
 p "Step 2: Create a sensitive table with some data."
 
-pe "ysqlsh -c \"
+pe "ysqlsh -h 127.0.0.1 -c \"
 CREATE TABLE IF NOT EXISTS sensitive_records (
   id      SERIAL PRIMARY KEY,
   name    TEXT NOT NULL,
@@ -53,7 +53,7 @@ INSERT INTO sensitive_records (name, secret) VALUES
   ('Bob',   'database_root_password'),
   ('Carol', 'api_signing_key');\""
 
-pe "ysqlsh -c \"SELECT * FROM sensitive_records;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT * FROM sensitive_records;\""
 
 # ── Scene 3: Generate the first key ──────────────────────────────────────────
 
@@ -91,9 +91,9 @@ p "ENABLED with key_v1. All new data is now encrypted at rest."
 p ""
 p "Step 6: Data remains fully readable through YSQL — encryption is transparent."
 
-pe "ysqlsh -c \"SELECT * FROM sensitive_records;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT * FROM sensitive_records;\""
 
-pe "ysqlsh -c \"INSERT INTO sensitive_records (name, secret) VALUES ('Dave', 'oauth_private_key');
+pe "ysqlsh -h 127.0.0.1 -c \"INSERT INTO sensitive_records (name, secret) VALUES ('Dave', 'oauth_private_key');
               SELECT COUNT(*) AS total_records FROM sensitive_records;\""
 
 p "Reads and writes work exactly as before. Encryption is below the SQL layer."
@@ -124,7 +124,7 @@ p "Both keys must be retained until compaction completes."
 p ""
 p "Step 8: Data is still fully accessible after rotation."
 
-pe "ysqlsh -c \"SELECT * FROM sensitive_records ORDER BY id;\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT * FROM sensitive_records ORDER BY id;\""
 
 p ""
 p "=== EAR Summary ==="
