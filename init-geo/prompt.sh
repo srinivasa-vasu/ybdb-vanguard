@@ -22,6 +22,12 @@ DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
 clear
 
+# ── Quiet cleanup: drop objects from a previous run ───────────────────────────
+ysqlsh -h 127.0.0.1 -c "DROP TABLE IF EXISTS bank_txns CASCADE;" 2>/dev/null || true
+ysqlsh -h 127.0.0.1 -c "DROP TABLESPACE IF EXISTS us_east_ts;" 2>/dev/null || true
+ysqlsh -h 127.0.0.1 -c "DROP TABLESPACE IF EXISTS eu_west_ts;" 2>/dev/null || true
+ysqlsh -h 127.0.0.1 -c "DROP TABLESPACE IF EXISTS ap_south_ts;" 2>/dev/null || true
+
 # ── Scene 1: Show the multi-region topology ───────────────────────────────────
 
 p "=== 'The Global Banking Platform' ==="

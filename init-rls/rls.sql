@@ -3,7 +3,17 @@
 -- Load: \i init-rls/rls.sql   (or paste blocks interactively)
 -- ═════════════════════════════════════════════════════════════════════════════
 
-\echo ''
+-- ── Quiet cleanup: drop objects from a previous run ───────────────────────────
+DROP SCHEMA IF EXISTS tenant_acme   CASCADE;
+DROP SCHEMA IF EXISTS tenant_globex CASCADE;
+DROP SCHEMA IF EXISTS analytics     CASCADE;
+DROP TABLE  IF EXISTS orders     CASCADE;
+DROP TABLE  IF EXISTS employees  CASCADE;
+DROP ROLE   IF EXISTS alice;
+DROP ROLE   IF EXISTS bob;
+DROP ROLE   IF EXISTS platform_admin;
+
+
 \echo '════════════════════════════════════════════════════════════════════'
 \echo ' Part 1 — Basic RLS: current_user-based row filter                   '
 \echo '════════════════════════════════════════════════════════════════════'

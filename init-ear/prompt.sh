@@ -27,6 +27,9 @@ mkdir -p "$KEY_DIR"
 
 clear
 
+# ── Quiet cleanup: drop table from a previous run ─────────────────────────────
+ysqlsh -h 127.0.0.1 -c "DROP TABLE IF EXISTS sensitive_records CASCADE;" 2>/dev/null || true
+
 # ── Scene 1: Verify encryption is NOT yet active ──────────────────────────────
 
 p "=== 'The Compliance Mandate' — Encryption at Rest Demo ==="

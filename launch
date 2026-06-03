@@ -19,42 +19,44 @@
 # resources     non-default resource requirement ("" = standard 4c/8g/32g)
 
 exercises=(
-  # ── SQL Fundamentals ─────────────────────────────────────────────────────
+  # ── SQL Fundamentals ──────────────────────────────────────────────────────
   "Distributed SQL Universe"
   "Query Tuning Tips & Tricks"
+
+  # ── Data Placement & Architecture ─────────────────────────────────────────
+  "Colocation & Distributed Tables"
+  "Tablespaces & Online Data Migration"
+
+  # ── Scalability & HA ──────────────────────────────────────────────────────
+  "Data Distribution & Scalability"
+  "Fault Tolerance & High Availability"
+
+  # ── Multi-Region & Disaster Recovery ──────────────────────────────────────
+  "Geo-distribution & Tablespaces"
+  "xCluster Replication & DR"
+
+  # ── Data Protection & Recovery ────────────────────────────────────────────
+  "Point-in-Time Recovery (PITR)"
+  "DB Clone — instant database copies"
+  "Time Travel  (yb_read_time)"
+
+  # ── Streaming & CDC ───────────────────────────────────────────────────────
+  "CDC — YugabyteDB → PostgreSQL  (Debezium)"
+  "CDC Streaming — YSQL → YCQL"
+
+  # ── Observability ─────────────────────────────────────────────────────────
+  "Observability & Performance Diagnosis"
+
+  # ── Security ──────────────────────────────────────────────────────────────
+  "Encryption at Rest (EAR) + Key Rotation"
+  "Row Level Security & Multi-tenancy"
+  "Data Privacy — Column Encryption & Anonymization"
 
   # ── Migration (YB Voyager) ────────────────────────────────────────────────
   "MySQL → YugabyteDB"
   "MariaDB → YugabyteDB"
   "Oracle → YugabyteDB"
   "PostgreSQL → YugabyteDB  (live migration)"
-
-  # ── Streaming & CDC ───────────────────────────────────────────────────────
-  "CDC — YugabyteDB → PostgreSQL  (Debezium)"
-  "CDC Streaming — YSQL → YCQL"
-
-  # ── Scalability & HA ──────────────────────────────────────────────────────
-  "Data Distribution & Scalability"
-  "Fault Tolerance & High Availability"
-
-  # ── Global Distribution ──────────────────────────────────────────────────
-  "Geo-distribution & Tablespaces"
-
-  # ── Data Protection ───────────────────────────────────────────────────────
-  "Point-in-Time Recovery (PITR)"
-  "DB Clone — instant database copies"
-  "Time Travel  (yb_read_time)"
-
-  # ── Observability ─────────────────────────────────────────────────────────
-  "Observability & Performance Diagnosis"
-
-
-  # ── Security ─────────────────────────────────────────────────────────────────
-  "Encryption at Rest (EAR) + Key Rotation"
-  "Row Level Security & Multi-tenancy"
-  "Data Privacy — Column Encryption & Anonymization"
-  # ── Dev Innerloop ─────────────────────────────────────────────────────────
-  "Development Innerloop  (JHipster)"
 
   # ── External Resources ────────────────────────────────────────────────────
   "Java Microservices  (Spring Boot)"
@@ -65,29 +67,36 @@ exercises=(
 devcontainers=(
   "init-dsql"
   "init-qt"
-  "init-voyager-mysql"
-  "init-voyager-mariadb"
-  "init-voyager-oracle"
-  "init-voyager-postgres"
-  "init-cdc"
-  ""
+  "init-colocate"
+  "init-tablespace"
   "init-scale"
   "init-ft"
   "init-geo"
+  "init-xcluster"
   "init-pitr"
   "init-clone"
   "init-tt"
+  "init-cdc"
+  ""
   "init-obs"
   "init-ear"
   "init-rls"
   "init-privacy"
-  "init-iloop"
+  "init-voyager-mysql"
+  "init-voyager-mariadb"
+  "init-voyager-oracle"
+  "init-voyager-postgres"
   ""
   ""
   ""
 )
 
 links=(
+  ""
+  ""
+  ""
+  ""
+  ""
   ""
   ""
   ""
@@ -104,9 +113,6 @@ links=(
   ""
   ""
   ""
-  ""
-  ""
-  ""
   "https://github.com/srinivasa-vasu/yb-ms-data"
   "https://github.com/srinivasa-vasu/ybdb-boot-data"
   "https://github.com/srinivasa-vasu/ybdb-sealed-secrets"
@@ -115,23 +121,25 @@ links=(
 categories=(
   "SQL Fundamentals"
   "SQL Fundamentals"
-  "Migration  (YB Voyager)"
-  "Migration  (YB Voyager)"
-  "Migration  (YB Voyager)"
-  "Migration  (YB Voyager)"
-  "Streaming & CDC"
-  "Streaming & CDC"
+  "Data Placement & Architecture"
+  "Data Placement & Architecture"
   "Scalability & HA"
   "Scalability & HA"
-  "Global Distribution"
-  "Data Protection"
-  "Data Protection"
-  "Data Protection"
+  "Multi-Region & Disaster Recovery"
+  "Multi-Region & Disaster Recovery"
+  "Data Protection & Recovery"
+  "Data Protection & Recovery"
+  "Data Protection & Recovery"
+  "Streaming & CDC"
+  "Streaming & CDC"
   "Observability"
   "Security"
   "Security"
   "Security"
-  "Dev Innerloop"
+  "Migration  (YB Voyager)"
+  "Migration  (YB Voyager)"
+  "Migration  (YB Voyager)"
+  "Migration  (YB Voyager)"
   "External Resources"
   "External Resources"
   "External Resources"
@@ -141,23 +149,25 @@ categories=(
 roles=(
   "dev arc"
   "dev arc"
-  "dev ops"
-  "dev ops"
-  "dev ops sre"
-  "dev ops sre"
-  "dev ops sre"
-  "dev"
+  "dev arc"
+  "dev ops arc"
   "ops sre arc"
   "ops sre arc"
   "dev ops sre arc"
+  "ops sre arc"
   "ops sre"
   "dev ops sre"
   "dev ops"
+  "dev ops sre"
+  "dev"
   "ops sre arc"
   "ops sre"
   "dev arc"
   "dev arc"
-  "dev"
+  "dev ops"
+  "dev ops"
+  "dev ops sre"
+  "dev ops sre"
   "dev"
   "dev"
   "dev"
@@ -169,20 +179,22 @@ resources=(
   ""
   ""
   ""
+  "8c · 16g"
+  "8c · 16g"
+  ""
+  "8g min"
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
+  ""
   "8c · 16g · 64g disk"
-  ""
-  ""
-  ""
-  "8c · 16g"
-  "8c · 16g"
-  ""
-  ""
-  ""
-  ""
-  ""
-  ""
-  ""
-  ""
   ""
   ""
   ""

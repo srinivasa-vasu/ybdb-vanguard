@@ -16,6 +16,9 @@ DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
 clear
 
+# ── Quiet cleanup: drop roles created in a previous run ───────────────────────
+ysqlsh -h 127.0.0.1 -c "DROP ROLE IF EXISTS platform_admin;" 2>/dev/null || true
+
 # ── Scene 1: Setup the multi-tenant schema ────────────────────────────────────
 
 p "=== 'The SaaS Tenant Isolation Problem' — RLS Demo ==="

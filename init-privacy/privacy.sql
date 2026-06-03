@@ -44,6 +44,9 @@ CREATE TABLE patients_secure (
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Use a static demo key (production: SET app.enc_key from a secrets manager)
+SET app.enc_key = 'demo_encryption_key_v1';
+
 \echo '-- 1.3  Encrypt PII on insert'
 INSERT INTO patients_secure (email_hash, email_enc, phone_enc, dob_enc, diagnosis_enc)
 SELECT
@@ -52,18 +55,6 @@ SELECT
     pgp_sym_encrypt(phone,          current_setting('app.enc_key', true)),
     pgp_sym_encrypt(dob::text,      current_setting('app.enc_key', true)),
     pgp_sym_encrypt(diagnosis,      current_setting('app.enc_key', true))
-FROM patients;
-
--- Use a static demo key (production: SET app.enc_key from a secrets manager)
-SET app.enc_key = 'demo_encryption_key_v1';
-
-INSERT INTO patients_secure (email_hash, email_enc, phone_enc, dob_enc, diagnosis_enc)
-SELECT
-    encode(digest(email, 'sha256'), 'hex'),
-    pgp_sym_encrypt(email,          'demo_encryption_key_v1'),
-    pgp_sym_encrypt(phone,          'demo_encryption_key_v1'),
-    pgp_sym_encrypt(dob::text,      'demo_encryption_key_v1'),
-    pgp_sym_encrypt(diagnosis,      'demo_encryption_key_v1')
 FROM patients
 ON CONFLICT (email_hash) DO NOTHING;
 

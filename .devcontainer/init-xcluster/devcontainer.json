@@ -1,0 +1,66 @@
+{
+  "name": "xCluster Replication & Disaster Recovery",
+  "build": {
+    "dockerfile": "../../.ybdb.Dockerfile",
+    "context": "../.."
+  },
+  "runArgs": ["--init"],
+  "containerEnv": {
+    "DATA_PATH": "ybdb",
+    "ART_PATH": "init-xcluster"
+  },
+  "hostRequirements": {
+    // Two single-node YugabyteDB clusters; 8 GB RAM minimum (4 GB each)
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  // One-time: install pv + demo-magic
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-xcluster/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-xcluster/pscript init-xcluster/prompt.sh && echo \"✅ xCluster exercise ready\"'",
+  // Two clusters: source (127.0.0.1) + target (127.0.0.11)
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-xcluster.sh && echo \"\" && echo \"▶  Terminal → Run Task → xcluster-demo   (guided xCluster demo)\" && echo \"▶  Terminal → Run Task → ysql-source      (YSQL shell → source cluster)\" && echo \"▶  Terminal → Run Task → ysql-target      (YSQL shell → target cluster)\"'",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on",
+        "files.exclude": {
+        ".devcontainer": true,
+        ".github": true,
+        "init-cdc": true,
+        "init-clone": true,
+        "init-colocate": true,
+        "init-dsql": true,
+        "init-ear": true,
+        "init-ft": true,
+        "init-geo": true,
+        "init-obs": true,
+        "init-pitr": true,
+        "init-privacy": true,
+        "init-qt": true,
+        "init-rls": true,
+        "init-scale": true,
+        "init-tablespace": true,
+        "init-tt": true,
+        "init-voyager-mariadb": true,
+        "init-voyager-mysql": true,
+        "init-voyager-oracle": true,
+        "init-voyager-postgres": true
+        }},
+      "extensions": [],
+      "tasks": []
+    }
+  },
+  "forwardPorts": [7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000],
+  "portsAttributes": {
+    "7000":  { "label": "yb-master-web (src)",  "onAutoForward": "ignore" },
+    "9000":  { "label": "yb-tserver-web (src)", "onAutoForward": "ignore" },
+    "7100":  { "label": "yb-master-rpc (src)",  "onAutoForward": "ignore" },
+    "9100":  { "label": "yb-tserver-rpc (src)", "onAutoForward": "ignore" },
+    "5433":  { "label": "ysql (src)",            "onAutoForward": "ignore" },
+    "15433": { "label": "yugabyted-ui (src)",    "onAutoForward": "notify" },
+    "13000": { "label": "ysql-api (src)",        "onAutoForward": "ignore" },
+    "9042":  { "label": "ycql (src)",            "onAutoForward": "ignore" },
+    "12000": { "label": "ycql-api (src)",        "onAutoForward": "ignore" }
+  },
+  "remoteUser": "vscode"
+}

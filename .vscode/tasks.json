@@ -47,6 +47,82 @@
 
 
     // ═══════════════════════════════════════════════════════════════════════
+    // init-colocate  — Colocation & Distributed Tables
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "colocate-demo",
+      "detail": "\"The SaaS Catalog\" — colocated vs distributed tables, opt-out, yb_table_properties (init-colocate/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-colocate' ] || exit 0; cd init-colocate && echo '📦 colocate-demo  —  Colocation & Distributed Tables' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "never",
+        "panel": "dedicated",
+        "group": "colocate",
+        "showReuseMessage": false,
+        "clear": true
+      , "close": true},
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-tablespace  — Tablespaces & Online Data Migration
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "tablespace-demo",
+      "detail": "\"The Data Tier Migration\" — create tablespaces, pin tables, ALTER TABLE SET TABLESPACE (init-tablespace/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-tablespace' ] || exit 0; cd init-tablespace && echo '🗂️  tablespace-demo  —  Tablespaces & Online Data Migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "never",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      , "close": true},
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-xcluster  — xCluster Replication & Disaster Recovery
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "xcluster-demo",
+      "detail": "\"The Active-Standby Setup\" — setup replication, check lag, pause/resume, planned failover (init-xcluster/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; cd init-xcluster && echo '🔄 xcluster-demo  —  xCluster Replication & DR' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": { "reveal": "never", "panel": "dedicated", "showReuseMessage": false, "clear": true, "close": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ysql-source",
+      "detail": "Open a YSQL shell on the SOURCE cluster (127.0.0.1) (init-xcluster)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; echo '🟢 Source cluster (127.0.0.1)' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": { "reveal": "never", "panel": "dedicated", "showReuseMessage": false, "clear": false, "close": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ysql-target",
+      "detail": "Open a YSQL shell on the TARGET cluster (127.0.0.11) (init-xcluster)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; echo '🔵 Target cluster (127.0.0.11)' && until (echo >/dev/tcp/127.0.0.11/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.11",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": { "reveal": "never", "panel": "dedicated", "showReuseMessage": false, "clear": false, "close": true },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
     // init-ear  — Encryption at Rest
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -375,32 +451,6 @@
       },
       "problemMatcher": []
     },
-
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // init-iloop  — Dev Innerloop
-    // ═══════════════════════════════════════════════════════════════════════
-
-    {
-      "label": "dev-inner-loop",
-      "detail": "Open the JHipster scaffold shell in the ybdbapp directory (init-iloop)",
-      "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-iloop' ] || exit 0; cd ybdbapp && exec bash",
-      
-      "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
-      "presentation": {
-        "reveal": "never",
-        "panel": "dedicated",
-        "group": "iloop",
-        "showReuseMessage": false,
-        "clear": true
-      , "close": true},
-      "problemMatcher": []
-    },
-
 
     // ═══════════════════════════════════════════════════════════════════════
     // init-cdc  — Change Data Capture

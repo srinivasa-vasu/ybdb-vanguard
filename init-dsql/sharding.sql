@@ -289,11 +289,11 @@ SELECT * FROM products ORDER BY product_id DESC LIMIT 5;
 
 \echo '--- 3.1  Hash index (equality)'
 
-CREATE INDEX idx_users_email ON users (email HASH);
-
 -- Seed a unique email column
 ALTER TABLE users ADD COLUMN email TEXT;
 UPDATE users SET email = 'user' || substr(user_id, 6) || '@example.com';
+
+CREATE INDEX idx_users_email ON users (email HASH);
 CREATE UNIQUE INDEX idx_users_email_u ON users (email HASH);
 
 EXPLAIN (ANALYZE, DIST)

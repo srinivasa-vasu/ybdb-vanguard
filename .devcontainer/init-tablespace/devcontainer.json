@@ -1,5 +1,5 @@
 {
-  "name": "Dev Innerloop — YugabyteDB app scaffolding",
+  "name": "Tablespaces & Online Data Migration",
   "build": {
     "dockerfile": "../../.ybdb.Dockerfile",
     "context": "../.."
@@ -7,33 +7,30 @@
   "runArgs": ["--init"],
   "containerEnv": {
     "DATA_PATH": "ybdb",
-    "ART_PATH": "init-iloop",
-    "APP_ID": "ybdbapp"
+    "ART_PATH": "init-tablespace",
+    "MASTERS": "127.0.0.1:7100,127.0.0.2:7100,127.0.0.3:7100"
   },
   "hostRequirements": {
+    // 3-node multi-region cluster; tablespace placement needs distinct region labels
     "cpus": 4,
     "memory": "8gb",
     "storage": "32gb"
   },
-  "features": {
-    // Node.js for the JHipster YugabyteDB generator
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "lts"
-    }
-  },
-  // Install JHipster generator once on first create
-  "postCreateCommand": "npm install -g generator-jhipster-yugabytedb && mkdir -p ybdbapp && echo '✅ JHipster YugabyteDB generator ready. cd ybdbapp && run: ybdb | yugabytedb'",
-  // Single-node cluster + apply init schema on every start
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && ysqlsh -h 127.0.0.1 -f init-iloop/init.sql && echo \"\" && echo \"▶  Terminal → Run Task → dev-inner-loop   (JHipster scaffold shell)\"'",
+  // One-time: install pv + demo-magic
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-tablespace/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-tablespace/pscript init-tablespace/prompt.sh && echo \"✅ Tablespace exercise ready\"'",
+  // 3-node multi-region cluster (same setup as geo exercise — different cloud.region.zone per node)
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-geo.sh && echo \"\" && echo \"▶  Terminal → Run Task → tablespace-demo   (guided tablespace demo)\"'",
   "customizations": {
     "vscode": {
       "settings": {
         "task.allowAutomaticTasks": "on",
         "files.exclude": {
+        "init-xcluster": true,
         ".devcontainer": true,
         ".github": true,
         "init-cdc": true,
         "init-clone": true,
+        "init-colocate": true,
         "init-dsql": true,
         "init-ear": true,
         "init-ft": true,
@@ -50,13 +47,11 @@
         "init-voyager-oracle": true,
         "init-voyager-postgres": true
         }},
-      "extensions": [
-        "ms-azuretools.vscode-docker"
-      ],
+      "extensions": [],
       "tasks": []
     }
   },
-  "forwardPorts": [7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000, 8080],
+  "forwardPorts": [7000, 9000, 7100, 9100, 5433, 15433, 13000, 9042, 12000],
   "portsAttributes": {
     "7000":  { "label": "yb-master-web",  "onAutoForward": "ignore" },
     "9000":  { "label": "yb-tserver-web", "onAutoForward": "ignore" },
@@ -66,8 +61,7 @@
     "15433": { "label": "yugabyted-ui",   "onAutoForward": "notify" },
     "13000": { "label": "ysql-api",       "onAutoForward": "ignore" },
     "9042":  { "label": "ycql",           "onAutoForward": "ignore" },
-    "12000": { "label": "ycql-api",       "onAutoForward": "ignore" },
-    "8080":  { "label": "app",            "onAutoForward": "notify" }
+    "12000": { "label": "ycql-api",       "onAutoForward": "ignore" }
   },
   "remoteUser": "vscode"
 }

@@ -20,6 +20,13 @@ DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
 clear
 
+# ── Quiet cleanup: remove any snapshot schedules and drop table from last run ──
+for _sched_id in $(yb-admin -master_addresses "${MASTERS}" list_snapshot_schedules 2>/dev/null \
+    | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'); do
+  yb-admin -master_addresses "${MASTERS}" delete_snapshot_schedule "${_sched_id}" 2>/dev/null || true
+done
+ysqlsh -h 127.0.0.1 -c "DROP TABLE IF EXISTS payments;" 2>/dev/null || true
+
 # ── Scene 1: Check current PITR state ─────────────────────────────────────────
 
 p "=== YugabyteDB PITR: Point-in-Time Recovery Demo ==="

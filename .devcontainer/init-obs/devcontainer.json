@@ -26,6 +26,9 @@
       "settings": {
         "task.allowAutomaticTasks": "on",
         "files.exclude": {
+        "init-xcluster": true,
+        "init-tablespace": true,
+        "init-colocate": true,
         ".devcontainer": true,
         ".github": true,
         "init-cdc": true,
@@ -34,7 +37,6 @@
         "init-ear": true,
         "init-ft": true,
         "init-geo": true,
-        "init-iloop": true,
         "init-pitr": true,
         "init-privacy": true,
         "init-qt": true,

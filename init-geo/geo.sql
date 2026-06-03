@@ -9,6 +9,13 @@
 --   127.0.0.2  ybcloud.eu-west.eu-west-az1   (EU West)
 --   127.0.0.3  ybcloud.ap-south.ap-south-az1 (AP South)
 -- ═════════════════════════════════════════════════════════════════════════════
+-- ── Active cleanup: drop any leftover tables and tablespaces from previous runs ──
+DROP TABLE IF EXISTS global_orders CASCADE;
+DROP TABLE IF EXISTS orders_us, orders_eu, orders_ap, products CASCADE;
+DROP TABLESPACE IF EXISTS us_east_ts;
+DROP TABLESPACE IF EXISTS eu_west_ts;
+DROP TABLESPACE IF EXISTS ap_south_ts;
+DROP TABLESPACE IF EXISTS global_ts;
 
 \echo ''
 \echo '════════════════════════════════════════════════════════════════════'
