@@ -30,8 +30,8 @@ CREATE TABLESPACE us_east_ts WITH (
   replica_placement = '{
     "num_replicas": 1,
     "placement_blocks": [{
-      "cloud": "ybcloud", "region": "ap-south",
-      "zone": "ap-south-az1", "min_num_replicas": 1
+      "cloud": "ybcloud", "region": "us-east",
+      "zone": "us-east-az1", "min_num_replicas": 1
     }]
   }'
 );

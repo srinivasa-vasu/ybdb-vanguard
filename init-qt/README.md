@@ -141,6 +141,10 @@ OFFSET N: DocDB reads and discards N rows. Cost is O(OFFSET) — page 1000 is 10
 Keyset cursor: always O(log N) — same cost at any depth.
 
 ```sql
+CREATE INDEX IF NOT EXISTS idx_invoice_date ON invoice (invoicedate ASC);
+```
+
+```sql
 -- ❌ OFFSET — cost grows with every page
 :explain
 SELECT invoiceid, customerid, invoicedate, total
@@ -185,10 +189,18 @@ YugabyteDB evaluates work inside the DocDB storage layer so less data travels be
 `DISTINCT` on an indexed column: one seek per distinct value rather than reading all duplicates.
 
 ```sql
+CREATE INDEX IF NOT EXISTS idx_track_albumid ON track (albumid HASH);
+```
+
+```sql
 :explain SELECT DISTINCT albumid FROM track WHERE albumid > 0;
 ```
 
 > Look for `Distinct Index Scan` — storage returns one row per unique key.
+
+```sql
+DROP INDEX IF EXISTS idx_track_albumid;
+```
 
 ---
 

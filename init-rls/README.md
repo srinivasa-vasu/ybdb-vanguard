@@ -125,7 +125,7 @@ Superusers and table owners have `BYPASSRLS` by default.
 
 ### Part 5 · SECURITY DEFINER function
 
-Encapsulates the tenant context inside the database. Callers cannot substitute a different tenant ID.
+Encapsulates the tenant context inside the database. The application layer controls which tenant value is passed (e.g. from a validated session token).
 
 ```sql
 CREATE OR REPLACE FUNCTION get_tenant_orders(p_tenant TEXT)
@@ -141,7 +141,7 @@ SELECT * FROM get_tenant_orders('acme');
 
 ---
 
-### Part 6 · Partial index for RLS performance
+### Part 6 · covering index for RLS performance
 
 Without an index, every query with a tenant filter scans the whole table.
 
@@ -212,6 +212,6 @@ SECURITY DEFINER function
   → runs with the definer's privileges, not the caller's
   → prevents callers from injecting tenant context
 
-Partial index on tenant_id
+covering index on tenant_id
   → makes RLS O(tenant_rows) not O(total_rows) at scale
 ```

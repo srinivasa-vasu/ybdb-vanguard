@@ -217,23 +217,23 @@ EXPLAIN a join between colocated tables:
 
 ```sql
 EXPLAIN (COSTS OFF)
-SELECT t.name AS tenant, p.name AS product, COUNT(*) AS orders
+SELECT t.name AS tenant, p.name AS product, COUNT(*) AS order_count
 FROM   orders o
 JOIN   tenants  t ON o.tenant_id  = t.id
 JOIN   products p ON o.product_id = p.id
 GROUP  BY t.name, p.name
-ORDER  BY orders DESC;
+ORDER  BY order_count DESC;
 ```
 
 Run the query:
 
 ```sql
-SELECT t.name AS tenant, p.name AS product, COUNT(*) AS orders
+SELECT t.name AS tenant, p.name AS product, COUNT(*) AS order_count
 FROM   orders o
 JOIN   tenants  t ON o.tenant_id  = t.id
 JOIN   products p ON o.product_id = p.id
 GROUP  BY t.name, p.name
-ORDER  BY orders DESC;
+ORDER  BY order_count DESC;
 ```
 
 The join between `tenants` and `products` executes locally — both are on the same tablet. Only the join with `orders` (distributed) involves cross-tablet access.

@@ -152,7 +152,7 @@ key_v3  →  active from 2025-07-01  →  current
 Before removing an old key file, confirm all tablets have been compacted with the new key. For a production cluster, trigger a manual compaction:
 
 ```bash
-yb-admin --master_addresses 127.0.0.1:7100 compact_table yugabyte public sensitive_records
+yb-admin --master_addresses 127.0.0.1:7100 compact_table ysql.yugabyte sensitive_records
 ```
 
 ---
@@ -211,5 +211,5 @@ yb-admin --master_addresses 127.0.0.1:7100 disable_encryption
 
 # Trigger manual compaction on a table
 yb-admin --master_addresses 127.0.0.1:7100 \
-  compact_table <db_name> <schema> <table_name>
+  compact_table ysql.<db_name> <table_name>
 ```

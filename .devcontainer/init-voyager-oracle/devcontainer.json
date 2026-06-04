@@ -42,6 +42,9 @@
       "settings": {
         "task.allowAutomaticTasks": "on",
         "files.exclude": {
+        "ybdb": true,
+        "init-voyager-oracle/voyager-data": true,
+        "voyager-data": true,
         "init-xcluster": true,
         "init-tablespace": true,
         "init-colocate": true,

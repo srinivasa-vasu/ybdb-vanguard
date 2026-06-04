@@ -33,9 +33,9 @@
 
     {
       "label": "clean",
-      "detail": "Remove all runtime-generated directories (ybdb/, voyager-data/, keys, pscript files)",
+      "detail": "Stop YugabyteDB + Docker Compose stacks, remove all runtime data (ybdb/, voyager-data/, keys, pscript files)",
       "type": "shell",
-      "command": "rm -rf ybdb voyager-data init-ear/keys init-cdc/kafka-plugins && find . -name pscript -not -path './.git/*' -delete && echo '✅ Runtime directories cleaned.'",
+      "command": "bash -c 'echo \"🛑 Stopping YugabyteDB nodes...\" && yugabyted destroy --base_dir=ybdb/ybd1 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd2 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd3 2>/dev/null; yugabyted destroy --base_dir=ybdb/source 2>/dev/null; yugabyted destroy --base_dir=ybdb/target 2>/dev/null; echo \"🐳 Stopping Docker Compose stacks...\" && for f in init-cdc/compose.yml init-voyager-postgres/compose.yml init-voyager-mysql/compose.yml init-voyager-mariadb/compose.yml init-voyager-oracle/compose.yml; do [ -f \"$f\" ] && docker-compose -f \"$f\" down --remove-orphans 2>/dev/null || true; done; echo \"🧹 Removing runtime data...\" && rm -rf ybdb voyager-data init-ear/keys init-cdc/kafka-plugins init-voyager-postgres/voyager-data init-voyager-mysql/voyager-data init-voyager-mariadb/voyager-data init-voyager-oracle/voyager-data && find . -name pscript -not -path \"./.git/*\" -delete && echo \"✅ All runtime data removed and services stopped.\"'",
       "presentation": {
         "reveal": "always",
         "panel": "shared",
@@ -603,7 +603,7 @@
       "label": "oracle",
       "detail": "Open a SQLPlus session against Oracle (oracle-client container) (init-voyager-oracle)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-voyager-oracle' ] || exit 0; docker exec -it oracle-client sqlplus ${env:SRC_USER}/${env:SRC_SECRET}@//127.0.0.1:1521/${env:ORACLE_PDB}",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-oracle' ] || exit 0; docker exec -it oracle-client sqlplus ${env:SRC_USER}/${env:SRC_SECRET}@//oracle:1521/${env:ORACLE_PDB}",
       "runOptions": { "runOn": "folderOpen" },
       
       "presentation": {
@@ -759,7 +759,7 @@
 
     {
       "label": "tt-demo",
-      "detail": "\"The Compliance Audit\" — forensic AS OF SYSTEM TIME flashback queries, no restore needed (init-tt/prompt.sh)",
+      "detail": "\"The Compliance Audit\" — forensic yb_read_time flashback queries, no restore needed (init-tt/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-tt' ] || exit 0; cd init-tt && echo '⏰ tt-demo  —  Time Travel (yb_read_time) demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
       

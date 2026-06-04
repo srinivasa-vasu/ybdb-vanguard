@@ -33,20 +33,20 @@ Then run from the `oracle` shell:
 ```
 yb-voyager assess-migration --export-dir /workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${SRC_HOST} \
+        --source-db-host ${SRC_HOST:-oracle} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${ORACLE_PDB}
 ```
 
-Review the generated report under `${DATA_PATH}/reports/`.
+Review the generated report under `init-voyager-oracle/voyager-data/reports/`.
 
 ### Step 2: Export Schema
 
 ```
 yb-voyager export schema --export-dir /workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${SRC_HOST} \
+        --source-db-host ${SRC_HOST:-oracle} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${ORACLE_PDB}
@@ -55,7 +55,7 @@ yb-voyager export schema --export-dir /workspaces/ybdb-vanguard/init-voyager-ora
 ### Step 3: Analyze Schema
 
 ```
-yb-voyager analyze-schema --export-dir /workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data --output-format html
+yb-voyager analyze-schema --export-dir /workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data --output-format txt
 ```
 
 ### Step 4: Export Data
@@ -63,7 +63,7 @@ yb-voyager analyze-schema --export-dir /workspaces/ybdb-vanguard/init-voyager-or
 ```
 yb-voyager export data --export-dir /workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${SRC_HOST} \
+        --source-db-host ${SRC_HOST:-oracle} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${ORACLE_PDB}

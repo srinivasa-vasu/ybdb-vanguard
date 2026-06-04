@@ -22,7 +22,7 @@ DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
 # Use the absolute path set in devcontainer containerEnv.
 # The hardcoded fallback ensures this works even without a rebuild.
-EXPORT_DIR="/workspaces/ybdb-vanguard/voyager-data"
+EXPORT_DIR="${VOYAGER_EXPORT_DIR:-/workspaces/ybdb-vanguard/voyager-data}"
 mkdir -p "${EXPORT_DIR}"
 
 clear

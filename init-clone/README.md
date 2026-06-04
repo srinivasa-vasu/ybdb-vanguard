@@ -90,7 +90,7 @@ CREATE DATABASE payments_dev TEMPLATE yugabyte;
 #### 1.2 Monitor clone status
 
 ```sql
-SELECT source_db_name, target_db_name, state, clone_time
+SELECT db_name AS target_db_name, parent_db_name AS source_db_name, state, as_of_time, failed_reason
 FROM yb_database_clones();
 ```
 

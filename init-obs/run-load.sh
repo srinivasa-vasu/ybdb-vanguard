@@ -18,7 +18,7 @@ echo "   Press Ctrl+C to stop."
 echo ""
 
 _q() {
-  ysqlsh -d "$DB" -X -q -c "$1" 2>/dev/null
+  ysqlsh -h 127.0.0.1 -d "$DB" -X -q -c "$1" 2>/dev/null
 }
 
 while true; do

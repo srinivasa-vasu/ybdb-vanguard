@@ -87,7 +87,12 @@ WHERE  c.relnamespace = 'public'::regnamespace
 ORDER  BY c.relname;\""
 
 p ""
-p "3 tables × 3 tablets each = 9 tablets for a tiny SaaS catalog."
+# Dynamically read the actual tablet count from the previous query result
+_std_summary=$(ysqlsh -h 127.0.0.1 -d saas_standard -t -c \
+  "SELECT COUNT(*)::text || ' tables × ' || MAX(p.num_tablets)::text || ' tablet(s) each = ' || SUM(p.num_tablets)::text || ' tablets total' \
+   FROM pg_class c, yb_table_properties(c.oid) p \
+   WHERE c.relnamespace='public'::regnamespace AND c.relkind='r'" 2>/dev/null | xargs)
+p "${_std_summary} for a tiny SaaS catalog."
 p "Every join between tenants and products crosses tablet boundaries."
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -135,7 +140,12 @@ WHERE  c.relnamespace = 'public'::regnamespace
 ORDER  BY c.relname;\""
 
 p ""
-p "tenants and products: 1 tablet, colocated = true."
+# Colocated tables always share 1 parent tablet — confirm from the query result
+_col_summary=$(ysqlsh -h 127.0.0.1 -d saas_colocated -t -c \
+  "SELECT STRING_AGG(c.relname || ': ' || p.num_tablets::text || ' tablet(s)', ', ' ORDER BY c.relname) \
+   FROM pg_class c, yb_table_properties(c.oid) p \
+   WHERE c.relnamespace='public'::regnamespace AND c.relkind='r'" 2>/dev/null | xargs)
+p "${_col_summary} — colocated = true."
 p "Joins between them are local — zero cross-node I/O."
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -172,9 +182,22 @@ WHERE  c.relnamespace = 'public'::regnamespace
 ORDER  BY c.relname;\""
 
 p ""
-p "tenants  → 1 tablet  (colocated: local joins, minimal overhead)"
-p "products → 1 tablet  (colocated: local joins, minimal overhead)"
-p "orders   → 3 tablets (distributed: scales out with writes)"
+# Read actual tablet counts from the cluster — avoids hardcoding RF-dependent values
+_t_tenants=$(ysqlsh -h 127.0.0.1 -d saas_colocated -t -c \
+  "SELECT p.num_tablets FROM pg_class c, yb_table_properties(c.oid) p \
+   WHERE c.relname='tenants' AND c.relnamespace='public'::regnamespace AND c.relkind='r'" \
+  2>/dev/null | xargs)
+_t_products=$(ysqlsh -h 127.0.0.1 -d saas_colocated -t -c \
+  "SELECT p.num_tablets FROM pg_class c, yb_table_properties(c.oid) p \
+   WHERE c.relname='products' AND c.relnamespace='public'::regnamespace AND c.relkind='r'" \
+  2>/dev/null | xargs)
+_t_orders=$(ysqlsh -h 127.0.0.1 -d saas_colocated -t -c \
+  "SELECT p.num_tablets FROM pg_class c, yb_table_properties(c.oid) p \
+   WHERE c.relname='orders' AND c.relnamespace='public'::regnamespace AND c.relkind='r'" \
+  2>/dev/null | xargs)
+p "tenants  → ${_t_tenants} tablet(s)  (colocated: shared parent tablet, local joins)"
+p "products → ${_t_products} tablet(s)  (colocated: shared parent tablet, local joins)"
+p "orders   → ${_t_orders} tablet(s)   (distributed: independent scale-out)"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PART 4: Seed data and compare join plans

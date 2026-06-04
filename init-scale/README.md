@@ -63,10 +63,11 @@ The extra nodes join as peers — no leader election restart, no client reconnec
 yugabyted status
 
 # Tablet distribution (from ysqlsh)
-SELECT host, zone, COUNT(*) AS leader_count
-FROM yb_tablet_metadata tm
-JOIN yb_servers() sv ON tm.leader LIKE sv.host || '%'
-GROUP BY host, zone ORDER BY host;
+SELECT sv.host, sv.zone, COUNT(*) AS leader_count
+FROM   yb_tablet_metadata tm
+JOIN   yb_servers() sv ON tm.leader = sv.uuid::text
+GROUP  BY sv.host, sv.zone
+ORDER  BY sv.host;
 
 # Scale up manually (or use the demo script)
 yugabyted start --base_dir ${DATA_PATH}/ybd4 --advertise_address 127.0.0.4 \

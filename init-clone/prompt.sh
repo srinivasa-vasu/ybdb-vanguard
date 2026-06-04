@@ -109,7 +109,7 @@ pe "ysqlsh -h 127.0.0.1 -c \"CREATE DATABASE payments_dev TEMPLATE yugabyte;\""
 
 p "Clone created. Checking status..."
 
-pe "ysqlsh -h 127.0.0.1 -c \"SELECT db_name, parent_db_name, state, as_of_time, failure_reason FROM yb_database_clones();\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT db_name AS target_db_name, parent_db_name AS source_db_name, state, as_of_time, failed_reason FROM yb_database_clones();\""
 
 p "Connecting to the clone..."
 
@@ -143,7 +143,7 @@ p "Need a rollback target? Clone to before the Premier upgrade — same SQL, add
 
 pe "ysqlsh -h 127.0.0.1 -c \"CREATE DATABASE payments_baseline TEMPLATE yugabyte AS OF '${BASELINE_TS}';\""
 
-pe "ysqlsh -h 127.0.0.1 -c \"SELECT db_name, parent_db_name, state, as_of_time, failure_reason FROM yb_database_clones();\""
+pe "ysqlsh -h 127.0.0.1 -c \"SELECT db_name AS target_db_name, parent_db_name AS source_db_name, state, as_of_time, failed_reason FROM yb_database_clones();\""
 
 pe "ysqlsh -h 127.0.0.1 -d payments_baseline -c \"SELECT COUNT(*) AS accounts, ROUND(SUM(balance), 2) AS total_funds FROM payments;\""
 

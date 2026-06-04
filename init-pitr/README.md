@@ -215,7 +215,7 @@ yb-admin -master_addresses 127.0.0.1:7100 \
 
 ```
 PITR schedule
-  interval   → how often the WAL is compacted into a durable snapshot (1–60 min)
+  interval   → how often a new snapshot is taken (1 min – hours)
   retention  → how far back in time you can restore (hours or days)
   scope      → one schedule per YSQL database or YCQL keyspace
 

@@ -109,7 +109,7 @@ CREATE TABLE audit_log (
 INSERT INTO audit_log (action, patient_id, actor, signature)
 SELECT
     action, patient_id, actor,
-    hmac(action || '|' || patient_id::text || '|' || actor, 'audit_hmac_key', 'sha256')
+    hmac(action || '|' || COALESCE(patient_id::text,'NULL') || '|' || actor, 'audit_hmac_key', 'sha256')
 FROM (VALUES
     ('VIEW_DIAGNOSIS',   1, 'dr.jones'),
     ('UPDATE_DIAGNOSIS', 2, 'dr.smith'),

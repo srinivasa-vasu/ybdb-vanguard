@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
+export PGPASSWORD="${TAR_SECRET:-yugabyte}"  # PostgreSQL sink password
 # YugabyteDB CDC demo  —  "The Live Sync Pipeline"
 #
 # Scenario: A YugabyteDB database (Chinook music store) is wired up to

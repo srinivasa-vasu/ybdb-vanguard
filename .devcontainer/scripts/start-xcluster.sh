@@ -15,11 +15,17 @@ BASE_DIR="${PWD}/${DATA_PATH:-ybdb}"
 SOURCE_BASE="${BASE_DIR}/source"
 TARGET_BASE="${BASE_DIR}/target"
 
-# ── Clean stale data ──────────────────────────────────────────────────────────
-if [ -d "${BASE_DIR}" ]; then
-  echo "🧹 Clearing previous cluster data..."
-  rm -rf "${BASE_DIR}"
-fi
+# ── Sweep all known runtime artefacts from previous exercises ────────────────
+echo "🧹 Sweeping stale runtime data from previous exercises..."
+rm -rf \
+  "${PWD}/ybdb" \
+  "${PWD}/voyager-data" \
+  "${PWD}/init-ear/keys" \
+  "${PWD}/init-cdc/kafka-plugins" \
+  "${PWD}/init-voyager-postgres/voyager-data" \
+  "${PWD}/init-voyager-mysql/voyager-data" \
+  "${PWD}/init-voyager-mariadb/voyager-data" \
+  "${PWD}/init-voyager-oracle/voyager-data" 2>/dev/null || true
 mkdir -p "${SOURCE_BASE}" "${TARGET_BASE}"
 
 # ── Add loopback alias for target node ───────────────────────────────────────

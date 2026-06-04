@@ -37,9 +37,9 @@ curl -# -L \
 # Kafka Connect service. We copy JARs into it using a throwaway container so
 # no bind mount is needed (bind mounts from devcontainer paths fail on macOS).
 echo "Populating kafka-plugins Docker volume..."
-docker volume create cdc_kafka-plugins 2>/dev/null || true
+docker volume create init-cdc_kafka-plugins 2>/dev/null || true
 docker run --rm \
-  -v cdc_kafka-plugins:/plugins \
+  -v init-cdc_kafka-plugins:/plugins \
   -v "${STAGING}:/staging:ro" \
   busybox sh -c "cp /staging/*.jar /plugins/ && ls -lh /plugins/"
 
@@ -50,4 +50,4 @@ echo "Docker images ready."
 
 echo ""
 echo "✅ CDC setup complete."
-echo "   JARs loaded into Docker volume 'cdc_kafka-plugins'"
+echo "   JARs loaded into Docker volume 'init-cdc_kafka-plugins'"

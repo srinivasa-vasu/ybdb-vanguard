@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   oracle:
-    image: mgvenzl/oracle-free
+    image: gvenzl/oracle-free
     container_name: oracle
     # Use the shared Docker network so the devcontainer (and yb-voyager wrapper)
     # can reach Oracle by container name "oracle". SRC_HOST=oracle in devcontainer.json.

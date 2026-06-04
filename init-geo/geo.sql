@@ -181,7 +181,7 @@ ORDER BY tm.leader;
 \echo '-- 3.2  Set us-east as the preferred (primary) leader zone'
 \echo '--      Run from the ysqlsh shell or connector-config terminal:'
 \echo '--'
-\echo '--  yb-admin --master_addresses ${MASTERS} \'
+\echo '--  yb-admin --master_addresses 127.0.0.1:7100,127.0.0.2:7100,127.0.0.3:7100 \'
 \echo '--    set_preferred_zones ybcloud.us-east.us-east-az1'
 \echo '--'
 \echo '-- After setting, tablet leaders for products migrate to us-east.'
@@ -190,7 +190,7 @@ ORDER BY tm.leader;
 \echo ''
 \echo '-- 3.3  Add a secondary preference (eu-west if us-east is unavailable)'
 \echo '--'
-\echo '--  yb-admin --master_addresses ${MASTERS} \'
+\echo '--  yb-admin --master_addresses 127.0.0.1:7100,127.0.0.2:7100,127.0.0.3:7100 \'
 \echo '--    set_preferred_zones ybcloud.us-east.us-east-az1:1 ybcloud.eu-west.eu-west-az1:2'
 
 

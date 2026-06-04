@@ -14,7 +14,7 @@ Run **pre-step** from the `mysql` shell, then **Steps 1–8** from the `yb-voyag
 Run from the `mysql` shell:
 
 ```sql
-source init-voyager-mysql/chinook.sql
+\! docker-compose -f init-voyager-mysql/compose.yml exec -T mysql mysql -uroot -p${SRC_SECRET:-yugabyte} Chinook < /workspaces/ybdb-vanguard/init-voyager-mysql/chinook.sql
 ```
 
 ---
@@ -24,20 +24,20 @@ source init-voyager-mysql/chinook.sql
 ```
 yb-voyager assess-migration --export-dir /workspaces/ybdb-vanguard/init-voyager-mysql/voyager-data \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${SRC_HOST} \
+        --source-db-host ${SRC_HOST:-mysql} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${SRC_DB_ID}
 ```
 
-Review the generated report under `${DATA_PATH}/reports/`.
+Review the generated report under `init-voyager-mysql/voyager-data/reports/`.
 
 ### Step 2: Export Schema
 
 ```
 yb-voyager export schema --export-dir /workspaces/ybdb-vanguard/init-voyager-mysql/voyager-data \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${SRC_HOST} \
+        --source-db-host ${SRC_HOST:-mysql} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${SRC_DB_ID}
@@ -46,7 +46,7 @@ yb-voyager export schema --export-dir /workspaces/ybdb-vanguard/init-voyager-mys
 ### Step 3: Analyze Schema
 
 ```
-yb-voyager analyze-schema --export-dir /workspaces/ybdb-vanguard/init-voyager-mysql/voyager-data --output-format html
+yb-voyager analyze-schema --export-dir /workspaces/ybdb-vanguard/init-voyager-mysql/voyager-data --output-format txt
 ```
 
 ### Step 4: Export Data
@@ -54,7 +54,7 @@ yb-voyager analyze-schema --export-dir /workspaces/ybdb-vanguard/init-voyager-my
 ```
 yb-voyager export data --export-dir /workspaces/ybdb-vanguard/init-voyager-mysql/voyager-data \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${SRC_HOST} \
+        --source-db-host ${SRC_HOST:-mysql} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${SRC_DB_ID}

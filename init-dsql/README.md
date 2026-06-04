@@ -65,7 +65,7 @@ ysqlsh
 | 3.3 Covering index (`INCLUDE`) | Store extra columns in index leaf → index-only scan (1 RPC) |
 | 3.4 Partial index (`WHERE`) | Index only matching rows — smaller, faster, great for skewed predicates |
 | 3.5 Expression index | `lower(email)` stored as the key; query must match the expression exactly |
-| 3.6 Bucket index | `(yb_hash_code(ts) % N) + ts DESC` — spread monotone-key writes across N tablets |
+| 3.6 Bucket index | `(yb_hash_code(ts) % N) ASC, ts DESC` — spread monotone-key writes across N tablets |
 
 ### Part 4 · Observe Tablet Metadata
 
@@ -106,9 +106,8 @@ CREATE TABLE t (id TEXT PRIMARY KEY ASC, ...);
 CREATE TABLE t (id TEXT PRIMARY KEY ASC, ...)
   SPLIT AT VALUES (('G'), ('N'), ('T'));
 
--- Range split into N tablets evenly
-CREATE TABLE t (id TEXT PRIMARY KEY ASC, ...)
-  SPLIT INTO 4 TABLETS;
+-- Range split at specific values
+CREATE TABLE t (id TEXT PRIMARY KEY ASC) SPLIT AT VALUES (('D'), ('M'), ('T'));
 
 -- Composite hash key
 CREATE TABLE t (a TEXT, b TEXT, c TEXT, ...,

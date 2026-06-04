@@ -50,7 +50,7 @@ p "Any user with SELECT can see ALL tenants. That is a compliance failure."
 p ""
 p "--- Part 1: Enable RLS and add a tenant isolation policy ---"
 
-pe "ysqlsh -h 127.0.0.1 -c \"ALTER TABLE orders ENABLE ROW LEVEL SECURITY;\""
+pe "ysqlsh -h 127.0.0.1 -c \"ALTER TABLE orders ENABLE ROW LEVEL SECURITY; ALTER TABLE orders FORCE ROW LEVEL SECURITY;\""
 
 p "RLS enabled — table owner still sees everything (BYPASSRLS by default)."
 p "Now add the policy that enforces tenant isolation."
@@ -134,12 +134,12 @@ SECURITY DEFINER LANGUAGE SQL AS \$\$
 
 pe "ysqlsh -h 127.0.0.1 -c \"SELECT * FROM get_tenant_orders('acme');\""
 
-p "The function sets its own security context — callers cannot inject a different tenant."
+p "The function runs with definer privileges (bypassing RLS) and enforces tenant filtering via the WHERE clause. The application layer controls which tenant value is passed."
 
-# ── Scene 8: Partial index for RLS performance ────────────────────────────────
+# ── Scene 8: covering index for RLS performance ────────────────────────────────
 
 p ""
-p "--- Part 7: Optimize with a partial index on tenant_id ---"
+p "--- Part 7: Optimize with a covering index on tenant_id ---"
 p "Without an index, every RLS check does a full scan of 500k rows in production."
 
 pe "ysqlsh -h 127.0.0.1 -c \"CREATE INDEX idx_orders_tenant ON orders (tenant_id) INCLUDE (customer, amount, status);\""
@@ -158,7 +158,7 @@ p "  CREATE POLICY ... WITH CHECK  → block cross-tenant INSERT/UPDATE"
 p "  current_setting('app.x',true) → session variable, safe default NULL"
 p "  ALTER ROLE ... BYPASSRLS      → admin bypass for maintenance"
 p "  SECURITY DEFINER function     → encapsulate tenant context in the DB"
-p "  Partial index on tenant_id    → keeps query cost O(tenant_rows), not O(total)"
+p "  covering index on tenant_id    → keeps query cost O(tenant_rows), not O(total)"
 
 cmd
 p ""

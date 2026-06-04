@@ -174,14 +174,14 @@ VALUES (
   'VIEW_DIAGNOSIS',
   1,
   'dr.jones',
-  hmac('VIEW_DIAGNOSIS|1|dr.jones', 'audit_hmac_secret', 'sha256')
+  hmac('VIEW_DIAGNOSIS|1|dr.jones', 'audit_hmac_key', 'sha256')
 );\""
 
 pe "ysqlsh -h 127.0.0.1 -c \"
 SELECT
   log_id, action, patient_id, actor, logged_at,
-  CASE WHEN signature = hmac(action || '|' || patient_id || '|' || actor,
-                              'audit_hmac_secret', 'sha256')
+  CASE WHEN signature = hmac(action || '|' || patient_id::text || '|' || actor,
+                              'audit_hmac_key', 'sha256')
        THEN 'VALID' ELSE 'TAMPERED' END AS integrity
 FROM audit_log;\""
 

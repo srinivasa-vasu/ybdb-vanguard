@@ -56,7 +56,7 @@ p "(For this demo, assuming Chinook was loaded via the oracle terminal.)"
 p ""
 p "Verify source tables in Oracle:"
 
-pe "docker exec oracle-client sqlplus -S ${SRC_USER}/${SRC_SECRET}@//127.0.0.1:1521/${ORACLE_PDB} <<'EOF'
+pe "docker exec oracle-client sqlplus -S ${SRC_USER}/${SRC_SECRET}@//oracle:1521/${ORACLE_PDB} <<'EOF'
 SELECT table_name FROM all_tables WHERE owner = UPPER('${SRC_USER}') ORDER BY table_name;
 EXIT;
 EOF"

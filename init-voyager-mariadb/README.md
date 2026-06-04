@@ -14,7 +14,7 @@ Run **pre-step** from the `mariadb` shell, then **Steps 1–8** from the `yb-voy
 Run from the `mariadb` shell:
 
 ```sql
-source init-voyager-mariadb/chinook.sql
+\! docker-compose -f init-voyager-mariadb/compose.yml exec -T mysql mariadb -uroot -p${SRC_SECRET:-yugabyte} Chinook < /workspaces/ybdb-vanguard/init-voyager-mariadb/chinook.sql
 ```
 
 ---
@@ -24,20 +24,20 @@ source init-voyager-mariadb/chinook.sql
 ```
 yb-voyager assess-migration --export-dir /workspaces/ybdb-vanguard/init-voyager-mariadb/voyager-data \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${SRC_HOST} \
+        --source-db-host ${SRC_HOST:-mariadb} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${SRC_DB_ID}
 ```
 
-Review the generated report under `${DATA_PATH}/reports/`.
+Review the generated report under `init-voyager-mariadb/voyager-data/reports/`.
 
 ### Step 2: Export Schema
 
 ```
 yb-voyager export schema --export-dir /workspaces/ybdb-vanguard/init-voyager-mariadb/voyager-data \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${SRC_HOST} \
+        --source-db-host ${SRC_HOST:-mariadb} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${SRC_DB_ID}
@@ -54,7 +54,7 @@ yb-voyager analyze-schema --export-dir /workspaces/ybdb-vanguard/init-voyager-ma
 ```
 yb-voyager export data --export-dir /workspaces/ybdb-vanguard/init-voyager-mariadb/voyager-data \
         --source-db-type ${SRC_DB_TYPE} \
-        --source-db-host ${SRC_HOST} \
+        --source-db-host ${SRC_HOST:-mariadb} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
         --source-db-name ${SRC_DB_ID}

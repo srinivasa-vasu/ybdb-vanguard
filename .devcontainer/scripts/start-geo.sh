@@ -18,10 +18,18 @@ set -euo pipefail
 BASE_DIR="${PWD}/${DATA_PATH:-ybdb}"
 
 # Remove stale data from previous runs (same reason as start-ybdb.sh).
-if [ -d "${BASE_DIR}" ]; then
-  echo "🧹 Clearing previous cluster data..."
-  rm -rf "${BASE_DIR}"
-fi
+# ── Sweep all known runtime artefacts from previous exercises ────────────────
+echo "🧹 Sweeping stale runtime data from previous exercises..."
+rm -rf \
+  "${PWD}/ybdb" \
+  "${PWD}/voyager-data" \
+  "${PWD}/init-ear/keys" \
+  "${PWD}/init-cdc/kafka-plugins" \
+  "${PWD}/init-voyager-postgres/voyager-data" \
+  "${PWD}/init-voyager-mysql/voyager-data" \
+  "${PWD}/init-voyager-mariadb/voyager-data" \
+  "${PWD}/init-voyager-oracle/voyager-data" 2>/dev/null || true
+mkdir -p "$BASE_DIR"
 mkdir -p "$BASE_DIR"
 
 echo "🌍 Starting 3-node multi-region cluster..."

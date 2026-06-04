@@ -25,6 +25,8 @@
       "settings": {
         "task.allowAutomaticTasks": "on",
         "files.exclude": {
+        "ybdb": true,
+        "voyager-data": true,
         "init-xcluster": true,
         ".devcontainer": true,
         ".github": true,

@@ -247,7 +247,7 @@ ysqlsh -h 127.0.0.1 -c "
   CREATE TABLE employees (
     id     SERIAL PRIMARY KEY,
     name   TEXT        NOT NULL,
-    dept   TEXT,
+    department TEXT,
     salary NUMERIC(12,2)
   );
 "
@@ -285,7 +285,7 @@ INSERT rows on the **primary**, then read them from the **standby**.
 
 ```bash
 ysqlsh -h 127.0.0.1 -c "
-  INSERT INTO employees (name, dept, salary) VALUES
+  INSERT INTO employees (name, department, salary) VALUES
     ('Alice',   'Engineering', 120000),
     ('Bob',     'Marketing',    95000),
     ('Charlie', 'Engineering', 110000),
@@ -303,13 +303,13 @@ sleep 3
 Read from the **standby**:
 
 ```bash
-ysqlsh -h 127.0.0.11 -c "SELECT id, name, dept, salary FROM employees ORDER BY id;"
+ysqlsh -h 127.0.0.11 -c "SELECT id, name, department, salary FROM employees ORDER BY id;"
 ```
 
 Expected — all 5 rows present on the standby:
 
 ```
- id |  name   |     dept    |  salary
+ id |  name   | department  |  salary
 ----+---------+-------------+---------
   1 | Alice   | Engineering | 120000
   2 | Bob     | Marketing   |  95000
@@ -351,7 +351,7 @@ Expected — `email` column appears:
 --------+-----------------------+-----------+----------+--------------------
  id     | integer               |           | not null | nextval(...)
  name   | text                  |           | not null |
- dept   | text                  |           |          |
+ department | text               |           |          |
  salary | numeric(12,2)         |           |          |
  email  | text                  |           |          |
 ```
@@ -514,7 +514,7 @@ The former standby now accepts writes:
 
 ```bash
 ysqlsh -h 127.0.0.11 -c "
-  INSERT INTO employees (name, dept, salary, email)
+  INSERT INTO employees (name, department, salary, email)
   VALUES ('Frank', 'Operations', 98000, 'frank@example.com');
 "
 

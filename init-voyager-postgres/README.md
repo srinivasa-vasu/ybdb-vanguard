@@ -16,7 +16,7 @@ Run **Steps 6–11** from the `yb-voyager-wa` shell.
 Run from the `psql` shell:
 
 ```
-\i init-voyager-postgres/chinook.sql
+\i chinook.sql
 ```
 
 ---
@@ -48,7 +48,7 @@ yb-voyager export schema --export-dir ${VOYAGER_EXPORT_DIR} \
 ### Step 2: Analyze Schema
 
 ```
-yb-voyager analyze-schema --export-dir ${VOYAGER_EXPORT_DIR} --output-format html
+yb-voyager analyze-schema --export-dir ${VOYAGER_EXPORT_DIR} --output-format txt
 ```
 
 ---

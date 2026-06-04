@@ -9,6 +9,12 @@
     "DATA_PATH": "ybdb",
     "ART_PATH": "init-scale",
     "SCRIPT_PATH": "init-scale",
+    "HOST_LB":  "127.0.0.1",
+    "HOST_LB2": "127.0.0.2",
+    "HOST_LB3": "127.0.0.3",
+    "HOST_LB4": "127.0.0.4",
+    "HOST_LB5": "127.0.0.5",
+    "HOST_LB6": "127.0.0.6",
     // load-generator credentials (used by yb-sample-apps.jar)
     "SECRET": "yugabyte",
     "YB_USER": "yugabyte",
@@ -37,6 +43,8 @@
       "settings": {
         "task.allowAutomaticTasks": "on",
         "files.exclude": {
+        "ybdb": true,
+        "voyager-data": true,
         "init-xcluster": true,
         "init-tablespace": true,
         "init-colocate": true,

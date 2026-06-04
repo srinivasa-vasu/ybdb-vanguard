@@ -46,6 +46,7 @@ SELECT * FROM employees;
 -- ── 1.2  Enable RLS and add self-view policy ─────────────────────────────────
 \echo '-- 1.2  Enable RLS — policy: each user sees only their own row'
 ALTER TABLE employees ENABLE ROW LEVEL SECURITY;
+ALTER TABLE employees FORCE ROW LEVEL SECURITY;
 
 CREATE POLICY emp_self_policy ON employees
   FOR ALL TO PUBLIC
@@ -95,6 +96,7 @@ INSERT INTO orders (tenant_id, customer, amount, status) VALUES
 -- ── 2.2  Enable RLS + tenant isolation policy ─────────────────────────────────
 \echo '-- 2.2  RLS policy driven by session variable app.tenant_id'
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE orders FORCE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON orders
   FOR ALL
@@ -214,7 +216,7 @@ SELECT * FROM get_tenant_orders('globex');
 
 \echo ''
 \echo '════════════════════════════════════════════════════════════════════'
-\echo ' Part 5 — Partial index for RLS performance                          '
+\echo ' Part 5 — covering index for RLS performance                          '
 \echo '════════════════════════════════════════════════════════════════════'
 
 \echo '-- 5.1  Without index: RLS predicate forces a full table scan'

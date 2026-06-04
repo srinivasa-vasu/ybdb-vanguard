@@ -548,7 +548,6 @@ SELECT
     granted,
     mode,
     waitstart,
-    waitend,
     ybdetails->>'transactionid'     AS yb_txn_id,
     ybdetails->>'tablet_id'         AS tablet_id,
     ybdetails->>'is_explicit'       AS is_explicit,

@@ -1,5 +1,5 @@
 {
-  "name": "Time Travel — AS OF SYSTEM TIME",
+  "name": "Time Travel — yb_read_time",
   "build": {
     "dockerfile": "../../.ybdb.Dockerfile",
     "context": "../.."
@@ -8,7 +8,7 @@
   "containerEnv": {
     "DATA_PATH": "ybdb",
     "ART_PATH": "init-tt"
-    // No MASTERS needed: AS OF SYSTEM TIME is a SQL feature, no yb-admin required
+    // No MASTERS needed: yb_read_time is a SQL feature, no yb-admin required
   },
   "hostRequirements": {
     // Single-node cluster
@@ -18,13 +18,15 @@
   },
   // One-time: install pv (pipe viewer for demo-magic), download demo-magic script
   "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-tt/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-tt/pscript init-tt/prompt.sh && echo \"✅ Time Travel exercise ready\"'",
-  // Single-node cluster on every start; no PITR schedule needed for AS OF SYSTEM TIME
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → tt-demo   (Time Travel / AS OF SYSTEM TIME demo shell)\"'",
+  // Single-node cluster on every start; no PITR schedule needed for yb_read_time
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → tt-demo   (Time Travel / yb_read_time demo shell)\"'",
   "customizations": {
     "vscode": {
       "settings": {
         "task.allowAutomaticTasks": "on",
         "files.exclude": {
+        "ybdb": true,
+        "voyager-data": true,
         "init-xcluster": true,
         "init-tablespace": true,
         "init-colocate": true,

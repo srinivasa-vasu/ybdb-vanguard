@@ -19,15 +19,20 @@ BASE_DIR="${PWD}/${DATA_PATH:-ybdb}"
 
 echo "🚀 Starting YugabyteDB ${NODES}-node cluster..."
 
-# Remove any stale data from a previous run.
-# On Codespace/devcontainer resume, postStartCommand fires again but the
-# YugabyteDB processes are gone while the data directory persists. Restarting
-# with partial Raft state causes "master process died unexpectedly."
-# Wiping the data directory guarantees a clean start every time.
-if [ -d "${BASE_DIR}" ]; then
-  echo "🧹 Clearing previous cluster data..."
-  rm -rf "${BASE_DIR}"
-fi
+# ── Sweep all known runtime artefacts from previous exercises ────────────────
+# Data dirs from other exercises accumulate on the bind-mounted workspace
+# (visible on the host machine). Clean them all at startup so the project
+# folder stays tidy regardless of which exercise was run before.
+echo "🧹 Sweeping stale runtime data from previous exercises..."
+rm -rf \
+  "${PWD}/ybdb" \
+  "${PWD}/voyager-data" \
+  "${PWD}/init-ear/keys" \
+  "${PWD}/init-cdc/kafka-plugins" \
+  "${PWD}/init-voyager-postgres/voyager-data" \
+  "${PWD}/init-voyager-mysql/voyager-data" \
+  "${PWD}/init-voyager-mariadb/voyager-data" \
+  "${PWD}/init-voyager-oracle/voyager-data" 2>/dev/null || true
 mkdir -p "$BASE_DIR"
 
 # ── loopback aliases ──────────────────────────────────────────────────────────

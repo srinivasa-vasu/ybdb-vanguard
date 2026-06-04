@@ -18,7 +18,7 @@ TYPE_SPEED=35
 NO_WAIT=false
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
-EXPORT_DIR="/workspaces/ybdb-vanguard/voyager-data"
+EXPORT_DIR="${VOYAGER_EXPORT_DIR:-/workspaces/ybdb-vanguard/voyager-data}"
 mkdir -p "${EXPORT_DIR}"
 
 clear
