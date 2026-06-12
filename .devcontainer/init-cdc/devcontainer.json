@@ -8,12 +8,12 @@
   "containerEnv": {
     "DATA_PATH": "ybdb",
     "ART_PATH": "init-cdc",
+    // Debezium stack version — must support Java 17 (3.x+); bump together across ZK/Kafka/Connect
+    "DEBEZIUM_VERSION": "3.1.3.Final",
     // YugabyteDB source connector version — bump when a new release is available at
-    // https://github.com/yugabyte/debezium/releases
+    // https://github.com/yugabyte/debezium/releases (pick the latest non-prerelease tag)
     "YBDB_CONNECTOR_VERSION": "dz.2.5.2.yb.2025.2.3",
     "KAFKA_CONNECT_PORT": "8083",
-    // JDBC sink connector version (downloaded to init-cdc/kafka-plugins/ by setup-cdc.sh)
-    "JDBC_VERSION": "10.7.4",
     // Enable yboutput logical replication plugin for all new tables
     "TSERVER_FLAGS": "ysql_yb_default_replica_identity=DEFAULT",
     // Connector env vars referenced in README curl examples
@@ -37,8 +37,8 @@
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
-  // One-time: install psql client + pv, download demo-magic, pull Debezium images, download connector JARs
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client pv && curl -ssLo init-cdc/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-cdc/pscript init-cdc/prompt.sh && bash .devcontainer/scripts/setup-cdc.sh && echo \"✅ CDC exercise ready\"'",
+  // One-time: install psql client, pull Debezium images, download connector JARs
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client && bash .devcontainer/scripts/setup-cdc.sh && echo \"✅ CDC exercise ready\"'",
   // Open workspace before postStartCommand completes so the README
   // is visible while Docker Compose and services start in the background.
   "waitFor": "postCreateCommand",

@@ -6,13 +6,31 @@ Hands-on exercises covering the full query optimisation stack in YugabyteDB — 
 
 ---
 
+**Quick start:** Two terminals open automatically:
+- **`qt-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`ysql`** — interactive YSQL shell for the manual exercises below
+
+---
+
 > **How to run queries from this README**
 > Select any SQL block → **`Ctrl+Shift+Enter`** (Windows/Linux) or **`Cmd+Shift+Enter`** (Mac) → runs in the active `ysqlsh` terminal.
 > The shortcut is pre-configured in the devcontainer — no setup needed.
 
 ---
 
-## Setup
+## Running the demo
+
+Open the `qt-demo` terminal (**Terminal → Run Task → `qt-demo`**) and run:
+
+```bash
+bash prompt.sh
+```
+
+The guided demo seeds the Chinook database, then walks through query execution patterns, pushdowns, index strategies, join optimisation, and advanced SQL — all with `EXPLAIN (ANALYZE, DIST)` output.
+
+---
+
+## Setup (for manual exercises)
 
 Seed the exercise tables and set the EXPLAIN shorthand — run these once per session:
 
@@ -22,6 +40,8 @@ Seed the exercise tables and set the EXPLAIN shorthand — run these once per se
 
 ```sql
 \set explain 'EXPLAIN (ANALYZE, DIST, COSTS ON, BUFFERS OFF)'
+analyse verbose;
+set enable_seqscan=off; -- force index usage to demonstrate patterns clearly
 ```
 
 The `:explain` shorthand is used throughout. `DIST` exposes storage-layer RPC counts — the primary signal for distributed query cost.

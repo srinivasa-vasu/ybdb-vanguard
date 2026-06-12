@@ -18,8 +18,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  // One-time: install pv + demo-magic
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-geo/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-geo/pscript init-geo/prompt.sh && echo \"✅ Geo-distribution exercise ready\"'",
+
   // Every start: 3-node multi-region cluster (us-east / eu-west / ap-south)
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-geo.sh && echo \"\" && echo \"▶  Terminal → Run Task → geo-demo   (guided geo-distribution demo)\" && echo \"▶  Terminal → Run Task → ysql        (YSQL shell)\"'",
   "customizations": {

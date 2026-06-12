@@ -34,8 +34,8 @@
       "jdkDistro": "ms"
     }
   },
-  // One-time: install pv (pipe viewer for demo-magic), download demo-magic + sample apps
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-scale/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-scale/pscript init-scale/prompt.sh && wget -q https://github.com/yugabyte/yb-sample-apps/releases/download/v${YB_SAMPLE_APPS_VERSION}/yb-sample-apps.jar && echo \"✅ Scale exercise ready\"'",
+  // One-time: download yb-sample-apps load generator
+  "postCreateCommand": "bash -c 'wget -q https://github.com/yugabyte/yb-sample-apps/releases/download/v${YB_SAMPLE_APPS_VERSION}/yb-sample-apps.jar && echo \"✅ Scale exercise ready\"'",
   // 3-node cluster with shard flags (matches original Gitpod config)
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 ysql_num_shards_per_tserver=2,yb_num_shards_per_tserver=2 && echo \"\" && echo \"▶  Terminal → Run Task → scale: ysql-load   (YSQL load generator)\" && echo \"▶  Terminal → Run Task → scale: ycql-load   (YCQL load generator)\" && echo \"▶  Terminal → Run Task → ybdb-scale          (scale-out demo shell)\" && echo \"▶  Terminal → Run Task → scale: start all   (launch all three at once)\"'",
   "customizations": {

@@ -16,8 +16,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  // One-time: install pv + demo-magic
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-tablespace/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-tablespace/pscript init-tablespace/prompt.sh && echo \"✅ Tablespace exercise ready\"'",
+
   // 3-node multi-region cluster (same setup as geo exercise — different cloud.region.zone per node)
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-geo.sh && echo \"\" && echo \"▶  Terminal → Run Task → tablespace-demo   (guided tablespace demo)\"'",
   "customizations": {

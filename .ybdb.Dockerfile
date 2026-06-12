@@ -64,13 +64,16 @@ RUN mkdir -p /home/vscode/.config/Code/User \
 # devcontainer feature, whose install script fails on Apple Silicon / Rosetta.
 # No daemon is needed — the host Docker socket is mounted at container start.
 RUN apt-get update -qq \
-  && apt-get install -y -qq --no-install-recommends docker.io \
+  && apt-get install -y -qq --no-install-recommends docker.io pv \
   && rm -rf /var/lib/apt/lists/* \
   && COMPOSE_ARCH=$([ "${TARGETARCH:-}" = "arm64" ] && echo "aarch64" || echo "x86_64") \
   && curl -fsSL \
      "https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-${COMPOSE_ARCH}" \
      -o /usr/local/bin/docker-compose \
-  && chmod +x /usr/local/bin/docker-compose
+  && chmod +x /usr/local/bin/docker-compose \
+  && curl -ssLo /usr/local/bin/pscript \
+     https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh \
+  && chmod +x /usr/local/bin/pscript
 
 # Allow the vscode user to reach the Docker socket mounted at runtime
 RUN groupadd -f docker && usermod -aG docker vscode

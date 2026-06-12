@@ -18,8 +18,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  // One-time: install pv (pipe viewer for demo-magic), download demo-magic script
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-pitr/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-pitr/pscript init-pitr/prompt.sh && echo \"✅ PITR exercise ready\"'",
+
   // Single-node cluster on every start
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → pitr-demo   (PITR recovery demo)\"'",
   "customizations": {

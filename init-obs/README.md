@@ -39,23 +39,51 @@ The devcontainer starts a **3-node cluster** with:
 
 ---
 
-## Running the exercises
+## Quick start
 
-| Task | What it opens |
+Three terminals open automatically:
+
+| Terminal | What it does |
 |---|---|
-| **Terminal → Run Task → `run-load`** | Background query load generator — keep this running while exploring |
-| **Terminal → Run Task → `ysql-obs`** | YSQL shell connected directly to `obs_demo` |
-| **Terminal → Run Task → `obs-demo`** | Guided investigation demo (`prompt.sh`) |
+| **`run-load`** | Background query load generator — keep this running throughout |
+| **`ysql-obs`** | YSQL shell connected to `obs_demo` for manual exercises |
+| **`obs-demo`** | Guided investigation demo |
 
 **Start `run-load` first** — ASH and `pg_stat_statements` need sustained load to accumulate meaningful data.
 
-Then open `obs.sql` in the `ysql-obs` shell:
+## Running the demo
+
+In the `obs-demo` terminal, run:
+
+```bash
+bash prompt.sh
+```
+
+The demo follows the narrative **"The Case of the Disappearing SLA"** — an order API has breached its 200ms SLA, and you walk through the full investigation using only built-in YugabyteDB SQL:
+
+| Step | Tool | What it reveals |
+|---|---|---|
+| 1 | `pg_stat_statements` | Top queries by DocDB rows scanned and P99 latency |
+| 2 | ASH standalone | Overall wait event distribution (TableRead dominates) |
+| 3 | ASH × `pg_stat_statements` | Which queries drive which wait events |
+| 4 | ASH × `yb_local_tablets` | Which table and tablet partition is hot |
+| 5 | ASH × `yb_servers()` | Which cluster node carries the load |
+| 6 | ASH × `pg_stat_activity` | Which sessions are stuck and their memory usage |
+| 7 | ASH trifecta | Query + node + tablet in one cross-dimension query |
+| 8 | `pg_locks` + `yb_cancel_transaction()` | Distributed lock contention; cancel the blocker |
+| 9 | `EXPLAIN (ANALYZE, DIST)` | Confirm the full-scan root cause, create a covering index |
+| 10 | ASH after fix | Verify TableRead events decrease |
+| 11 | `yb_query_diagnostics` | Capture a full diagnostic bundle for the post-mortem |
+
+## Running the exercises manually
+
+Open `obs.sql` in the `ysql-obs` shell:
 
 ```sql
 \i init-obs/obs.sql
 ```
 
-Or paste individual blocks from each part below.
+Or paste individual blocks from each part below. The section numbers below correspond to the demo steps above.
 
 ---
 

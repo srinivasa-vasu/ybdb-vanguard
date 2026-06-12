@@ -20,8 +20,8 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  // One-time: install pv + demo-magic + openssl (for key generation)
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv openssl && curl -ssLo init-ear/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-ear/pscript init-ear/prompt.sh && mkdir -p init-ear/keys && echo \"✅ EAR exercise ready\"'",
+  // One-time: install openssl (for key generation), create key directory
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends openssl && mkdir -p init-ear/keys && echo \"✅ EAR exercise ready\"'",
   // Single-node cluster — EAR is enabled via yb-admin after startup, not a startup flag
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → ear-demo   (guided EAR demo)\" && echo \"▶  Terminal → Run Task → ysql        (YSQL shell)\"'",
   "customizations": {

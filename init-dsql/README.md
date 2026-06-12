@@ -6,6 +6,12 @@ Hands-on exercises that show how YugabyteDB physically distributes data across t
 
 ---
 
+**Quick start:** Two terminals open automatically:
+- **`dsql-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`ysql`** — interactive YSQL shell for the manual exercises below
+
+---
+
 ## Prerequisites
 
 The devcontainer starts a **3-node cluster** across 3 availability zones automatically. Connect with:
@@ -16,11 +22,21 @@ ysqlsh
 
 > Default connection: `yugabyte@127.0.0.1:5433` — no credentials needed.
 
-> A **ysql** terminal opens automatically — use it directly or run `Terminal → Run Task → ysql` to open another.
+---
+
+## Running the demo
+
+Open the `dsql-demo` terminal (**Terminal → Run Task → `dsql-demo`**) and run:
+
+```bash
+bash prompt.sh
+```
+
+The guided demo walks through all four parts automatically, showing `EXPLAIN (ANALYZE, DIST)` output for each scenario.
 
 ---
 
-## Running the exercises
+## Running the exercises manually
 
 **Option A — load the whole file and step through**
 
@@ -29,6 +45,8 @@ ysqlsh
 ```
 
 **Option B — paste individual blocks** from `sharding.sql` to explore interactively.
+
+> Select any SQL block → **`Ctrl+Shift+Enter`** (Windows/Linux) or **`Cmd+Shift+Enter`** (Mac) → runs in the active `ysql` terminal.
 
 ---
 

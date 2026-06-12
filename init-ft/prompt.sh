@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 . pscript
+set -f  # disable filename expansion — prevents SELECT * glob-expanding in eval $@
 
 # Resolve workspace root — prompt.sh runs from init-ft/ subdirectory
 WS_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "/workspaces/ybdb-vanguard")

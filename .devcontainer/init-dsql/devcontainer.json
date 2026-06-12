@@ -14,8 +14,9 @@
     "memory": "8gb",
     "storage": "32gb"
   },
+
   // 3-node zone-aware cluster — brings up YSQL (5433) and YCQL (9042)
-  "postStartCommand": "bash .devcontainer/scripts/start-ybdb.sh 3",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → dsql-demo  (guided demo: bash prompt.sh)\" && echo \"▶  Terminal → Run Task → ysql       (YSQL shell for manual exercises)\"'",
   "customizations": {
     "vscode": {
       "settings": {

@@ -15,8 +15,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  // One-time: install pv + demo-magic
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq pv && curl -ssLo init-xcluster/pscript https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh && chmod +x init-xcluster/pscript init-xcluster/prompt.sh && echo \"✅ xCluster exercise ready\"'",
+
   // Two clusters: source (127.0.0.1) + target (127.0.0.11)
   "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-xcluster.sh && echo \"\" && echo \"▶  Terminal → Run Task → xcluster-demo   (guided xCluster demo)\" && echo \"▶  Terminal → Run Task → ysql-source      (YSQL shell → source cluster)\" && echo \"▶  Terminal → Run Task → ysql-target      (YSQL shell → target cluster)\"'",
   "customizations": {

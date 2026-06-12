@@ -47,6 +47,50 @@
 
 
     // ═══════════════════════════════════════════════════════════════════════
+    // init-dsql  — Distributed SQL: Hash & Range Sharding
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "dsql-demo",
+      "detail": "\"The Sharding Playbook\" — hash vs range, clustering keys, covering indexes, bucket indexes (init-dsql/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-dsql' ] || exit 0; cd init-dsql && echo '🗃️  dsql-demo  —  Distributed SQL: Hash & Range Sharding' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dsql",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-qt  — Query Tuning Tips & Tricks
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "qt-demo",
+      "detail": "\"The Performance Tuning Playbook\" — pushdowns, index strategies, BNL join, window functions (init-qt/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-qt' ] || exit 0; cd init-qt && echo '⚡ qt-demo  —  Query Tuning Tips & Tricks' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "qt",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
     // init-colocate  — Colocation & Distributed Tables
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -57,7 +101,7 @@
       "command": "[ '${env:ART_PATH}' = 'init-colocate' ] || exit 0; cd init-colocate && echo '📦 colocate-demo  —  Colocation & Distributed Tables' && echo '   Run when ready: bash prompt.sh' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "colocate",
         "showReuseMessage": false,
@@ -78,7 +122,7 @@
       "command": "[ '${env:ART_PATH}' = 'init-tablespace' ] || exit 0; cd init-tablespace && echo '🗂️  tablespace-demo  —  Tablespaces & Online Data Migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "showReuseMessage": false,
         "clear": true
@@ -97,7 +141,7 @@
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; cd init-xcluster && echo '🔄 xcluster-demo  —  xCluster Replication & DR' && echo '   Run when ready: bash prompt.sh' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
-      "presentation": { "reveal": "never", "panel": "dedicated", "showReuseMessage": false, "clear": true, "close": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true, "close": true },
       "problemMatcher": []
     },
 
@@ -107,7 +151,7 @@
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; echo '🟢 Source cluster (127.0.0.1)' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
       "runOptions": { "runOn": "folderOpen" },
-      "presentation": { "reveal": "never", "panel": "dedicated", "showReuseMessage": false, "clear": false, "close": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": false, "close": true },
       "problemMatcher": []
     },
 
@@ -117,7 +161,7 @@
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; echo '🔵 Target cluster (127.0.0.11)' && until (echo >/dev/tcp/127.0.0.11/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.11",
       "runOptions": { "runOn": "folderOpen" },
-      "presentation": { "reveal": "never", "panel": "dedicated", "showReuseMessage": false, "clear": false, "close": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": false, "close": true },
       "problemMatcher": []
     },
 
@@ -137,7 +181,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "ear",
         "showReuseMessage": false,
@@ -162,7 +206,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "rls",
         "showReuseMessage": false,
@@ -184,7 +228,7 @@
       
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "privacy",
         "showReuseMessage": false,
@@ -206,7 +250,7 @@
       
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "geo",
         "showReuseMessage": false,
@@ -228,7 +272,7 @@
       "runOptions": { "runOn": "folderOpen" },
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "obs",
         "showReuseMessage": false,
@@ -244,7 +288,7 @@
       "command": "[ '${env:ART_PATH}' = 'init-obs' ] || exit 0; echo 'Waiting for YugabyteDB on :5433...' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1 -d obs_demo",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "obs",
         "showReuseMessage": false,
@@ -260,7 +304,7 @@
       "command": "[ '${env:ART_PATH}' = 'init-obs' ] || exit 0; cd init-obs && echo '🔍 obs-demo  —  Performance Investigation' && echo '   Run when ready: bash prompt.sh' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "obs",
         "showReuseMessage": false,
@@ -307,7 +351,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "ft-load",
         "showReuseMessage": false,
@@ -328,7 +372,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "ft-load",
         "showReuseMessage": false,
@@ -349,7 +393,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "ft-demo",
         "showReuseMessage": false,
@@ -388,7 +432,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "scale-load",
         "showReuseMessage": false,
@@ -409,7 +453,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "scale-load",
         "showReuseMessage": false,
@@ -430,7 +474,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "scale-demo",
         "showReuseMessage": false,
@@ -464,7 +508,7 @@
       "runOptions": { "runOn": "folderOpen" },
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "cdc",
         "showReuseMessage": false,
@@ -481,7 +525,7 @@
       "runOptions": { "runOn": "folderOpen" },
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "cdc",
         "showReuseMessage": false,
@@ -507,7 +551,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -530,7 +574,7 @@
       
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -550,7 +594,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -569,7 +613,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -589,7 +633,7 @@
       "command": "[ '${env:ART_PATH}' = 'init-voyager-oracle' ] || exit 0; cd init-voyager-oracle && echo '🔴 oracle-demo  —  Oracle → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "showReuseMessage": false,
         "clear": true,
@@ -607,7 +651,7 @@
       "runOptions": { "runOn": "folderOpen" },
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -627,7 +671,7 @@
       "command": "case '${env:ART_PATH}' in init-voyager-mysql|init-voyager-mariadb|init-voyager-oracle) ;; *) exit 0 ;; esac; echo '🚀 yb-voyager — run yb-voyager export / import commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -651,7 +695,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -673,7 +717,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -689,7 +733,7 @@
       "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '📤 yb-voyager-export  (Steps 0–2 → assess, export schema, analyze)' && echo '   then Step 4 → export data from source (runs until cutover)' && echo '' && echo '   Run: bash prompt.sh' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -705,7 +749,7 @@
       "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '📥 yb-voyager-import  (Step 3 → import schema; Step 5 → import data to target)' && echo '   Run Step 3 after Steps 0–2 complete in yb-voyager-export shell.' && echo '' && echo '   Run: bash prompt-import.sh' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true
@@ -728,7 +772,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "pitr",
         "showReuseMessage": false,
@@ -748,7 +792,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "clone",
         "showReuseMessage": false,
@@ -768,7 +812,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
         "group": "tt",
         "showReuseMessage": false,
@@ -790,7 +834,7 @@
       
       
       "presentation": {
-        "reveal": "never",
+        "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
         "clear": true

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 . pscript
+set -f  # disable filename expansion — prevents SELECT * glob-expanding in eval $@
 
 TYPE_SPEED=50
 
