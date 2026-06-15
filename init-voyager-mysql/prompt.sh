@@ -8,7 +8,7 @@
 #
 # Pre-requisites (handled by postStartCommand):
 #   - YugabyteDB running on :5433
-#   - MySQL running in Docker on :3306 (Chinook already loaded)
+#   - MySQL running in Docker on :3306
 #   - yb-voyager installed at /usr/local/bin/yb-voyager
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -22,13 +22,32 @@ DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 EXPORT_DIR="/workspaces/ybdb-vanguard/init-voyager-mysql/voyager-data"
 mkdir -p "${EXPORT_DIR}"
 
+# Ensure the full Chinook dataset is present (downloaded during postCreateCommand)
+if [ ! -f "chinook_data.sql" ]; then
+  echo "⚠  Downloading Chinook dataset from source (should have been done at setup)..."
+  curl -fsSL "https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_MySql.sql" \
+    -o chinook_data.sql || { echo "❌ Download failed. Re-open the devcontainer to retry."; exit 1; }
+fi
+
+# Drop existing Chinook DB so the load is idempotent on re-runs
+docker-compose -f compose.yml exec -T mysql mysql -uroot -p"${SRC_SECRET}" \
+  -e "DROP DATABASE IF EXISTS \`Chinook\`;" 2>/dev/null || true
+
 clear
 
-# ── Scene 1: Show the source data ────────────────────────────────────────────
+# ── Scene 0: Load source data ─────────────────────────────────────────────────
 
 p "=== 'The MySQL Migration' — MySQL → YugabyteDB via yb-voyager ==="
 p ""
-p "Source: MySQL (Chinook music store database)"
+p "--- Pre-step: Load Chinook into MySQL ---"
+p "Full Chinook dataset: 3 500+ tracks, 412 invoices, 59 customers."
+
+pe "docker-compose -f compose.yml exec -T mysql mysql -uroot -p${SRC_SECRET} < chinook_data.sql"
+
+# ── Scene 1: Show the source data ────────────────────────────────────────────
+
+p ""
+p "Source tables loaded in MySQL:"
 
 pe "docker-compose -f compose.yml exec mysql \
   mysql -uroot -p${SRC_SECRET} -e \
@@ -45,7 +64,8 @@ pe "yb-voyager assess-migration --export-dir ${EXPORT_DIR} \
   --source-db-host ${SRC_HOST:-mysql} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${SRC_DB_ID}"
+  --source-db-name ${SRC_DB_ID} \
+  --source-db-schema ${SRC_DB_ID}"
 
 p "Assessment report saved to ${EXPORT_DIR}/reports/"
 
@@ -59,7 +79,8 @@ pe "yb-voyager export schema --export-dir ${EXPORT_DIR} \
   --source-db-host ${SRC_HOST:-mysql} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${SRC_DB_ID}"
+  --source-db-name ${SRC_DB_ID} \
+  --source-db-schema ${SRC_DB_ID}"
 
 pe "ls ${EXPORT_DIR}/schema/"
 
@@ -85,7 +106,8 @@ pe "yb-voyager export data --export-dir ${EXPORT_DIR} \
   --source-db-host ${SRC_HOST:-mysql} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${SRC_DB_ID}"
+  --source-db-name ${SRC_DB_ID} \
+  --source-db-schema ${SRC_DB_ID}"
 
 pe "yb-voyager export data status --export-dir ${EXPORT_DIR}"
 

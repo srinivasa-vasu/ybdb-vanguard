@@ -14,16 +14,18 @@ Run **pre-step** from the `oracle` shell, then **Steps 1–8** from the `yb-voya
 
 ### Pre-step: Load source data
 
-First, copy the Chinook schema into the Oracle client container:
+The guided demo (`bash prompt.sh`) handles this automatically. The full Chinook dataset (~3 500 tracks, 412 invoices, 59 customers) is downloaded from [lerocha/chinook-database](https://github.com/lerocha/chinook-database) at `postCreateCommand` time into `chinook_data.sql`.
+
+To load manually:
 
 ```bash
-docker cp init-voyager-oracle/chinook.sql oracle-client:/tmp/chinook.sql
-```
+# Step 1: create the chinook Oracle user (run as SYSTEM)
+docker cp chinook.sql oracle:/tmp/chinook_setup.sql
+docker exec oracle sqlplus -S system/${ORACLE_PASSWORD:-YbVanguard1}@//localhost:1521/${ORACLE_PDB} @/tmp/chinook_setup.sql
 
-Then run from the `oracle` shell:
-
-```sql
-@/tmp/chinook.sql
+# Step 2: load the full Chinook dataset (connects internally as chinook)
+docker cp chinook_data.sql oracle:/tmp/chinook_data.sql
+docker exec oracle sqlplus -S system/${ORACLE_PASSWORD:-YbVanguard1}@//localhost:1521/${ORACLE_PDB} @/tmp/chinook_data.sql
 ```
 
 ---
@@ -36,7 +38,8 @@ yb-voyager assess-migration --export-dir /workspaces/ybdb-vanguard/init-voyager-
         --source-db-host ${SRC_HOST:-oracle} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${ORACLE_PDB}
+        --source-db-name ${ORACLE_PDB} \
+        --source-db-schema ${SCHEMA}
 ```
 
 Review the generated report under `init-voyager-oracle/voyager-data/reports/`.
@@ -49,7 +52,8 @@ yb-voyager export schema --export-dir /workspaces/ybdb-vanguard/init-voyager-ora
         --source-db-host ${SRC_HOST:-oracle} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${ORACLE_PDB}
+        --source-db-name ${ORACLE_PDB} \
+        --source-db-schema ${SCHEMA}
 ```
 
 ### Step 3: Analyze Schema
@@ -66,7 +70,8 @@ yb-voyager export data --export-dir /workspaces/ybdb-vanguard/init-voyager-oracl
         --source-db-host ${SRC_HOST:-oracle} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${ORACLE_PDB}
+        --source-db-name ${ORACLE_PDB} \
+        --source-db-schema ${SCHEMA}
 ```
 
 Check export progress:

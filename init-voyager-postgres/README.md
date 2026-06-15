@@ -13,10 +13,18 @@ Run **Steps 6–11** from the `yb-voyager-wa` shell.
 
 ### Pre-step: Load source data
 
+The guided demo handles this automatically. The full Chinook dataset (~3 500 tracks, 412 invoices, 59 customers) is downloaded from [lerocha/chinook-database](https://github.com/lerocha/chinook-database) at `postCreateCommand` time into `chinook_data.sql`.
+
 Run from the `psql` shell:
 
+```bash
+bash pre-step.sh
 ```
-\i chinook.sql
+
+To load manually:
+
+```bash
+psql -h ${SRC_HOST} -f chinook_data.sql
 ```
 
 ---

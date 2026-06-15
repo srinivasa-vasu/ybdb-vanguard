@@ -5,16 +5,18 @@
 **Quick start:** The `mariadb-demo` terminal opens automatically — run `bash prompt.sh` for the guided demo.
 The `yb-voyager` terminal is available for running commands manually.
 
-Run **pre-step** from the `mariadb` shell, then **Steps 1–8** from the `yb-voyager` shell.
+Run **`bash prompt.sh`** from the `mariadb-demo` shell — it loads Chinook and runs all steps automatically.
 
 ---
 
 ### Pre-step: Load source data
 
-Run from the `mariadb` shell:
+The guided demo handles this automatically. The full Chinook dataset (~3 500 tracks, 412 invoices, 59 customers) is downloaded from [lerocha/chinook-database](https://github.com/lerocha/chinook-database) at `postCreateCommand` time into `chinook_data.sql`.
 
-```sql
-\! docker-compose -f init-voyager-mariadb/compose.yml exec -T mysql mariadb -uroot -p${SRC_SECRET:-yugabyte} Chinook < /workspaces/ybdb-vanguard/init-voyager-mariadb/chinook.sql
+To load manually from the `mariadb-demo` shell:
+
+```bash
+docker-compose -f compose.yml exec -T mysql mariadb -uroot -p${SRC_SECRET} < chinook_data.sql
 ```
 
 ---
@@ -27,7 +29,8 @@ yb-voyager assess-migration --export-dir /workspaces/ybdb-vanguard/init-voyager-
         --source-db-host ${SRC_HOST:-mariadb} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID}
+        --source-db-name ${SRC_DB_ID} \
+        --source-db-schema ${SRC_DB_ID}
 ```
 
 Review the generated report under `init-voyager-mariadb/voyager-data/reports/`.
@@ -40,7 +43,8 @@ yb-voyager export schema --export-dir /workspaces/ybdb-vanguard/init-voyager-mar
         --source-db-host ${SRC_HOST:-mariadb} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID}
+        --source-db-name ${SRC_DB_ID} \
+        --source-db-schema ${SRC_DB_ID}
 ```
 
 ### Step 3: Analyze Schema
@@ -57,7 +61,8 @@ yb-voyager export data --export-dir /workspaces/ybdb-vanguard/init-voyager-maria
         --source-db-host ${SRC_HOST:-mariadb} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID}
+        --source-db-name ${SRC_DB_ID} \
+        --source-db-schema ${SRC_DB_ID}
 ```
 
 Check export progress:

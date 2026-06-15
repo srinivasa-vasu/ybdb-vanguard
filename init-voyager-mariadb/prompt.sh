@@ -16,13 +16,30 @@ DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 EXPORT_DIR="/workspaces/ybdb-vanguard/init-voyager-mariadb/voyager-data"
 mkdir -p "${EXPORT_DIR}"
 
+# Ensure the full Chinook dataset is present (downloaded during postCreateCommand)
+if [ ! -f "chinook_data.sql" ]; then
+  echo "⚠  Downloading Chinook dataset from source (should have been done at setup)..."
+  curl -fsSL "https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_MySql.sql" \
+    -o chinook_data.sql || { echo "❌ Download failed. Re-open the devcontainer to retry."; exit 1; }
+fi
+
+# Drop existing Chinook DB so the load is idempotent on re-runs
+docker-compose -f compose.yml exec -T mysql mariadb -uroot -p"${SRC_SECRET}" \
+  -e "DROP DATABASE IF EXISTS \`Chinook\`;" 2>/dev/null || true
+
 clear
 
 p "=== 'The MariaDB Migration' — MariaDB → YugabyteDB via yb-voyager ==="
 p ""
-p "Source: MariaDB (Chinook music store database)"
+p "--- Pre-step: Load Chinook into MariaDB ---"
+p "Full Chinook dataset: 3 500+ tracks, 412 invoices, 59 customers."
 
-pe "docker-compose -f init-voyager-mariadb/compose.yml exec mysql \
+pe "docker-compose -f compose.yml exec -T mysql mariadb -uroot -p${SRC_SECRET} < chinook_data.sql"
+
+p ""
+p "Source tables loaded in MariaDB:"
+
+pe "docker-compose -f compose.yml exec mysql \
   mariadb -uroot -p${SRC_SECRET} -e \
   'SELECT table_name, table_rows FROM information_schema.tables WHERE table_schema=\"Chinook\" ORDER BY table_rows DESC;'"
 
@@ -34,7 +51,8 @@ pe "yb-voyager assess-migration --export-dir ${EXPORT_DIR} \
   --source-db-host ${SRC_HOST:-mariadb} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${SRC_DB_ID}"
+  --source-db-name ${SRC_DB_ID} \
+  --source-db-schema ${SRC_DB_ID}"
 
 p ""
 p "--- Step 2: Export Schema ---"
@@ -44,7 +62,8 @@ pe "yb-voyager export schema --export-dir ${EXPORT_DIR} \
   --source-db-host ${SRC_HOST:-mariadb} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${SRC_DB_ID}"
+  --source-db-name ${SRC_DB_ID} \
+  --source-db-schema ${SRC_DB_ID}"
 
 p ""
 p "--- Step 3: Analyse Schema ---"
@@ -59,7 +78,8 @@ pe "yb-voyager export data --export-dir ${EXPORT_DIR} \
   --source-db-host ${SRC_HOST:-mariadb} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${SRC_DB_ID}"
+  --source-db-name ${SRC_DB_ID} \
+  --source-db-schema ${SRC_DB_ID}"
 
 pe "yb-voyager export data status --export-dir ${EXPORT_DIR}"
 

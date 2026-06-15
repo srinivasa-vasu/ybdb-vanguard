@@ -11,19 +11,10 @@ services:
     restart: always
     environment:
       - ORACLE_PASSWORD=${ORACLE_PASSWORD:-YbVanguard1}
-      - ORACLE_PDB=${ORACLE_PDB:-MYPDB}
     volumes:
       - oracle-data:/opt/oracle/oradata
     shm_size: "2g"
 
-  oracle-client:
-    image: gvenzl/oracle-instantclient-sqlplus
-    container_name: oracle-client
-    depends_on:
-      - oracle
-    networks:
-      - ybdb-vanguard-net
-    command: ["tail", "-f", "/dev/null"]
 
 networks:
   ybdb-vanguard-net:

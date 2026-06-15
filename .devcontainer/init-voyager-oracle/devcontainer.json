@@ -10,15 +10,15 @@
     "DATA_PATH": "ybdb",
     "ART_PATH": "init-voyager-oracle",
     "ORACLE_PASSWORD": "YbVanguard1",
-    "ORACLE_PDB": "legacy",
+    "ORACLE_PDB": "FREEPDB1",
     "SRC_DB_TYPE": "oracle",
     "SRC_HOST": "oracle",
-    "SRC_USER": "system",
-    "SRC_SECRET": "YbVanguard1",
+    "SRC_USER": "chinook",
+    "SRC_SECRET": "chinook",
     "TARGET_DB_ID": "yugabyte",
     "TARGET_USER": "yugabyte",
     "TARGET_SECRET": "yugabyte",
-    "SCHEMA": "SYSTEM"
+    "SCHEMA": "CHINOOK"
   },
   "hostRequirements": {
     // Oracle Free requires significant RAM; 8-core strongly recommended
@@ -31,7 +31,7 @@
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
   // One-time: pre-pull Oracle image (~4 GB — takes time!), install yb-voyager
-  "postCreateCommand": "bash -c '{ test -x /usr/bin/docker || test -x /usr/local/bin/docker || { ARCH=$(uname -m) && sudo curl -fsSL "https://download.docker.com/linux/static/stable/${ARCH}/docker-24.0.7.tgz" | sudo tar xz -C /usr/local/bin --strip-components=1 docker/docker; }; } && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && sudo install -m 755 .devcontainer/scripts/yb-voyager-wrapper.sh /usr/local/bin/yb-voyager && docker-compose -f init-voyager-oracle/compose.yml pull && mkdir -p /workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data && echo \"✅ Oracle Voyager exercise ready (Oracle image pre-pulled)\"'",
+  "postCreateCommand": "bash -c 'sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && sudo install -m 755 .devcontainer/scripts/yb-voyager-wrapper.sh /usr/local/bin/yb-voyager && docker-compose -f init-voyager-oracle/compose.yml pull && docker pull --platform linux/amd64 yugabytedb/yb-voyager:latest && curl -fsSL https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_Oracle.sql -o init-voyager-oracle/chinook_data.sql && mkdir -p /workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data && echo \"✅ Oracle Voyager exercise ready\"'",
   // Open workspace before postStartCommand completes so the README
   // is visible while Docker Compose and services start in the background.
   "waitFor": "postCreateCommand",

@@ -19,20 +19,29 @@ DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 EXPORT_DIR="/workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data"
 mkdir -p "${EXPORT_DIR}"
 
+# Ensure the full Chinook dataset is present (downloaded during postCreateCommand)
+if [ ! -f "chinook_data.sql" ]; then
+  echo "⚠  Downloading Chinook dataset from source (should have been done at setup)..."
+  curl -fsSL "https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_Oracle.sql" \
+    -o chinook_data.sql || { echo "❌ Download failed. Re-open the devcontainer to retry."; exit 1; }
+fi
+
 clear
 
 p "=== 'The Oracle Migration' — Oracle → YugabyteDB via yb-voyager ==="
 p ""
 p "Waiting for Oracle Free to be ready on :1521 (may take 2–3 min)..."
 
-# Pure-bash wait for Oracle
+# Wait for Oracle DB to finish initialising — poll the container log for the
+# ready signal rather than a TCP check (devcontainer can't reach 127.0.0.1:1521;
+# Oracle is on the shared Docker network, reachable only by container name).
 _ora_ready=0
 for i in $(seq 1 60); do
-  if (echo >/dev/tcp/127.0.0.1/1521) 2>/dev/null; then
+  if docker logs oracle 2>/dev/null | grep -q 'DATABASE IS READY TO USE'; then
     _ora_ready=1; break
   fi
-  printf "\r   %ds elapsed..." "$(( i * 3 ))"
-  sleep 3
+  printf "\r   %ds elapsed..." "$(( i * 5 ))"
+  sleep 5
 done
 echo ""
 if [ "$_ora_ready" -eq 0 ]; then
@@ -40,27 +49,23 @@ if [ "$_ora_ready" -eq 0 ]; then
   exit 1
 fi
 
-# Extra wait for the DB to finish initialising (port open ≠ DB ready)
-sleep 15
-
 p "Oracle is up. Loading the Chinook schema..."
 
 p ""
-p "--- Pre-step: Load Chinook into Oracle ---"
-p "Copy the schema to the oracle-client container and run it via SQLPlus."
+p "--- Pre-step: Load Chinook into Oracle (chinook schema) ---"
+p "Step 1: create the chinook user. Step 2: load the full Chinook dataset."
 
-pe "docker cp init-voyager-oracle/chinook.sql oracle-client:/tmp/chinook.sql"
+pe "docker cp chinook.sql oracle:/tmp/chinook_setup.sql"
+pe "docker cp chinook_data.sql oracle:/tmp/chinook_data.sql"
+pe "docker cp list_tables.sql oracle:/tmp/list_tables.sql"
 
-p "Run from the oracle shell: @/tmp/chinook.sql"
-p "(For this demo, assuming Chinook was loaded via the oracle terminal.)"
+pe "docker exec oracle sqlplus -S system/${ORACLE_PASSWORD:-YbVanguard1}@//localhost:1521/${ORACLE_PDB} @/tmp/chinook_setup.sql"
+pe "docker exec oracle sqlplus -S system/${ORACLE_PASSWORD:-YbVanguard1}@//localhost:1521/${ORACLE_PDB} @/tmp/chinook_data.sql"
 
 p ""
-p "Verify source tables in Oracle:"
+p "Verify source tables in Oracle (chinook schema):"
 
-pe "docker exec oracle-client sqlplus -S ${SRC_USER}/${SRC_SECRET}@//oracle:1521/${ORACLE_PDB} <<'EOF'
-SELECT table_name FROM all_tables WHERE owner = UPPER('${SRC_USER}') ORDER BY table_name;
-EXIT;
-EOF"
+pe "docker exec oracle sqlplus -S ${SRC_USER}/${SRC_SECRET}@//localhost:1521/${ORACLE_PDB} @/tmp/list_tables.sql"
 
 p ""
 p "--- Step 1: Assess Migration ---"
@@ -70,7 +75,8 @@ pe "yb-voyager assess-migration --export-dir ${EXPORT_DIR} \
   --source-db-host ${SRC_HOST:-oracle} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${ORACLE_PDB}"
+  --source-db-name ${ORACLE_PDB} \
+  --source-db-schema ${SCHEMA}"
 
 p ""
 p "--- Step 2: Export Schema ---"
@@ -80,7 +86,8 @@ pe "yb-voyager export schema --export-dir ${EXPORT_DIR} \
   --source-db-host ${SRC_HOST:-oracle} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${ORACLE_PDB}"
+  --source-db-name ${ORACLE_PDB} \
+  --source-db-schema ${SCHEMA}"
 
 p ""
 p "--- Step 3: Analyse Schema ---"
@@ -95,7 +102,8 @@ pe "yb-voyager export data --export-dir ${EXPORT_DIR} \
   --source-db-host ${SRC_HOST:-oracle} \
   --source-db-user ${SRC_USER} \
   --source-db-password ${SRC_SECRET} \
-  --source-db-name ${ORACLE_PDB}"
+  --source-db-name ${ORACLE_PDB} \
+  --source-db-schema ${SCHEMA}"
 
 pe "yb-voyager export data status --export-dir ${EXPORT_DIR}"
 
@@ -132,14 +140,7 @@ pe "yb-voyager finalize-schema-post-data-import --export-dir ${EXPORT_DIR} \
   --target-db-schema ${SCHEMA}"
 
 p ""
-p "--- Step 8: Verify ---"
-
-pe "ysqlsh -h 127.0.0.1 -c \"SELECT schemaname, tablename, n_live_tup AS rows
-FROM pg_stat_user_tables
-ORDER BY rows DESC LIMIT 10;\""
-
-p ""
-p "--- Step 9: End Migration ---"
+p "--- Step 8: End Migration ---"
 
 pe "yb-voyager end migration --export-dir ${EXPORT_DIR} \
   --backup-log-files yes \

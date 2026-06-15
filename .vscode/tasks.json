@@ -645,9 +645,9 @@
     // ── Oracle SQLPlus shell ──────────────────────────────────────────────────
     {
       "label": "oracle",
-      "detail": "Open a SQLPlus session against Oracle (oracle-client container) (init-voyager-oracle)",
+      "detail": "Open a SQLPlus session against Oracle (oracle container) (init-voyager-oracle)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-voyager-oracle' ] || exit 0; docker exec -it oracle-client sqlplus ${env:SRC_USER}/${env:SRC_SECRET}@//oracle:1521/${env:ORACLE_PDB}",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-oracle' ] || exit 0; echo '⏳ Waiting for Oracle to become ready (2-3 min on first start)...'; until docker logs oracle 2>/dev/null | grep -q 'DATABASE IS READY TO USE'; do sleep 5; done; exec docker exec -it oracle sqlplus ${env:SRC_USER}/${env:SRC_SECRET}@//localhost:1521/${env:ORACLE_PDB}",
       "runOptions": { "runOn": "folderOpen" },
       
       "presentation": {

@@ -45,5 +45,12 @@ init-cdc/kafka-plugins/
 # Downloaded at container creation time; not source-controlled.
 **/pscript
 
+# ── Chinook datasets ──────────────────────────────────────────────────────────
+# Downloaded from lerocha/chinook-database at postCreateCommand time.
+init-voyager-oracle/chinook_data.sql
+init-voyager-mysql/chinook_data.sql
+init-voyager-mariadb/chinook_data.sql
+init-voyager-postgres/chinook_data.sql
+
 # ── devcontainer lock files ───────────────────────────────────────────────────
 devcontainer-lock.json

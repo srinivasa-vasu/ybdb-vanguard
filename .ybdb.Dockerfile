@@ -59,16 +59,20 @@ RUN mkdir -p /home/vscode/.config/Code/User \
      > /dev/null \
   && chown -R vscode:vscode /home/vscode/.config /home/vscode/.vscode-server
 
-# Install Docker CLI + Compose v2 plugin for exercises that use docker compose
-# (CDC, Voyager). Installing here avoids the docker-in-docker / docker-outside-of-docker
-# devcontainer feature, whose install script fails on Apple Silicon / Rosetta.
+# Install Docker CLI (static binary) + Compose v2 + pv (demo-magic) + pscript (demo-magic).
+# Static docker binary avoids docker-in-docker / docker-outside-of-docker devcontainer
+# features whose install scripts fail on Apple Silicon / Rosetta.
 # No daemon is needed — the host Docker socket is mounted at container start.
+# pv drives the typewriter animation in all prompt.sh demo scripts.
 RUN apt-get update -qq \
-  && apt-get install -y -qq --no-install-recommends docker.io pv \
+  && apt-get install -y -qq --no-install-recommends pv \
   && rm -rf /var/lib/apt/lists/* \
-  && COMPOSE_ARCH=$([ "${TARGETARCH:-}" = "arm64" ] && echo "aarch64" || echo "x86_64") \
+  && DOCKER_ARCH=$([ "${TARGETARCH:-}" = "arm64" ] && echo "aarch64" || echo "x86_64") \
   && curl -fsSL \
-     "https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-${COMPOSE_ARCH}" \
+     "https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/docker-24.0.7.tgz" \
+     | tar xz -C /usr/local/bin --strip-components=1 docker/docker \
+  && curl -fsSL \
+     "https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-${DOCKER_ARCH}" \
      -o /usr/local/bin/docker-compose \
   && chmod +x /usr/local/bin/docker-compose \
   && curl -ssLo /usr/local/bin/pscript \
