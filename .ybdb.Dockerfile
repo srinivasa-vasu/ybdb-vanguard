@@ -7,7 +7,7 @@
 # BuildKit skips unreferenced stages so this image is never pulled during a real build.
 FROM yugabytedb/yugabyte:2025.2.3.0-b149 AS yb_version_pin
 
-FROM mcr.microsoft.com/devcontainers/python:3.11
+FROM mcr.microsoft.com/devcontainers/python:3.14
 
 ARG YB_VERSION=2025.2.3.0
 ARG YB_BUILD=149
