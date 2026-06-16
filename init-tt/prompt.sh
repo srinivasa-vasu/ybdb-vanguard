@@ -19,6 +19,10 @@
 
 TYPE_SPEED=40
 NO_WAIT=false
+# Each `pe` normally pauses TWICE (before typing the command, and again before
+# running it). This removes the first pause so the command types out as soon as
+# you reach it; you then press Enter ONCE to run it. One pause per step.
+NO_WAIT_DISPLAY_CMD=true
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
 clear
