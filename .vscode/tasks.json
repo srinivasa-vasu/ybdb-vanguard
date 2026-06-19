@@ -91,6 +91,28 @@
 
 
     // ═══════════════════════════════════════════════════════════════════════
+    // init-qpm  — Query Plan Management (QPM)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "qpm-demo",
+      "detail": "\"Catch and Pin the Plan\" — detect a regression, correct it by pinning a good plan, prevent future ones (YFTT #157 demo) (init-qpm/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-qpm' ] || exit 0; cd init-qpm && echo '📌 qpm-demo  —  Query Plan Management' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "qpm",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
     // init-colocate  — Colocation & Distributed Tables
     // ═══════════════════════════════════════════════════════════════════════
 

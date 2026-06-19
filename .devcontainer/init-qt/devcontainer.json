@@ -39,6 +39,7 @@
           "init-pgvector": true,
           "init-pitr": true,
           "init-privacy": true,
+          "init-qpm": true,
           "init-rls": true,
           "init-scale": true,
           "init-tablespace": true,

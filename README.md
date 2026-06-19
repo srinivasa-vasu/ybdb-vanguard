@@ -82,6 +82,18 @@ Query execution patterns, pushdown operations, index strategies (hash, range, co
 
 ---
 
+#### Query Plan Management (QPM)
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+
+[README →](init-qpm/README.md) | devcontainer: `init-qpm`
+
+Detect, compare, and pin query plans with QPM (EA, v2025.2.3+). Capture every plan a query has used in `yb_pg_stat_plans`, spot a regression after a statistics change, and pin a known-good plan via the `pg_hint_plan` hint table. The database is fully QPM-ready (extensions, defaults, and seed data) the moment the container starts.
+
+---
+
 ### Data Placement & Architecture
 
 #### Colocation & Distributed Tables
@@ -364,6 +376,7 @@ Secure a Spring Boot application with YugabyteDB over TLS using cloud-native sec
 | **SQL Fundamentals** | | | | | |
 | Distributed SQL | `init-dsql` | 3 | 4 | 8 GB | 32 GB |
 | Query Tuning | `init-qt` | 3 | 4 | 8 GB | 32 GB |
+| Query Plan Management | `init-qpm` | 1 | 4 | 8 GB | 32 GB |
 | **Data Placement & Architecture** | | | | | |
 | Colocation | `init-colocate` | 3 | 4 | 8 GB | 32 GB |
 | Tablespaces | `init-tablespace` | 3 | 4 | 8 GB | 32 GB |
