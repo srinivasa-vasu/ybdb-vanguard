@@ -394,10 +394,10 @@ Secure a Spring Boot application with YugabyteDB over TLS using cloud-native sec
 | Oracle Migration | `init-voyager-oracle` | 1 | **8** | **16 GB** | **64 GB** |
 | PostgreSQL Migration | `init-voyager-postgres` | 1 | 4 | 8 GB | 32 GB |
 
-Bold = above standard. All exercises default to Ubuntu-based devcontainer image on `linux/amd64` and `linux/arm64`.
+All exercises default to Ubuntu-based devcontainer image on `linux/amd64` and `linux/arm64`.
 
 ---
 
 ## YugabyteDB Version
 
-This repo is pinned to **YugabyteDB 2025.2.3.2-b1**. CI validates all devcontainer configs and builds the base image on every push to `main`.
+This repo is pinned to **YugabyteDB 2025.2.3.2-b1**.
