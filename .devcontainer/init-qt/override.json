@@ -1,0 +1,7 @@
+{
+  "name": "Query Tuning — tips and tricks",
+  "containerEnv": {
+    "ART_PATH": "init-qt"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → qt-demo   (guided demo: bash prompt.sh)\" && echo \"▶  Terminal → Run Task → ysql      (YSQL shell for manual exercises)\" && echo \"   Then: \\\\i init-qt/tuning.sql\"'"
+}

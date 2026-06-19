@@ -260,6 +260,28 @@ PII protection at the column level using the `pgcrypto` extension. Covers `pgp_s
 
 ---
 
+### Search & Extensions
+
+#### Full-Text Search
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+
+[README →](init-fts/README.md) | devcontainer: `init-fts`
+
+SQL-native full-text search without an external search engine. Covers `tsvector` / `tsquery`, stemming and stop-word removal, boolean and phrase operators (`to_tsquery`, `phraseto_tsquery`, `websearch_to_tsquery`), relevance ranking (`ts_rank`), highlighted snippets (`ts_headline`), persisted `tsvector` columns, `ybgin` index for single-term fast lookups, and auto-update with `tsvector_update_trigger`.
+
+---
+
+#### Semantic Search with pgvector
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+
+[README →](init-pgvector/README.md) | devcontainer: `init-pgvector`
+
+Vector similarity search using the bundled `pgvector` extension. Covers all three distance operators (`<->` L2, `<=>` cosine, `<#>` inner product), converting distance to similarity, vector magnitude (`l2_norm`) and normalization (`l2_normalize`), the normalization identity that makes inner product equivalent to cosine — enabling a `vector_ip_ops` index as the preferred choice for normalized embeddings, hybrid SQL + vector queries, and `ybhnsw` approximate nearest neighbor index with `ef_search` tuning.
+
+---
+
 ### Migration  (YB Voyager)
 
 #### Data Migration — MySQL → YugabyteDB
@@ -363,6 +385,9 @@ Secure a Spring Boot application with YugabyteDB over TLS using cloud-native sec
 | Encryption at Rest | `init-ear` | 1 | 4 | 8 GB | 32 GB |
 | Row Level Security | `init-rls` | 1 | 4 | 8 GB | 32 GB |
 | Data Privacy | `init-privacy` | 1 | 4 | 8 GB | 32 GB |
+| **Search & Extensions** | | | | | |
+| Full-Text Search | `init-fts` | 1 | 4 | 8 GB | 32 GB |
+| pgvector | `init-pgvector` | 1 | 4 | 8 GB | 32 GB |
 | **Migration** | | | | | |
 | MySQL Migration | `init-voyager-mysql` | 1 | 4 | 8 GB | 32 GB |
 | MariaDB Migration | `init-voyager-mariadb` | 1 | 4 | 8 GB | 32 GB |

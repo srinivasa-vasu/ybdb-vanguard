@@ -1,0 +1,9 @@
+{
+  "name": "Colocation & Distributed Tables",
+  "containerEnv": {
+    "ART_PATH": "init-colocate",
+    "MASTERS": "127.0.0.1:7100,127.0.0.2:7100,127.0.0.3:7100"
+  },
+  "extensions": [],
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → colocate-demo   (guided colocation demo)\"'"
+}

@@ -105,8 +105,9 @@
         "panel": "dedicated",
         "group": "colocate",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -125,8 +126,9 @@
         "reveal": "always",
         "panel": "dedicated",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -185,8 +187,9 @@
         "panel": "dedicated",
         "group": "ear",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -210,8 +213,9 @@
         "panel": "dedicated",
         "group": "rls",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -232,8 +236,9 @@
         "panel": "dedicated",
         "group": "privacy",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -254,8 +259,9 @@
         "panel": "dedicated",
         "group": "geo",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -276,8 +282,9 @@
         "panel": "dedicated",
         "group": "obs",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -292,8 +299,9 @@
         "panel": "dedicated",
         "group": "obs",
         "showReuseMessage": false,
-        "clear": false
-      , "close": true},
+        "clear": false,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -308,8 +316,53 @@
         "panel": "dedicated",
         "group": "obs",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-fts  — Full-Text Search
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "fts-demo",
+      "detail": "\"The Search Engine Problem\" — LIKE vs tsvector, GIN index, ts_rank, ts_headline, trigger (init-fts/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-fts' ] || exit 0; cd init-fts && echo '🔍 fts-demo  —  Full-Text Search' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "fts",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-pgvector  — Semantic Search with pgvector
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "pgvector-demo",
+      "detail": "\"The Recommendation Engine Problem\" — L2/cosine/IP distance, ybhnsw index, hybrid search (init-pgvector/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pgvector' ] || exit 0; cd init-pgvector && echo '🧮 pgvector-demo  —  Semantic Search with pgvector' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "pgvector",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -355,8 +408,9 @@
         "panel": "dedicated",
         "group": "ft-load",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -376,8 +430,9 @@
         "panel": "dedicated",
         "group": "ft-load",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -397,8 +452,9 @@
         "panel": "dedicated",
         "group": "ft-demo",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -436,8 +492,9 @@
         "panel": "dedicated",
         "group": "scale-load",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -457,8 +514,9 @@
         "panel": "dedicated",
         "group": "scale-load",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -478,8 +536,9 @@
         "panel": "dedicated",
         "group": "scale-demo",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -512,8 +571,9 @@
         "panel": "dedicated",
         "group": "cdc",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -529,8 +589,9 @@
         "panel": "dedicated",
         "group": "cdc",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -554,8 +615,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -577,8 +639,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -597,8 +660,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -616,8 +680,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -637,8 +702,8 @@
         "panel": "dedicated",
         "showReuseMessage": false,
         "clear": true,
-        
-      , "close": true},
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -654,8 +719,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -674,8 +740,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -698,8 +765,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -720,8 +788,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -736,8 +805,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -752,8 +822,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -776,8 +847,9 @@
         "panel": "dedicated",
         "group": "pitr",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -796,8 +868,9 @@
         "panel": "dedicated",
         "group": "clone",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -816,8 +889,9 @@
         "panel": "dedicated",
         "group": "tt",
         "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     },
 
@@ -837,8 +911,9 @@
         "reveal": "always",
         "panel": "dedicated",
                 "showReuseMessage": false,
-        "clear": true
-      , "close": true},
+        "clear": true,
+        "close": true
+      },
       "problemMatcher": []
     }
 

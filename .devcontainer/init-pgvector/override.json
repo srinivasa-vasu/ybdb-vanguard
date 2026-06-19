@@ -1,0 +1,8 @@
+{
+  "name": "Semantic Search with pgvector",
+  "containerEnv": {
+    "ART_PATH": "init-pgvector",
+    "SCRIPT_PATH": "init-pgvector"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → pgvector-demo   (guided semantic search demo)\" && echo \"▶  Terminal → Run Task → ysql             (YSQL shell)\"'"
+}

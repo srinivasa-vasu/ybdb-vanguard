@@ -1,0 +1,9 @@
+{
+  "name": "Geo-distribution & Tablespaces",
+  "containerEnv": {
+    "ART_PATH": "init-geo",
+    "SCRIPT_PATH": "init-geo",
+    "MASTERS": "127.0.0.1:7100,127.0.0.2:7100,127.0.0.3:7100"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-geo.sh && echo \"\" && echo \"▶  Terminal → Run Task → geo-demo   (guided geo-distribution demo)\" && echo \"▶  Terminal → Run Task → ysql        (YSQL shell)\"'"
+}

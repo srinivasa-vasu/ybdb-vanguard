@@ -1,0 +1,32 @@
+{
+  "name": "Voyager — PostgreSQL → YugabyteDB live migration",
+  "initializeCommand": "docker network create ybdb-vanguard-net 2>/dev/null || true",
+  "runArgs": ["--init", "--network=ybdb-vanguard-net"],
+  "containerEnv": {
+    "ART_PATH": "init-voyager-postgres",
+    "SRC_DB_TYPE": "postgresql",
+    "SRC_HOST": "postgres",
+    "SRC_DB_ID": "chinook",
+    "SRC_USER": "postgres",
+    "SOURCE_DB_SCHEMA": "public",
+    "SRC_SECRET": "yugabyte",
+    "TARGET_DB_ID": "yugabyte",
+    "TARGET_USER": "yugabyte",
+    "TARGET_SECRET": "yugabyte",
+    "SCHEMA": "public",
+    "PGUSER": "postgres",
+    "PGPASSWORD": "yugabyte",
+    "VOYAGER_EXPORT_DIR": "/workspaces/ybdb-vanguard/voyager-data"
+  },
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client && chmod +x init-voyager-postgres/prompt-import.sh init-voyager-postgres/prompt-wa.sh init-voyager-postgres/pre-step.sh && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && sudo install -m 755 .devcontainer/scripts/yb-voyager-wrapper.sh /usr/local/bin/yb-voyager && docker-compose -f init-voyager-postgres/compose.yml pull && docker pull --platform linux/amd64 yugabytedb/yb-voyager:latest && curl -fsSL https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_PostgreSql.sql -o init-voyager-postgres/chinook_data.sql && mkdir -p /workspaces/ybdb-vanguard/voyager-data /workspaces/ybdb-vanguard/ybdb/backup && echo \"✅ PostgreSQL Voyager exercise ready\"'",
+  "waitFor": "postCreateCommand",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && docker-compose -f init-voyager-postgres/compose.yml up -d && echo \"\" && echo \"▶  Terminal → Run Task → psql                (PostgreSQL source shell)\" && echo \"▶  Terminal → Run Task → yb-voyager-export   (Voyager export shell)\" && echo \"▶  Terminal → Run Task → yb-voyager-import   (Voyager import shell)\" && echo \"▶  Terminal → Run Task → yb-voyager-wa       (Voyager cutover shell)\"'",
+  "extraForwardPorts": [5432],
+  "extraPortsAttributes": {
+    "5432": { "label": "postgres-src", "onAutoForward": "ignore" }
+  },
+  "extraExclude": ["init-voyager-postgres/voyager-data"]
+}

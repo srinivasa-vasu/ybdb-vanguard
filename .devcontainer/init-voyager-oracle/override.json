@@ -1,0 +1,34 @@
+{
+  "name": "Voyager — Oracle → YugabyteDB migration",
+  "initializeCommand": "docker network create ybdb-vanguard-net 2>/dev/null || true",
+  "runArgs": ["--init", "--network=ybdb-vanguard-net"],
+  "containerEnv": {
+    "ART_PATH": "init-voyager-oracle",
+    "ORACLE_PASSWORD": "YbVanguard1",
+    "ORACLE_PDB": "FREEPDB1",
+    "SRC_DB_TYPE": "oracle",
+    "SRC_HOST": "oracle",
+    "SRC_USER": "chinook",
+    "SRC_SECRET": "chinook",
+    "TARGET_DB_ID": "yugabyte",
+    "TARGET_USER": "yugabyte",
+    "TARGET_SECRET": "yugabyte",
+    "SCHEMA": "CHINOOK"
+  },
+  "hostRequirements": {
+    "cpus": 8,
+    "memory": "16gb",
+    "storage": "64gb"
+  },
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "postCreateCommand": "bash -c 'sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && sudo install -m 755 .devcontainer/scripts/yb-voyager-wrapper.sh /usr/local/bin/yb-voyager && docker-compose -f init-voyager-oracle/compose.yml pull && docker pull --platform linux/amd64 yugabytedb/yb-voyager:latest && curl -fsSL https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_Oracle.sql -o init-voyager-oracle/chinook_data.sql && mkdir -p /workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data && echo \"✅ Oracle Voyager exercise ready\"'",
+  "waitFor": "postCreateCommand",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && docker-compose -f init-voyager-oracle/compose.yml up -d && echo \"\" && echo \"▶  Terminal → Run Task → oracle       (Oracle SQLPlus shell — allow 2-3 min for DB ready on :1521)\" && echo \"▶  Terminal → Run Task → yb-voyager   (Voyager migration shell)\"'",
+  "extraForwardPorts": [1521],
+  "extraPortsAttributes": {
+    "1521": { "label": "oracle", "onAutoForward": "ignore" }
+  },
+  "extraExclude": ["init-voyager-oracle/voyager-data"]
+}

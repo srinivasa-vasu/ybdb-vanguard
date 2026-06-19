@@ -1,0 +1,9 @@
+{
+  "name": "Tablespaces & Online Data Migration",
+  "containerEnv": {
+    "ART_PATH": "init-tablespace",
+    "MASTERS": "127.0.0.1:7100,127.0.0.2:7100,127.0.0.3:7100"
+  },
+  "extensions": [],
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-geo.sh && echo \"\" && echo \"▶  Terminal → Run Task → tablespace-demo   (guided tablespace demo)\"'"
+}

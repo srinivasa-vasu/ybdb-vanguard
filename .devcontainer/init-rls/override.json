@@ -1,0 +1,8 @@
+{
+  "name": "Row Level Security & Multi-tenancy",
+  "containerEnv": {
+    "ART_PATH": "init-rls",
+    "SCRIPT_PATH": "init-rls"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → rls-demo   (guided RLS & multi-tenancy demo)\" && echo \"▶  Terminal → Run Task → ysql        (YSQL shell)\"'"
+}

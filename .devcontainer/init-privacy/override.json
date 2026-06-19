@@ -1,0 +1,8 @@
+{
+  "name": "Data Privacy — Column Encryption & Anonymization",
+  "containerEnv": {
+    "ART_PATH": "init-privacy",
+    "SCRIPT_PATH": "init-privacy"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → privacy-demo   (guided data privacy demo)\" && echo \"▶  Terminal → Run Task → ysql            (YSQL shell)\"'"
+}

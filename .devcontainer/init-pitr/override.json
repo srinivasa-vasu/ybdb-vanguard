@@ -1,0 +1,9 @@
+{
+  "name": "PITR & Time Travel",
+  "containerEnv": {
+    "ART_PATH": "init-pitr",
+    "SCRIPT_PATH": "init-pitr",
+    "MASTERS": "127.0.0.1:7100"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → pitr-demo   (PITR recovery demo)\"'"
+}

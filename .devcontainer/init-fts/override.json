@@ -1,0 +1,8 @@
+{
+  "name": "Full-Text Search",
+  "containerEnv": {
+    "ART_PATH": "init-fts",
+    "SCRIPT_PATH": "init-fts"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → fts-demo   (guided full-text search demo)\" && echo \"▶  Terminal → Run Task → ysql        (YSQL shell)\"'"
+}

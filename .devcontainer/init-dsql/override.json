@@ -1,0 +1,7 @@
+{
+  "name": "DSQL Basics — into the distributed SQL universe",
+  "containerEnv": {
+    "ART_PATH": "init-dsql"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → dsql-demo  (guided demo: bash prompt.sh)\" && echo \"▶  Terminal → Run Task → ysql       (YSQL shell for manual exercises)\"'"
+}

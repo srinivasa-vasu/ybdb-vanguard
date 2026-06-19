@@ -1,0 +1,7 @@
+{
+  "name": "Time Travel — yb_read_time",
+  "containerEnv": {
+    "ART_PATH": "init-tt"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → tt-demo   (Time Travel / yb_read_time demo shell)\"'"
+}

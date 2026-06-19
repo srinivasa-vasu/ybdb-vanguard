@@ -1,0 +1,9 @@
+{
+  "name": "Observability & Performance Diagnosis",
+  "containerEnv": {
+    "ART_PATH": "init-obs",
+    "SCRIPT_PATH": "init-obs"
+  },
+  "postCreateCommand": "bash -c 'chmod +x init-obs/run-load.sh init-obs/prompt.sh && echo \"✅ Observability exercise ready\"'",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 ysql_yb_enable_ash=true,ysql_yb_ash_sampling_interval_ms=500,ysql_yb_enable_query_diagnostics=true && ysqlsh -f init-obs/setup.sql && echo \"\" && echo \"▶  Terminal → Run Task → run-load    (start background query load)\" && echo \"▶  Terminal → Run Task → ysql-obs    (YSQL shell → obs_demo)\" && echo \"▶  Terminal → Run Task → obs-demo    (guided investigation demo)\"'"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "DB Clone",
+  "containerEnv": {
+    "ART_PATH": "init-clone",
+    "SCRIPT_PATH": "init-clone",
+    "MASTERS": "127.0.0.1:7100",
+    "MASTER_FLAGS": "enable_db_clone=true"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → clone-demo   (DB Clone demo shell)\"'"
+}

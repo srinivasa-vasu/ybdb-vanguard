@@ -1,0 +1,28 @@
+{
+  "name": "Voyager — MySQL → YugabyteDB migration",
+  "initializeCommand": "docker network create ybdb-vanguard-net 2>/dev/null || true",
+  "runArgs": ["--init", "--network=ybdb-vanguard-net"],
+  "containerEnv": {
+    "ART_PATH": "init-voyager-mysql",
+    "SRC_DB_TYPE": "mysql",
+    "SRC_HOST": "mysql",
+    "SRC_DB_ID": "Chinook",
+    "SRC_USER": "root",
+    "SRC_SECRET": "yugabyte",
+    "TARGET_DB_ID": "yugabyte",
+    "TARGET_USER": "yugabyte",
+    "TARGET_SECRET": "yugabyte",
+    "SCHEMA": "public"
+  },
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && sudo install -m 755 .devcontainer/scripts/yb-voyager-wrapper.sh /usr/local/bin/yb-voyager && docker-compose -f init-voyager-mysql/compose.yml pull && docker pull --platform linux/amd64 yugabytedb/yb-voyager:latest && curl -fsSL https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_MySql.sql -o init-voyager-mysql/chinook_data.sql && mkdir -p /workspaces/ybdb-vanguard/init-voyager-mysql/voyager-data && echo \"✅ MySQL Voyager exercise ready\"'",
+  "waitFor": "postCreateCommand",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && docker-compose -f init-voyager-mysql/compose.yml up -d && echo \"\" && echo \"▶  Terminal → Run Task → mysql        (MySQL source shell)\" && echo \"▶  Terminal → Run Task → yb-voyager   (Voyager migration shell)\"'",
+  "extraForwardPorts": [3306],
+  "extraPortsAttributes": {
+    "3306": { "label": "mysql", "onAutoForward": "ignore" }
+  },
+  "extraExclude": ["init-voyager-mysql/voyager-data"]
+}
