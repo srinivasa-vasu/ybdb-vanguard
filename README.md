@@ -180,7 +180,7 @@ Create snapshot schedules, simulate accidental `DELETE` and `DROP TABLE` disaste
 [README →](init-clone/README.md) | devcontainer: `init-clone`
 
 Clone a live database with a single SQL statement: `CREATE DATABASE clone TEMPLATE source [AS OF '<timestamp>']`. Test migrations safely, create rollback baselines, and reproduce past states — production is never touched.
- 
+
 ---
 
 #### Time Travel — `yb_read_time`
@@ -400,4 +400,4 @@ Bold = above standard. All exercises default to Ubuntu-based devcontainer image 
 
 ## YugabyteDB Version
 
-This repo is pinned to **YugabyteDB 2025.2.3.0-b149**. CI validates all devcontainer configs and builds the base image on every push to `main`.
+This repo is pinned to **YugabyteDB 2025.2.3.2-b1**. CI validates all devcontainer configs and builds the base image on every push to `main`.
