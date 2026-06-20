@@ -1,0 +1,8 @@
+{
+  "name": "Query Plan Management (QPM)",
+  "containerEnv": {
+    "ART_PATH": "init-qpm",
+    "SCRIPT_PATH": "init-qpm"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && ysqlsh -h 127.0.0.1 -X -f init-qpm/setup.sql && echo \"\" && echo \"▶  Terminal → Run Task → qpm-demo   (guided QPM demo: bash prompt.sh)\" && echo \"▶  Terminal → Run Task → ysql       (YSQL shell for manual exercises)\"'"
+}
