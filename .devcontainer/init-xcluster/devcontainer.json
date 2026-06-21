@@ -17,7 +17,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-xcluster.sh && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 xcluster-demo   (guided xCluster demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql-source      (YSQL shell \u2192 source cluster)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql-target      (YSQL shell \u2192 target cluster)\"'",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-xcluster.sh && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 xcluster-demo   (guided xCluster demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql-source      (YSQL shell \u2192 source cluster)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql-target      (YSQL shell \u2192 target cluster)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 xcluster-ws   (Workshop shell for manual exercises)\"'",
   "customizations": {
     "vscode": {
       "settings": {

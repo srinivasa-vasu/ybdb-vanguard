@@ -31,6 +31,7 @@ ysqlsh -h 127.0.0.1
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `tt-demo`** | "The Compliance Audit" (`prompt.sh`) |
+| **Terminal → Run Task → `ysql`** | YSQL shell for the Workshop section below |
 
 The demo walks through a forensic investigation scenario:
 
@@ -67,7 +68,9 @@ SET yb_read_time TO 0;
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`ysql`** terminal — it opens automatically when the container starts.
 
 ### Setup
 

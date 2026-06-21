@@ -19,7 +19,7 @@
 . pscript
 set -f  # disable filename expansion — prevents SELECT * / count(*) glob-expanding
 
-TYPE_SPEED=90
+TYPE_SPEED=70
 NO_WAIT=false
 # Each `pe` normally pauses TWICE (before typing the command, and again before
 # running it). This removes the first pause so the command types out as soon as

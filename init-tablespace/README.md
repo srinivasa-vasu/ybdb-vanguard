@@ -4,7 +4,9 @@
 
 Create placement-aware tablespaces, pin tables and indexes to specific regions, and migrate data between tablespaces online — without stopping the cluster.
 
-**Quick start:** The `tablespace-demo` terminal opens automatically — run `bash prompt.sh` for the guided demo.
+**Quick start:** Two terminals open automatically:
+- **`tablespace-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`ysql`** — YSQL shell for the Workshop section below
 
 ---
 
@@ -84,13 +86,9 @@ WHERE  spcname NOT IN ('pg_default', 'pg_global');
 
 ---
 
-## Manual exercises
+## Workshop
 
-Connect to the cluster before starting:
-
-```bash
-ysqlsh   # opens a YSQL shell on 127.0.0.1:5433
-```
+> Use the **`ysql`** terminal — it opens automatically when the container starts.
 
 ---
 

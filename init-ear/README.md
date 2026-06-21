@@ -31,12 +31,15 @@ ysqlsh      # YSQL shell
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `ear-demo`** | "The Compliance Mandate" (`prompt.sh`) |
+| **Terminal → Run Task → `ear-ws`** | Workshop shell for manual commands below |
 
 The demo walks through: check initial state → generate key → load into masters → verify → activate → insert data → key rotation → verify again.
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`ear-ws`** terminal — it opens automatically when the container starts. The **`ear-demo`** terminal is for the guided walkthrough.
 
 ### Part 1 · Check initial encryption status
 

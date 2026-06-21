@@ -8,6 +8,10 @@ Stable, consistent query performance — even as statistics change, indexes appe
 
 ---
 
+> **Run queries interactively**: Select any SQL block → **`Ctrl+Shift+Enter`** (Windows/Linux) or **`Cmd+Shift+Enter`** (Mac) → runs in the active terminal.
+
+---
+
 ## The database is ready when the container starts
 
 The devcontainer's `postStartCommand` starts a single-node cluster **and** runs [`setup.sql`](setup.sql), so the moment DevPod / Codespaces finishes you have a fully QPM-ready database — no manual setup:
@@ -33,13 +37,15 @@ ysqlsh -h 127.0.0.1 -c "SHOW yb_enable_cbo; SHOW yb_pg_stat_plans_track; SHOW pg
 | Option | How |
 |---|---|
 | **Guided demo** | **Terminal → Run Task → `qpm-demo`**, then `bash prompt.sh`. Auto-types each step. |
-| **Manual workshop** | Follow the steps below. Each command is a terminal one-liner you can paste and run, so you can pause and inspect the output. (Tip: open a shell with **Terminal → Run Task → `ysql`** too.) |
+| **Manual workshop** | Follow the steps below. Each command is a bash one-liner you can paste and run in the **`qpm-ws`** terminal (opens automatically). |
 
 The steps below are the same statements the guided demo runs.
 
 ---
 
 ## Workshop
+
+> Use the **`qpm-ws`** terminal — it opens automatically when the container starts. The **`qpm-demo`** terminal is for the guided walkthrough.
 
 The demo query joins `orders` and `order_details` to read all orders of one account:
 
@@ -88,11 +94,22 @@ WHERE  s.query LIKE 'SELECT d.details FROM orders o JOIN order_details%' /* __YB
 
 You should see **one** plan.
 
+Inspect what QPM actually stored — the full plan text:
+
+```bash
+ysqlsh -h 127.0.0.1 -c "
+SELECT p.planid, p.plan
+FROM   yb_pg_stat_plans p
+JOIN   pg_stat_statements s ON s.queryid = p.queryid
+WHERE  s.query LIKE 'SELECT d.details FROM orders o JOIN order_details%'
+ORDER  BY p.first_used /* __YB_STAT_PLANS_SKIP */;"
+```
+
 ### Part 2 — Detect a regression
 
 A plan can change for many reasons — new table statistics, a new index, turning ON the cost-based optimizer, or a database upgrade. These are hard to trigger on demand, so **only for this workshop** we force a different plan by switching off the batched nested loop.
 
-> **Demo device only.** `yb_enable_batchednl = off` + `yb_bnl_batch_size = 1` make the planner pick a plain nested loop — a second, different plan we can fix later. `yb_bnl_batch_size = 1` is the dependable knob (`yb_enable_batchednl = off` alone can still pick a batched nested loop); we set both. In real life you do **not** change these flags — the plan changes on its own for the reasons above.
+`yb_enable_batchednl = off` + `yb_bnl_batch_size = 1` make the planner pick a plain nested loop — a second, different plan we can fix later. `yb_bnl_batch_size = 1` is the dependable knob (`yb_enable_batchednl = off` alone can still pick a batched nested loop); we set both. In real life you do **not** change these flags — the plan changes on its own for the reasons above.
 
 See the different (regressed) plan:
 
@@ -158,7 +175,7 @@ WHERE  s.query LIKE 'SELECT d.details FROM orders o JOIN order_details%'
   AND  i.plan_min_exec_time = 'Yes'
 LIMIT  1
 ON CONFLICT (norm_query_string, application_name) DO UPDATE
-   SET hints = EXCLUDED.hints;"
+   SET hints = EXCLUDED.hints /* __YB_STAT_PLANS_SKIP */;"
 ```
 
 The hint table now holds one pinned entry:
@@ -197,7 +214,7 @@ WHERE  s.query LIKE 'SELECT d.details FROM orders o JOIN order_details%'
   AND  i.plan_min_exec_time = 'Yes'
 LIMIT  1
 ON CONFLICT (norm_query_string, application_name) DO UPDATE
-   SET hints = EXCLUDED.hints;"
+   SET hints = EXCLUDED.hints /* __YB_STAT_PLANS_SKIP */;"
 ```
 
 ```bash

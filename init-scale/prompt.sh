@@ -3,7 +3,7 @@
 . pscript
 set -f  # disable filename expansion — prevents SELECT * glob-expanding in eval $@
 
-TYPE_SPEED=50
+TYPE_SPEED=70
 
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 

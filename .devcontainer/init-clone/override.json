@@ -6,5 +6,5 @@
     "MASTERS": "127.0.0.1:7100",
     "MASTER_FLAGS": "enable_db_clone=true"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → clone-demo   (DB Clone demo shell)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 clone-demo   (DB Clone demo shell)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql          (YSQL shell)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 clone-ws      (Workshop shell for manual exercises)\"'"
 }

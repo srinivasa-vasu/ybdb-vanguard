@@ -5,5 +5,5 @@
     "SCRIPT_PATH": "init-pitr",
     "MASTERS": "127.0.0.1:7100"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → pitr-demo   (PITR recovery demo)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pitr-demo   (PITR recovery demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql          (YSQL shell)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pitr-ws       (Workshop shell for manual exercises)\"'"
 }

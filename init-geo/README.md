@@ -40,12 +40,15 @@ ysqlsh
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `geo-demo`** | "The Global Banking Platform" (`prompt.sh`) |
+| **Terminal → Run Task → `ysql`** | YSQL shell for the Workshop section below |
 
 The demo covers: tablespace creation → geo-partitioned table → automatic partition routing → tablet leader verification → preferred zones → follower reads.
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`ysql`** terminal — it opens automatically when the container starts.
 
 ### Part 1 · Verify cluster topology
 

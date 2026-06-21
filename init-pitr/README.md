@@ -31,6 +31,7 @@ ysqlsh -h 127.0.0.1
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `pitr-demo`** | "The 2 AM Incident" (`prompt.sh`) |
+| **Terminal → Run Task → `pitr-ws`** | Workshop shell for manual commands below |
 
 The demo walks through a realistic disaster-recovery scenario:
 
@@ -45,7 +46,9 @@ The demo walks through a realistic disaster-recovery scenario:
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`pitr-ws`** terminal — it opens automatically when the container starts. The **`pitr-demo`** terminal is for the guided walkthrough.
 
 ### Part 1 · Snapshot Schedules
 

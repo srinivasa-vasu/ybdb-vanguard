@@ -605,11 +605,96 @@
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-cdc' ] || exit 0; echo '🔌 connector-config — run yb-admin and curl commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
-      
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
         "group": "cdc",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ear-ws",
+      "detail": "Workshop shell for manual EAR commands — yb-admin, openssl (init-ear)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-ear' ] || exit 0; echo '🔐 ear-ws — Workshop shell (workspace root)' && echo '   Run manual yb-admin and openssl commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ear",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "pitr-ws",
+      "detail": "Workshop shell for manual PITR commands — yb-admin (init-pitr)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pitr' ] || exit 0; echo '⏪ pitr-ws — Workshop shell (workspace root)' && echo '   Run manual yb-admin commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "pitr",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "qpm-ws",
+      "detail": "Workshop shell for manual QPM commands — ysqlsh, ysqlsh -f (init-qpm)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-qpm' ] || exit 0; echo '📌 qpm-ws — Workshop shell (workspace root)' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "qpm",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "clone-ws",
+      "detail": "Workshop shell for manual Clone commands — yb-admin (init-clone)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-clone' ] || exit 0; echo '🧬 clone-ws — Workshop shell (workspace root)' && echo '   Run manual yb-admin commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "clone",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "xcluster-ws",
+      "detail": "Workshop shell for manual xCluster commands — yb-admin, ysqlsh (init-xcluster)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; echo '🔄 xcluster-ws — Workshop shell (workspace root)' && echo '   Run manual yb-admin and ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "xcluster",
         "showReuseMessage": false,
         "clear": true,
         "close": true

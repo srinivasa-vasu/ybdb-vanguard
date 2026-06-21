@@ -6,7 +6,9 @@ Set up transactional xCluster replication with **automatic DDL propagation** bet
 
 **Requires YugabyteDB v2025.2.1+** (this devcontainer runs v2025.2.x ✓)
 
-**Quick start:** The `xcluster-demo` terminal opens automatically — run `bash prompt.sh` for the guided demo.
+**Quick start:** Two terminals open automatically:
+- **`xcluster-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`xcluster-ws`** — Workshop shell for the manual commands below
 
 ---
 
@@ -56,7 +58,9 @@ yugabyted xcluster set_up \
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`xcluster-ws`** terminal — it opens automatically when the container starts. The **`xcluster-demo`** terminal is for the guided walkthrough.
 
 These exercises walk through every setup and validation step by hand — no `prompt.sh` required. Run each command in the terminal that matches the note (primary or standby).
 

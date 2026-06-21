@@ -25,10 +25,13 @@ ysqlsh -h 127.0.0.1
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `privacy-demo`** | "The GDPR Audit" (`prompt.sh`) |
+| **Terminal → Run Task → `ysql`** | YSQL shell for the Workshop section below |
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`ysql`** terminal — it opens automatically when the container starts.
 
 ```sql
 -- Load the full exercise

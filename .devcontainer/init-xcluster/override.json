@@ -4,16 +4,43 @@
     "ART_PATH": "init-xcluster"
   },
   "extensions": [],
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-xcluster.sh && echo \"\" && echo \"▶  Terminal → Run Task → xcluster-demo   (guided xCluster demo)\" && echo \"▶  Terminal → Run Task → ysql-source      (YSQL shell → source cluster)\" && echo \"▶  Terminal → Run Task → ysql-target      (YSQL shell → target cluster)\"'",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-xcluster.sh && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 xcluster-demo   (guided xCluster demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql-source      (YSQL shell \u2192 source cluster)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql-target      (YSQL shell \u2192 target cluster)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 xcluster-ws   (Workshop shell for manual exercises)\"'",
   "portsAttributes": {
-    "7000":  { "label": "yb-master-web (src)",  "onAutoForward": "ignore" },
-    "9000":  { "label": "yb-tserver-web (src)", "onAutoForward": "ignore" },
-    "7100":  { "label": "yb-master-rpc (src)",  "onAutoForward": "ignore" },
-    "9100":  { "label": "yb-tserver-rpc (src)", "onAutoForward": "ignore" },
-    "5433":  { "label": "ysql (src)",            "onAutoForward": "ignore" },
-    "15433": { "label": "yugabyted-ui (src)",    "onAutoForward": "notify" },
-    "13000": { "label": "ysql-api (src)",        "onAutoForward": "ignore" },
-    "9042":  { "label": "ycql (src)",            "onAutoForward": "ignore" },
-    "12000": { "label": "ycql-api (src)",        "onAutoForward": "ignore" }
+    "7000": {
+      "label": "yb-master-web (src)",
+      "onAutoForward": "ignore"
+    },
+    "9000": {
+      "label": "yb-tserver-web (src)",
+      "onAutoForward": "ignore"
+    },
+    "7100": {
+      "label": "yb-master-rpc (src)",
+      "onAutoForward": "ignore"
+    },
+    "9100": {
+      "label": "yb-tserver-rpc (src)",
+      "onAutoForward": "ignore"
+    },
+    "5433": {
+      "label": "ysql (src)",
+      "onAutoForward": "ignore"
+    },
+    "15433": {
+      "label": "yugabyted-ui (src)",
+      "onAutoForward": "notify"
+    },
+    "13000": {
+      "label": "ysql-api (src)",
+      "onAutoForward": "ignore"
+    },
+    "9042": {
+      "label": "ycql (src)",
+      "onAutoForward": "ignore"
+    },
+    "12000": {
+      "label": "ycql-api (src)",
+      "onAutoForward": "ignore"
+    }
   }
 }

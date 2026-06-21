@@ -15,12 +15,15 @@ SQL-native full-text search in YugabyteDB: stemming, boolean queries, relevance 
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `fts-demo`** | "The Search Engine Problem" (`prompt.sh`) |
+| **Terminal → Run Task → `ysql`** | YSQL shell for the Workshop section below |
 
 The demo loads the schema and 10 sample articles from `articles.sql` via `ysqlsh -f articles.sql`.
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`ysql`** terminal — it opens automatically when the container starts.
 
 ### Part 1 · Why LIKE falls short
 

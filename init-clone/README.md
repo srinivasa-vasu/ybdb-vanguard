@@ -26,6 +26,8 @@ ysqlsh -d <db>    # connect to a cloned database
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `clone-demo`** | "The Safe Migration Runway" (`prompt.sh`) |
+| **Terminal → Run Task → `ysql`** | YSQL shell for SQL commands in Workshop below |
+| **Terminal → Run Task → `clone-ws`** | Workshop shell for `yb-admin` commands below |
 
 The demo walks through a schema-migration scenario:
 
@@ -40,7 +42,9 @@ The demo walks through a schema-migration scenario:
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`ysql`** terminal for SQL commands. For `yb-admin` commands, use the **`clone-ws`** terminal — both open automatically when the container starts.
 
 ### Step 0: Enable PITR on the source database
 

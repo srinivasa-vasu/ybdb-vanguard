@@ -19,7 +19,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pitr-demo   (PITR recovery demo)\"'",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pitr-demo   (PITR recovery demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql          (YSQL shell)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pitr-ws       (Workshop shell for manual exercises)\"'",
   "customizations": {
     "vscode": {
       "settings": {

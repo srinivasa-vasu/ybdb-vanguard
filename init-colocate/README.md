@@ -28,6 +28,7 @@ ysqlsh -h 127.0.0.1 -d <db>   # connect to a specific database
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `colocate-demo`** | "The SaaS Catalog" (`prompt.sh`) |
+| **Terminal → Run Task → `ysql`** | YSQL shell for the Workshop section below |
 
 The demo walks through:
 1. Baseline — standard non-colocated database: every table gets 3 tablets
@@ -38,7 +39,9 @@ The demo walks through:
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`ysql`** terminal — it opens automatically when the container starts.
 
 ### Part 1: Non-colocated baseline
 

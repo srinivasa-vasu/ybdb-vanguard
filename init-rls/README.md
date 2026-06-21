@@ -25,10 +25,13 @@ ysqlsh
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `rls-demo`** | "The SaaS Tenant Isolation Problem" (`prompt.sh`) |
+| **Terminal → Run Task → `ysql`** | YSQL shell for the Workshop section below |
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`ysql`** terminal — it opens automatically when the container starts.
 
 ### Part 1 · Basic RLS syntax
 

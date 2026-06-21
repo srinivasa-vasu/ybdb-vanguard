@@ -9,7 +9,7 @@ WS_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "/workspaces/ybdb-va
 # Resolve workspace root — prompt.sh runs from init-ft/ subdirectory
 WS_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "/workspaces/ybdb-vanguard")
 
-TYPE_SPEED=50
+TYPE_SPEED=70
 
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 

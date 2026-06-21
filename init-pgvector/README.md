@@ -15,10 +15,13 @@ Vector similarity search in YugabyteDB using the bundled pgvector extension: L2 
 | Task | What it runs |
 |---|---|
 | **Terminal → Run Task → `pgvector-demo`** | "The Recommendation Engine Problem" (`prompt.sh`) |
+| **Terminal → Run Task → `ysql`** | YSQL shell for the Workshop section below |
 
 ---
 
-## Manual exercises
+## Workshop
+
+> Use the **`ysql`** terminal — it opens automatically when the container starts.
 
 ### Part 1 · Enable pgvector
 
