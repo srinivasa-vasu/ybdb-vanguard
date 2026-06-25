@@ -43,7 +43,7 @@ clear
 # ── Quiet cleanup: tear down any prior run state ──────────────────────────────
 # Drop replication (ignore errors if no group exists)
 yb-admin --master_addresses "${SRC_MASTERS}" drop_xcluster_replication "${REPLICATION_ID}" "${TGT_MASTERS}" 2>/dev/null || true
-rm -f /tmp/yugabyte_snapshot.json /tmp/${DB}_schema.sql
+rm -f /tmp/yugabyte_snapshot.json /tmp/${DB}_schema.sql /tmp/import_out.txt
 # Delete snapshot schedules on standby (leave PITR clean for next run)
 for _sched_id in $(yb-admin --master_addresses "${TGT_MASTERS}" list_snapshot_schedules 2>/dev/null \
     | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'); do
@@ -123,32 +123,42 @@ pe "ysqlsh -h ${TGT} -d ${DB} --file /tmp/${DB}_schema.sql"
 
 p ""
 p "Import snapshot on standby — maps source tablets → standby tablets:"
-_IMPORT_OUT=$(yb-admin --master_addresses "${TGT_MASTERS}" import_snapshot /tmp/yugabyte_snapshot.json ${DB} 2>&1)
-pe "yb-admin --master_addresses ${TGT_MASTERS} import_snapshot /tmp/yugabyte_snapshot.json ${DB}"
+# Run once with tee: pe shows the command + live output; file captures it for parsing.
+# Running import_snapshot twice (silent + pe) would create two separate snapshots with
+# different tablet IDs, causing the SST copy and restore to target the wrong snapshot.
+pe "yb-admin --master_addresses ${TGT_MASTERS} import_snapshot /tmp/yugabyte_snapshot.json ${DB} 2>&1 | tee /tmp/import_out.txt"
+_IMPORT_OUT=$(cat /tmp/import_out.txt)
 
 # import_snapshot output is columnar: "Object [name] OldID  NewID"
-# Old and New IDs are always the last two whitespace-separated fields per row.
-# Table/tablet IDs are 32-char hex (no dashes); snapshot IDs are UUID.
-# Using awk $(NF-1)/$NF avoids the UUID regex that misses plain hex IDs.
+# Old/New IDs are the last two whitespace-separated fields per row.
+# Table/tablet IDs are 32-char hex; snapshot IDs are UUID — use awk $NF / $(NF-1).
 _RESTORE_ID=$(echo "${_IMPORT_OUT}" | awk '/^Snapshot/{print $NF}')
-_OLD_TABLE=$(echo "${_IMPORT_OUT}" | awk '/^Table /{print $(NF-1); exit}')
-_NEW_TABLE=$(echo "${_IMPORT_OUT}" | awk '/^Table /{print $NF; exit}')
 
-# Copy SST files from source tablet snapshots to standby tablet directories
+# Copy SST files: walk Table→Tablet lines in order so each tablet is associated with
+# its own table (there may be multiple tables: products + xCluster system tables).
 _SRC_ROCKSDB="${PWD}/ybdb/source/data/yb-data/tserver/data/rocksdb"
 _TGT_ROCKSDB="${PWD}/ybdb/target/data/yb-data/tserver/data/rocksdb"
-
-while IFS= read -r _tline; do
-  _OLD_TAB=$(echo "${_tline}" | awk '{print $(NF-1)}')
-  _NEW_TAB=$(echo "${_tline}" | awk '{print $NF}')
-  if [ -n "${_OLD_TAB}" ] && [ -n "${_NEW_TAB}" ]; then
-    _src_snap="${_SRC_ROCKSDB}/table-${_OLD_TABLE}/tablet-${_OLD_TAB}.snapshots/${_SNAP_ID}"
-    # Target uses _RESTORE_ID: restore_snapshot looks for files keyed by the new snapshot ID
-    _tgt_snap="${_TGT_ROCKSDB}/table-${_NEW_TABLE}/tablet-${_NEW_TAB}.snapshots/${_RESTORE_ID}"
-    mkdir -p "${_tgt_snap}"
-    [ -d "${_src_snap}" ] && cp -r "${_src_snap}/." "${_tgt_snap}/"
-  fi
-done <<< "$(echo "${_IMPORT_OUT}" | grep -E '^Tablet ')"
+_cur_old_tbl=""
+_cur_new_tbl=""
+while IFS= read -r _line; do
+  case "${_line}" in
+    Table*)
+      _cur_old_tbl=$(echo "${_line}" | awk '{print $(NF-1)}')
+      _cur_new_tbl=$(echo "${_line}" | awk '{print $NF}')
+      ;;
+    Tablet*)
+      _old_tab=$(echo "${_line}" | awk '{print $(NF-1)}')
+      _new_tab=$(echo "${_line}" | awk '{print $NF}')
+      if [ -n "${_cur_old_tbl}" ] && [ -n "${_old_tab}" ]; then
+        _src_snap="${_SRC_ROCKSDB}/table-${_cur_old_tbl}/tablet-${_old_tab}.snapshots/${_SNAP_ID}"
+        # Target uses _RESTORE_ID: restore_snapshot looks for files keyed by the new snapshot ID
+        _tgt_snap="${_TGT_ROCKSDB}/table-${_cur_new_tbl}/tablet-${_new_tab}.snapshots/${_RESTORE_ID}"
+        mkdir -p "${_tgt_snap}"
+        [ -d "${_src_snap}" ] && cp -r "${_src_snap}/." "${_tgt_snap}/"
+      fi
+      ;;
+  esac
+done <<< "${_IMPORT_OUT}"
 
 p ""
 p "SST files copied: source tablet snapshots → standby tablet directories."
@@ -158,7 +168,13 @@ p ""
 p "Restore snapshot on standby:"
 pe "yb-admin --master_addresses ${TGT_MASTERS} restore_snapshot ${_RESTORE_ID}"
 
-sleep 3
+# restore_snapshot is async — poll until the restoration shows RESTORED
+_rest_done=0
+for _try in 1 2 3 4 5 6 7 8 9 10; do
+  sleep 3
+  yb-admin --master_addresses "${TGT_MASTERS}" list_snapshot_restorations 2>/dev/null \
+    | grep -q "RESTORED" && { _rest_done=1; break; }
+done
 p ""
 p "Verify products data arrived on standby:"
 pe "ysqlsh -h ${TGT} -c 'SELECT id, name, price FROM products ORDER BY id;'"
