@@ -161,7 +161,7 @@ pe "yb-admin --master_addresses ${TGT_MASTERS} restore_snapshot ${_RESTORE_ID}"
 sleep 3
 p ""
 p "Verify products data arrived on standby:"
-pe "ysqlsh -h ${TGT} -c 'SELECT * FROM products ORDER BY id;'"
+pe "ysqlsh -h ${TGT} -c 'SELECT id, name, price FROM products ORDER BY id;'"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PART 3: Enable PITR on Standby (required for failover)
