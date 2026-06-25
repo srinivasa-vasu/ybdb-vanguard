@@ -144,7 +144,8 @@ while IFS= read -r _tline; do
   _NEW_TAB=$(echo "${_tline}" | grep -oE "${_UUID_RE}" | tail -1)
   if [ -n "${_OLD_TAB}" ] && [ -n "${_NEW_TAB}" ]; then
     _src_snap="${_SRC_ROCKSDB}/table-${_OLD_TABLE}/tablet-${_OLD_TAB}.snapshots/${_SNAP_ID}"
-    _tgt_snap="${_TGT_ROCKSDB}/table-${_NEW_TABLE}/tablet-${_NEW_TAB}.snapshots/${_SNAP_ID}"
+    # Target uses _RESTORE_ID: import_snapshot creates new snapshot dir keyed by the new ID
+    _tgt_snap="${_TGT_ROCKSDB}/table-${_NEW_TABLE}/tablet-${_NEW_TAB}.snapshots/${_RESTORE_ID}"
     mkdir -p "${_tgt_snap}"
     [ -d "${_src_snap}" ] && cp -r "${_src_snap}/." "${_tgt_snap}/"
   fi
