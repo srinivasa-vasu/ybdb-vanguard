@@ -126,25 +126,29 @@ p "Import snapshot on standby — maps source tablets → standby tablets:"
 _IMPORT_OUT=$(yb-admin --master_addresses "${TGT_MASTERS}" import_snapshot /tmp/yugabyte_snapshot.json ${DB} 2>&1)
 pe "yb-admin --master_addresses ${TGT_MASTERS} import_snapshot /tmp/yugabyte_snapshot.json ${DB}"
 
-# Extract new snapshot ID from import output's "Restored: ... NEW ID:" line
-_RESTORE_ID=$(echo "${_IMPORT_OUT}" | awk '/^Restored:/{match($0,/NEW ID: ([^ ]+)/,a); print a[1]}')
+# import_snapshot output is columnar: "Object  OldID  NewID"
+# Use grep -oE to extract UUIDs — avoids gawk-only 3-arg match()
+_UUID_RE='[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+# Snapshot row: last UUID is the new (restore) snapshot ID
+_RESTORE_ID=$(echo "${_IMPORT_OUT}" | grep -E '^Snapshot' | grep -oE "${_UUID_RE}" | tail -1)
+# Table row: first UUID = old table ID, last UUID = new table ID
+_OLD_TABLE=$(echo "${_IMPORT_OUT}" | grep -E '^Table ' | grep -oE "${_UUID_RE}" | head -1)
+_NEW_TABLE=$(echo "${_IMPORT_OUT}" | grep -E '^Table ' | grep -oE "${_UUID_RE}" | tail -1)
 
-# Parse table/tablet ID mappings and copy SST files (devcontainer: same filesystem)
-_OLD_TABLE=$(echo "${_IMPORT_OUT}" | awk '/^Table [0-9]+:/{match($0,/OLD ID: ([^ ]+)/,a); print a[1]; exit}')
-_NEW_TABLE=$(echo "${_IMPORT_OUT}" | awk '/^Table [0-9]+:/{match($0,/NEW ID: ([^ ]+)/,a); print a[1]; exit}')
+# Copy SST files from source tablet snapshots to standby tablet directories
 _SRC_ROCKSDB="${PWD}/ybdb/source/data/yb-data/tserver/data/rocksdb"
 _TGT_ROCKSDB="${PWD}/ybdb/target/data/yb-data/tserver/data/rocksdb"
 
 while IFS= read -r _tline; do
-  _OLD_TAB=$(echo "${_tline}" | awk '{match($0,/OLD ID: ([^ ]+)/,a); print a[1]}')
-  _NEW_TAB=$(echo "${_tline}" | awk '{match($0,/NEW ID: ([^ ]+)/,a); print a[1]}')
+  _OLD_TAB=$(echo "${_tline}" | grep -oE "${_UUID_RE}" | head -1)
+  _NEW_TAB=$(echo "${_tline}" | grep -oE "${_UUID_RE}" | tail -1)
   if [ -n "${_OLD_TAB}" ] && [ -n "${_NEW_TAB}" ]; then
     _src_snap="${_SRC_ROCKSDB}/table-${_OLD_TABLE}/tablet-${_OLD_TAB}.snapshots/${_SNAP_ID}"
     _tgt_snap="${_TGT_ROCKSDB}/table-${_NEW_TABLE}/tablet-${_NEW_TAB}.snapshots/${_SNAP_ID}"
     mkdir -p "${_tgt_snap}"
     [ -d "${_src_snap}" ] && cp -r "${_src_snap}/." "${_tgt_snap}/"
   fi
-done <<< "$(echo "${_IMPORT_OUT}" | grep '^Tablet [0-9]*:')"
+done <<< "$(echo "${_IMPORT_OUT}" | grep -E '^Tablet ')"
 
 p ""
 p "SST files copied: source tablet snapshots → standby tablet directories."
