@@ -404,7 +404,8 @@
         "panel": "dedicated",
         "group": "ysql",
         "showReuseMessage": false,
-        "clear": false
+        "clear": false,
+        "close": true
       },
       "problemMatcher": []
     },

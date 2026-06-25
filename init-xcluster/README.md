@@ -31,9 +31,14 @@ Set up transactional xCluster replication with **automatic DDL propagation** bet
 yb-admin --master_addresses 127.0.0.1:7100 \
   create_xcluster_checkpoint demo yugabyte automatic_ddl_mode
 
-# (Production step — omit for empty databases)
-# Step 2 — Full backup of primary → restore to standby
-# Use YugabyteDB distributed backup for production workloads.
+# Step 2 — Distributed snapshot: full copy primary → standby
+yb-admin --master_addresses 127.0.0.1:7100 create_database_snapshot ysql.yugabyte
+# (list_snapshots → note SNAP_ID, then:)
+yb-admin --master_addresses 127.0.0.1:7100 export_snapshot <SNAP_ID> /tmp/snapshot.json
+ysqlsh -h 127.0.0.11 -c "CREATE TABLE ..."   # recreate schema on standby
+yb-admin --master_addresses 127.0.0.11:7100 import_snapshot /tmp/snapshot.json yugabyte
+# (note NEW ID from import output, copy tablet SST dirs, then:)
+yb-admin --master_addresses 127.0.0.11:7100 restore_snapshot <NEW_SNAP_ID>
 
 # Step 3 — PITR on STANDBY (required for failover consistency)
 yb-admin --master_addresses 127.0.0.11:7100 \
@@ -117,11 +122,119 @@ What this does:
 - Enables **`automatic_ddl_mode`** — DDL changes on the primary are captured and replayed on the standby automatically
 - Records the current WAL sequence number so the standby knows where to start consuming changes
 
-> **Important:** DDL statements (CREATE TABLE, ALTER TABLE, DROP TABLE) must be **paused on the primary** from this point until Step 4 (`setup_xcluster_replication`) completes. Any DDL executed between Steps 2 and 4 will not be replicated and will cause the standby to diverge.
+> **Important:** DDL statements (CREATE TABLE, ALTER TABLE, DROP TABLE) must be **paused on the primary** from this point until Step 5 (`setup_xcluster_replication`) completes. Any DDL executed between Steps 2 and 5 will not be replicated — it must be captured in the Step 3 snapshot instead.
 
 ---
 
-### Step 3: Enable PITR on the standby
+### Step 3: Bootstrap — full copy primary → standby
+
+Before connecting the replication stream, the standby must hold an identical copy of the primary's database state. A distributed snapshot is the required mechanism — running the same DDL statements on the standby is **not** sufficient, because the snapshot also copies internal Postgres OIDs and tablet metadata that xCluster uses to match table identities.
+
+**Seed data on the primary** so the backup is meaningful:
+
+```bash
+ysqlsh -h 127.0.0.1 -c "
+  CREATE TABLE products (id SERIAL PRIMARY KEY, name TEXT, price NUMERIC(10,2));
+  INSERT INTO products VALUES (1,'Widget',9.99),(2,'Gadget',24.99),(3,'Doohickey',4.99);
+"
+```
+
+**Create a distributed snapshot on the primary:**
+
+```bash
+yb-admin --master_addresses 127.0.0.1:7100 create_database_snapshot ysql.yugabyte
+```
+
+**List snapshots — wait until `State` shows `COMPLETE`, then note the UUID:**
+
+```bash
+yb-admin --master_addresses 127.0.0.1:7100 list_snapshots
+```
+
+Expected:
+
+```
+Snapshot UUID                          State
+a1b2c3d4-e5f6-7890-abcd-ef1234567890  COMPLETE
+```
+
+**Export the snapshot metadata to a file:**
+
+```bash
+yb-admin --master_addresses 127.0.0.1:7100 \
+  export_snapshot <SNAPSHOT_UUID> /tmp/yugabyte_snapshot.json
+```
+
+**Back up schema from primary** (`import_snapshot` maps tablets by table name — schema must match before import):
+
+```bash
+ysql_dump -h 127.0.0.1 --include-yb-metadata --serializable-deferrable \
+  --schema-only --dbname yugabyte --file /tmp/yugabyte_schema.sql
+```
+
+> `ysql_dump` ships with YugabyteDB at `/usr/local/yugabyte/postgres/bin/ysql_dump`. If it is not in your `$PATH`, run: `export PATH="/usr/local/yugabyte/postgres/bin:$PATH"` first.
+
+**Restore schema on standby:**
+
+```bash
+ysqlsh -h 127.0.0.11 -d yugabyte --file /tmp/yugabyte_schema.sql
+```
+
+**Import the snapshot on the standby:**
+
+```bash
+yb-admin --master_addresses 127.0.0.11:7100 \
+  import_snapshot /tmp/yugabyte_snapshot.json yugabyte
+```
+
+The output shows the tablet ID mapping and the restored snapshot's `NEW ID` — note it:
+
+```
+Table 0: OLD ID: <src-table-id>  NEW ID: <tgt-table-id>
+Tablet 0: OLD ID: <src-tablet-id>  NEW ID: <tgt-tablet-id>
+Restored: OLD ID: <original-snap-uuid>  NEW ID: <new-snap-uuid>
+```
+
+**Copy tablet snapshot SST files from primary to standby:**
+
+In a multi-host deployment you would transfer files via S3 or GCS. In this devcontainer both clusters share the same filesystem — use the table/tablet ID mapping from `import_snapshot` output to copy the directories:
+
+```bash
+# Replace placeholders with the actual IDs from the import_snapshot output above.
+cp -r ybdb/source/data/yb-data/tserver/data/rocksdb/table-<SRC_TABLE>/tablet-<SRC_TABLET>.snapshots/<SNAPSHOT_UUID>/. \
+      ybdb/target/data/yb-data/tserver/data/rocksdb/table-<TGT_TABLE>/tablet-<TGT_TABLET>.snapshots/<SNAPSHOT_UUID>/
+```
+
+Repeat for each `Tablet N:` line in the import output. The demo script (`bash prompt.sh`) handles this copy automatically.
+
+**Restore the snapshot on the standby** (use the `NEW ID` from `import_snapshot` output):
+
+```bash
+yb-admin --master_addresses 127.0.0.11:7100 restore_snapshot <NEW_SNAPSHOT_UUID>
+```
+
+**Verify the data arrived on the standby:**
+
+```bash
+ysqlsh -h 127.0.0.11 -c "SELECT * FROM products ORDER BY id;"
+```
+
+Expected:
+
+```
+ id |   name    | price
+----+-----------+-------
+  1 | Widget    |  9.99
+  2 | Gadget    | 24.99
+  3 | Doohickey |  4.99
+(3 rows)
+```
+
+The standby now holds an identical copy of the primary's database state. Proceed to enable PITR before connecting the replication stream.
+
+---
+
+### Step 4: Enable PITR on the standby
 
 Point-in-time recovery (PITR) must be active on the standby before replication is connected. PITR provides a consistent recovery point that the failover process uses to roll the standby back to a safe transactional boundary.
 
@@ -163,7 +276,7 @@ Wait approximately 2 minutes for at least one snapshot to appear in the `snapsho
 
 ---
 
-### Step 4: Set up replication
+### Step 5: Set up replication
 
 This command runs on the **primary** and connects it to the standby. It streams all changes — both data (DML) and schema (DDL) — from the primary to the standby.
 
@@ -187,7 +300,7 @@ Expected output: `source` on the primary, `subscriber` on the standby. This conf
 
 ---
 
-### Step 5: Check replication role on each cluster
+### Step 6: Check replication role on each cluster
 
 Each cluster knows its own role. Confirm the primary reports `source` and the standby reports `subscriber`.
 
@@ -226,7 +339,7 @@ Expected:
 
 ---
 
-### Step 6: DDL replication — CREATE TABLE on primary only
+### Step 7: DDL replication — CREATE TABLE on primary only
 
 With `automatic_ddl_mode` active, DDL runs only on the primary. The standby receives and replays the DDL automatically.
 
@@ -269,7 +382,7 @@ The DDL travelled from primary to standby through the replication channel. Nothi
 
 ---
 
-### Step 7: Data replication
+### Step 8: Data replication
 
 INSERT rows on the **primary**, then read them from the **standby**.
 
@@ -311,7 +424,7 @@ Expected — all 5 rows present on the standby:
 
 ---
 
-### Step 8: ALTER TABLE replication
+### Step 9: ALTER TABLE replication
 
 Schema changes propagate just like DDL from Step 6. Run `ALTER TABLE` on the **primary only**.
 
@@ -350,7 +463,7 @@ The column was added to the standby automatically — no manual `ALTER TABLE` wa
 
 ---
 
-### Step 9: Monitor replication lag
+### Step 10: Monitor replication lag
 
 Replication lag is exposed as a Prometheus metric on the source TServer. Near-zero lag means the standby is caught up with the primary.
 
@@ -382,7 +495,7 @@ watch -n 2 'curl -s http://127.0.0.1:9000/prometheus-metrics \
 
 ---
 
-### Step 10: Add a database to the replication group
+### Step 11: Add a database to the replication group
 
 A replication group can cover multiple databases. Adding a new database requires three steps: create it on both clusters, add it to the checkpoint, then add it to the live replication group.
 
@@ -440,7 +553,7 @@ Expected — row present on standby:
 
 ---
 
-### Step 11: Planned failover
+### Step 12: Planned failover
 
 A planned failover (also called a switchover) promotes the standby to primary with zero data loss. The sequence is: drain lag to zero → tear down replication → write to former standby.
 
@@ -522,7 +635,7 @@ Expected — still 5 rows (replication is severed):
 (1 row)
 ```
 
-The two clusters are now fully independent. To re-establish replication in the reverse direction (new primary → new standby), repeat Steps 2–4 with the host addresses swapped.
+The two clusters are now fully independent. To re-establish replication in the reverse direction (new primary → new standby), repeat Steps 2–5 with the host addresses swapped.
 
 ---
 
@@ -531,7 +644,7 @@ The two clusters are now fully independent. To re-establish replication in the r
 | Part | What it covers |
 |---|---|
 | **1 — Checkpoint** | `create_xcluster_checkpoint` with `automatic_ddl_mode` |
-| **2 — Bootstrap** | Why backup/restore is needed; skipped for empty databases |
+| **2 — Bootstrap** | Seed `products` table → `create_database_snapshot` → `export_snapshot` → create schema on standby → `import_snapshot` → copy SST files → `restore_snapshot` → verify data on standby |
 | **3 — PITR** | `create_snapshot_schedule` on standby (required for failover) |
 | **4 — Setup** | `setup_xcluster_replication` — database-level, not table-level |
 | **5 — Role check** | `SELECT yb_xcluster_ddl_replication.get_replication_role()` |
@@ -593,7 +706,7 @@ curl -s http://127.0.0.1:9000/prometheus-metrics \
 ## Important notes
 
 - **DDL must be paused on primary** during the setup process (Steps 1–4)
-- **Backup/restore is required** for non-empty databases before `setup_xcluster_replication`
+- **Backup/restore is always required** before `setup_xcluster_replication` — even for empty databases (internal metadata must match)
 - **Not all DDLs are replicated yet** — see [xCluster Limitations](https://docs.yugabyte.com/stable/deploy/multi-dc/async-replication/async-replication-limitations/)
 - xCluster replicates **data and DDL** — users, roles, tablespaces still require manual sync
 
