@@ -176,28 +176,14 @@ Parameters:
 - `demo` — the replication group ID created in Step 2
 - `127.0.0.11:7100` — the master address of the standby cluster
 
-Verify the replication group is active:
+Verify the replication role on each cluster:
 
 ```bash
-yb-admin --master_addresses 127.0.0.1:7100 \
-  get_xcluster_outbound_replication_groups
+echo 'SELECT yb_xcluster_ddl_replication.get_replication_role();' | ysqlsh -h 127.0.0.1
+echo 'SELECT yb_xcluster_ddl_replication.get_replication_role();' | ysqlsh -h 127.0.0.11
 ```
 
-Expected output:
-
-```json
-{
-  "replication_groups": [
-    {
-      "replication_group_id": "demo",
-      "state": "ACTIVE",
-      "databases": ["yugabyte"]
-    }
-  ]
-}
-```
-
-State `ACTIVE` confirms replication is running. DDL can now be resumed on the primary.
+Expected output: `source` on the primary, `subscriber` on the standby. This confirms replication is active and DDL can now be resumed on the primary.
 
 ---
 
@@ -424,26 +410,13 @@ yb-admin --master_addresses 127.0.0.1:7100 \
   add_namespace_to_xcluster_replication demo new_db 127.0.0.11:7100
 ```
 
-Verify `new_db` is now listed in the replication group:
+Verify the replication role on the primary to confirm `new_db` is active:
 
 ```bash
-yb-admin --master_addresses 127.0.0.1:7100 \
-  get_xcluster_outbound_replication_groups
+echo 'SELECT yb_xcluster_ddl_replication.get_replication_role();' | ysqlsh -h 127.0.0.1
 ```
 
-Expected — both `yugabyte` and `new_db` appear under `databases`:
-
-```json
-{
-  "replication_groups": [
-    {
-      "replication_group_id": "demo",
-      "state": "ACTIVE",
-      "databases": ["yugabyte", "new_db"]
-    }
-  ]
-}
-```
+Expected output: `source` — confirms the primary is still replicating after the namespace addition.
 
 Test replication on the new database:
 
@@ -572,9 +545,8 @@ The two clusters are now fully independent. To re-establish replication in the r
 ## Key commands reference
 
 ```bash
-# Check replication groups (on primary)
-yb-admin --master_addresses 127.0.0.1:7100 \
-  get_xcluster_outbound_replication_groups
+# Check replication role (on primary → source, on standby → subscriber)
+echo 'SELECT yb_xcluster_ddl_replication.get_replication_role();' | ysqlsh -h 127.0.0.1
 
 # Add a database to an existing group
 yb-admin --master_addresses 127.0.0.1:7100 \

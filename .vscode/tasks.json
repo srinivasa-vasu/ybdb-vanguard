@@ -397,7 +397,7 @@
       "label": "ysql",
       "detail": "Open a YSQL shell (ysqlsh) — available in every exercise",
       "type": "shell",
-      "command": "echo 'Waiting for YugabyteDB on :5433...' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
+      "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] && exit 0; echo 'Waiting for YugabyteDB on :5433...' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
@@ -689,7 +689,7 @@
       "label": "xcluster-ws",
       "detail": "Workshop shell for manual xCluster commands — yb-admin, ysqlsh (init-xcluster)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; echo '🔄 xcluster-ws — Workshop shell (workspace root)' && echo '   Run manual yb-admin and ysqlsh commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; cd init-xcluster && echo '🔄 xcluster-ws — Workshop shell (init-xcluster)' && echo '   Run manual yb-admin and ysqlsh commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",

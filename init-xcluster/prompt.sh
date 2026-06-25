@@ -75,9 +75,9 @@ pe "yb-admin --master_addresses ${SRC_MASTERS} \
 
 p ""
 p "--- yugabyted equivalent (same operation, simpler syntax) ---"
-p "  yugabyted xcluster create_checkpoint \\"
-p "    --replication_id ${REPLICATION_ID} \\"
-p "    --databases ${DB} \\"
+p "  yugabyted xcluster create_checkpoint"
+p "    --replication_id ${REPLICATION_ID}"
+p "    --databases ${DB}"
 p "    --automatic_mode"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -115,7 +115,7 @@ pe "yb-admin --master_addresses ${TGT_MASTERS} \
 
 p ""
 p "--- yugabyted equivalent ---"
-p "  yugabyted configure point_in_time_recovery \\"
+p "  yugabyted configure point_in_time_recovery"
 p "    --enable --retention '30m' --database ${DB}"
 
 p ""
@@ -138,14 +138,15 @@ pe "yb-admin --master_addresses ${SRC_MASTERS} \
 
 p ""
 p "--- yugabyted equivalent ---"
-p "  yugabyted xcluster set_up \\"
-p "    --replication_id ${REPLICATION_ID} \\"
-p "    --target_address ${TGT} \\"
+p "  yugabyted xcluster set_up"
+p "    --replication_id ${REPLICATION_ID}"
+p "    --target_address ${TGT}"
 p "    --bootstrap_done"
 
 p ""
 p "--- Verify replication is healthy ---"
-pe "yb-admin --master_addresses ${SRC_MASTERS} get_xcluster_outbound_replication_groups"
+pe "echo 'SELECT yb_xcluster_ddl_replication.get_replication_role();' | ysqlsh -h ${SRC}"
+pe "echo 'SELECT yb_xcluster_ddl_replication.get_replication_role();' | ysqlsh -h ${TGT}"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PART 5: Check replication role on each cluster
@@ -262,7 +263,7 @@ pe "yb-admin --master_addresses ${SRC_MASTERS} \
 pe "yb-admin --master_addresses ${SRC_MASTERS} \
   add_namespace_to_xcluster_replication ${REPLICATION_ID} new_db ${TGT_MASTERS}"
 
-pe "yb-admin --master_addresses ${SRC_MASTERS} get_xcluster_outbound_replication_groups"
+pe "echo 'SELECT yb_xcluster_ddl_replication.get_replication_role();' | ysqlsh -h ${SRC}"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PART 11: Planned failover simulation (manual, without YBA)

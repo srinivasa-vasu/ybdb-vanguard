@@ -24,6 +24,7 @@ hs_err_pid*
 replay_pid*
 
 .DS_Store
+.serena
 
 # ── YugabyteDB cluster data ───────────────────────────────────────────────────
 # Written to workspace root by start-ybdb.sh and start-geo.sh at runtime.
