@@ -43,7 +43,12 @@ clear
 # ── Quiet cleanup: tear down any prior run state ──────────────────────────────
 # Drop replication (ignore errors if no group exists)
 yb-admin --master_addresses "${SRC_MASTERS}" drop_xcluster_replication "${REPLICATION_ID}" "${TGT_MASTERS}" 2>/dev/null || true
-rm -f /tmp/yugabyte_snapshot.json /tmp/${DB}_schema.sql /tmp/import_out.txt
+rm -f /tmp/yugabyte_snapshot.json /tmp/${DB}_schema.sql /tmp/import_out.txt /tmp/snap_create.txt
+# Delete all existing snapshots on source (stale snapshots from prior runs pollute list_snapshots)
+for _snap_id in $(yb-admin --master_addresses "${SRC_MASTERS}" list_snapshots 2>/dev/null \
+    | awk '/COMPLETE|CREATING/{print $1}' | grep -E '^[0-9a-f]{8}-'); do
+  yb-admin --master_addresses "${SRC_MASTERS}" delete_snapshot "${_snap_id}" 2>/dev/null || true
+done
 # Delete snapshot schedules on standby (leave PITR clean for next run)
 for _sched_id in $(yb-admin --master_addresses "${TGT_MASTERS}" list_snapshot_schedules 2>/dev/null \
     | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'); do
@@ -69,9 +74,17 @@ p "Requires v2025.2.1+.  Both clusters in this devcontainer qualify."
 p ""
 p "━━━ Part 1: Create xCluster Checkpoint ━━━"
 p ""
-p "Pause DDL on primary, then create a checkpoint."
-p "The checkpoint marks the WAL position replication will start from."
-p "automatic_ddl_mode instructs the cluster to replicate DDL automatically."
+p "Seed data first — the checkpoint must capture every table in the database."
+p "Any table created AFTER the checkpoint requires a new checkpoint."
+
+pe "ysqlsh -h ${SRC} -c \"
+  CREATE TABLE products (id SERIAL PRIMARY KEY, name TEXT, price NUMERIC(10,2));
+  INSERT INTO products VALUES (1,'Widget',9.99),(2,'Gadget',24.99),(3,'Doohickey',4.99);\""
+
+p ""
+p "Now create the checkpoint. It marks the WAL position replication will start"
+p "from and records every table currently in the database (including products)."
+p "automatic_ddl_mode enables automatic DDL replication going forward."
 
 pe "yb-admin --master_addresses ${SRC_MASTERS} \
   create_xcluster_checkpoint ${REPLICATION_ID} ${DB} automatic_ddl_mode"
@@ -90,20 +103,19 @@ p "    --automatic_mode"
 p ""
 p "━━━ Part 2: Bootstrap Standby (Distributed Snapshot) ━━━"
 p ""
-p "Seed data on primary so the backup is meaningful."
-
-pe "ysqlsh -h ${SRC} -c \"
-  CREATE TABLE products (id SERIAL PRIMARY KEY, name TEXT, price NUMERIC(10,2));
-  INSERT INTO products VALUES (1,'Widget',9.99),(2,'Gadget',24.99),(3,'Doohickey',4.99);\""
+p "products is already populated on the primary — take the snapshot now."
 
 p ""
 p "Create a distributed snapshot on the primary:"
-pe "yb-admin --master_addresses ${SRC_MASTERS} create_database_snapshot ysql.${DB}"
+# Capture snapshot ID from creation output — avoids picking up stale IDs from list_snapshots
+pe "yb-admin --master_addresses ${SRC_MASTERS} create_database_snapshot ysql.${DB} 2>&1 | tee /tmp/snap_create.txt"
+_SNAP_ID=$(awk '/Started snapshot creation:/{print $NF}' /tmp/snap_create.txt)
 
-# Wait for COMPLETE and capture snapshot ID
-sleep 5
-_SNAP_ID=$(yb-admin --master_addresses "${SRC_MASTERS}" list_snapshots 2>/dev/null | \
-  awk '/COMPLETE/{print $1}' | grep -E '^[0-9a-f]{8}-' | head -1)
+# Wait for this specific snapshot to reach COMPLETE
+until yb-admin --master_addresses "${SRC_MASTERS}" list_snapshots 2>/dev/null \
+  | grep "${_SNAP_ID}" | grep -q "COMPLETE"; do
+  sleep 2
+done
 
 p ""
 p "Confirm snapshot is COMPLETE:"
@@ -136,25 +148,30 @@ _RESTORE_ID=$(echo "${_IMPORT_OUT}" | awk '/^Snapshot/{print $NF}')
 
 # Copy SST files: walk Table→Tablet lines in order so each tablet is associated with
 # its own table (there may be multiple tables: products + xCluster system tables).
-_SRC_ROCKSDB="${PWD}/ybdb/source/data/yb-data/tserver/data/rocksdb"
-_TGT_ROCKSDB="${PWD}/ybdb/target/data/yb-data/tserver/data/rocksdb"
+# ybdb/ is at the workspace root; prompt.sh runs from init-xcluster/, so use PWD/..
+_SRC_ROCKSDB="${PWD}/../ybdb/source/data/yb-data/tserver/data/rocksdb"
+_TGT_ROCKSDB="${PWD}/../ybdb/target/data/yb-data/tserver/data/rocksdb"
 _cur_old_tbl=""
 _cur_new_tbl=""
 while IFS= read -r _line; do
   case "${_line}" in
-    Table*)
-      _cur_old_tbl=$(echo "${_line}" | awk '{print $(NF-1)}')
-      _cur_new_tbl=$(echo "${_line}" | awk '{print $NF}')
-      ;;
     Tablet*)
+      # Tablet* MUST come before Table* — "Tablet" starts with "Table" so Table* matches both
       _old_tab=$(echo "${_line}" | awk '{print $(NF-1)}')
       _new_tab=$(echo "${_line}" | awk '{print $NF}')
-      if [ -n "${_cur_old_tbl}" ] && [ -n "${_old_tab}" ]; then
+      if [ -n "${_cur_old_tbl}" ] && echo "${_old_tab}" | grep -qE '^[0-9a-f]{32}$'; then
         _src_snap="${_SRC_ROCKSDB}/table-${_cur_old_tbl}/tablet-${_old_tab}.snapshots/${_SNAP_ID}"
-        # Target uses _RESTORE_ID: restore_snapshot looks for files keyed by the new snapshot ID
         _tgt_snap="${_TGT_ROCKSDB}/table-${_cur_new_tbl}/tablet-${_new_tab}.snapshots/${_RESTORE_ID}"
         mkdir -p "${_tgt_snap}"
         [ -d "${_src_snap}" ] && cp -r "${_src_snap}/." "${_tgt_snap}/"
+      fi
+      ;;
+    Table*)
+      # Validate it's a real table ID line (32-char hex), not preamble like "Table type: table"
+      _tmp=$(echo "${_line}" | awk '{print $(NF-1)}')
+      if echo "${_tmp}" | grep -qE '^[0-9a-f]{32}$'; then
+        _cur_old_tbl="${_tmp}"
+        _cur_new_tbl=$(echo "${_line}" | awk '{print $NF}')
       fi
       ;;
   esac

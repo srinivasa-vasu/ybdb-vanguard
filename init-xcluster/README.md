@@ -33,12 +33,13 @@ yb-admin --master_addresses 127.0.0.1:7100 \
 
 # Step 2 — Distributed snapshot: full copy primary → standby
 yb-admin --master_addresses 127.0.0.1:7100 create_database_snapshot ysql.yugabyte
-# (list_snapshots → note SNAP_ID, then:)
-yb-admin --master_addresses 127.0.0.1:7100 export_snapshot <SNAP_ID> /tmp/snapshot.json
-ysqlsh -h 127.0.0.11 -c "CREATE TABLE ..."   # recreate schema on standby
+# (output: "Started snapshot creation: <SNAP_UUID>")
+yb-admin --master_addresses 127.0.0.1:7100 export_snapshot <SNAP_UUID> /tmp/snapshot.json
+ysql_dump -h 127.0.0.1 --include-yb-metadata --schema-only --dbname yugabyte --file /tmp/schema.sql
+ysqlsh -h 127.0.0.11 -d yugabyte --file /tmp/schema.sql
 yb-admin --master_addresses 127.0.0.11:7100 import_snapshot /tmp/snapshot.json yugabyte
-# (note NEW ID from import output, copy tablet SST dirs, then:)
-yb-admin --master_addresses 127.0.0.11:7100 restore_snapshot <NEW_SNAP_ID>
+# (Snapshot row New ID = <RESTORE_UUID>; copy SST files src/.snapshots/<SNAP_UUID>→tgt/.snapshots/<RESTORE_UUID>)
+yb-admin --master_addresses 127.0.0.11:7100 restore_snapshot <RESTORE_UUID>
 
 # Step 3 — PITR on STANDBY (required for failover consistency)
 yb-admin --master_addresses 127.0.0.11:7100 \
@@ -109,7 +110,18 @@ Both clusters must report the same YugabyteDB version. Mixed-version xCluster re
 
 ### Step 2: Create a checkpoint on the primary
 
-The checkpoint marks the exact WAL position where replication will begin. It also declares which databases will be replicated and enables `automatic_ddl_mode` so schema changes flow to the standby without manual intervention.
+The checkpoint records every table currently in the database and marks the WAL position where replication will begin. **Every table that exists at checkpoint time must be bootstrapped to the standby** — any table created after the checkpoint is unknown to the replication group and will cause `setup_xcluster_replication` to fail.
+
+**Seed data first** — create all tables before calling the checkpoint:
+
+```bash
+ysqlsh -h 127.0.0.1 -c "
+  CREATE TABLE products (id SERIAL PRIMARY KEY, name TEXT, price NUMERIC(10,2));
+  INSERT INTO products VALUES (1,'Widget',9.99),(2,'Gadget',24.99),(3,'Doohickey',4.99);
+"
+```
+
+**Then create the checkpoint** (captures `products` and all other tables):
 
 ```bash
 yb-admin --master_addresses 127.0.0.1:7100 \
@@ -122,7 +134,7 @@ What this does:
 - Enables **`automatic_ddl_mode`** — DDL changes on the primary are captured and replayed on the standby automatically
 - Records the current WAL sequence number so the standby knows where to start consuming changes
 
-> **Important:** DDL statements (CREATE TABLE, ALTER TABLE, DROP TABLE) must be **paused on the primary** from this point until Step 5 (`setup_xcluster_replication`) completes. Any DDL executed between Steps 2 and 5 will not be replicated — it must be captured in the Step 3 snapshot instead.
+> **Important:** DDL statements (CREATE TABLE, ALTER TABLE, DROP TABLE) must be **paused on the primary** from this point until Step 5 (`setup_xcluster_replication`) completes. Any DDL executed between Steps 2 and 5 will not be replicated.
 
 ---
 
@@ -130,16 +142,7 @@ What this does:
 
 Before connecting the replication stream, the standby must hold an identical copy of the primary's database state. A distributed snapshot is the required mechanism — running the same DDL statements on the standby is **not** sufficient, because the snapshot also copies internal Postgres OIDs and tablet metadata that xCluster uses to match table identities.
 
-**Seed data on the primary** so the backup is meaningful:
-
-```bash
-ysqlsh -h 127.0.0.1 -c "
-  CREATE TABLE products (id SERIAL PRIMARY KEY, name TEXT, price NUMERIC(10,2));
-  INSERT INTO products VALUES (1,'Widget',9.99),(2,'Gadget',24.99),(3,'Doohickey',4.99);
-"
-```
-
-**Create a distributed snapshot on the primary:**
+**Create a distributed snapshot on the primary** (`products` was already seeded in Step 2):
 
 ```bash
 yb-admin --master_addresses 127.0.0.1:7100 create_database_snapshot ysql.yugabyte
@@ -187,27 +190,32 @@ yb-admin --master_addresses 127.0.0.11:7100 \
   import_snapshot /tmp/yugabyte_snapshot.json yugabyte
 ```
 
-The output shows the tablet ID mapping and the restored snapshot's `NEW ID` — note it:
+The output is a columnar table with header lines, tablet ID mappings, and a final `Snapshot` row — note the `New ID` on the `Snapshot` row (this is `<RESTORE_UUID>`):
 
 ```
-Table 0: OLD ID: <src-table-id>  NEW ID: <tgt-table-id>
-Tablet 0: OLD ID: <src-tablet-id>  NEW ID: <tgt-tablet-id>
-Restored: OLD ID: <original-snap-uuid>  NEW ID: <new-snap-uuid>
+Object       Old ID                              New ID
+Keyspace     000034e1...0000                     000034e1...0000
+Table        000034e1...4019                     000034e1...4019
+Tablet 0     <src-tablet-id>                     <tgt-tablet-id>
+...
+Snapshot     <original-snap-uuid>                <restore-uuid>
 ```
+
+> The snapshot includes **all tables** in the database — `products` plus xCluster internal tables (`ddl_queue`, `replicated_ddls`). All must be copied. The demo script handles this automatically.
 
 **Copy tablet snapshot SST files from primary to standby:**
 
-In a multi-host deployment you would transfer files via S3 or GCS. In this devcontainer both clusters share the same filesystem — use the table/tablet ID mapping from `import_snapshot` output to copy the directories:
+In a multi-host deployment you would transfer files via S3 or GCS. In this devcontainer both clusters share the same filesystem — repeat for each `Tablet` row in the import output:
 
 ```bash
-# Replace placeholders with the actual IDs from the import_snapshot output above.
+# Source path uses the original SNAPSHOT_UUID; target uses the RESTORE_UUID from the Snapshot row.
 cp -r ybdb/source/data/yb-data/tserver/data/rocksdb/table-<SRC_TABLE>/tablet-<SRC_TABLET>.snapshots/<SNAPSHOT_UUID>/. \
-      ybdb/target/data/yb-data/tserver/data/rocksdb/table-<TGT_TABLE>/tablet-<TGT_TABLET>.snapshots/<SNAPSHOT_UUID>/
+      ybdb/target/data/yb-data/tserver/data/rocksdb/table-<TGT_TABLE>/tablet-<TGT_TABLET>.snapshots/<RESTORE_UUID>/
 ```
 
-Repeat for each `Tablet N:` line in the import output. The demo script (`bash prompt.sh`) handles this copy automatically.
+The demo script (`bash prompt.sh`) handles this copy automatically for all tables.
 
-**Restore the snapshot on the standby** (use the `NEW ID` from `import_snapshot` output):
+**Restore the snapshot on the standby** (use `<RESTORE_UUID>` — the `New ID` from the `Snapshot` row):
 
 ```bash
 yb-admin --master_addresses 127.0.0.11:7100 restore_snapshot <NEW_SNAPSHOT_UUID>
