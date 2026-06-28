@@ -2,9 +2,29 @@
 
 Hands-on YugabyteDB exercises covering distributed SQL, data architecture, scalability, fault tolerance, multi-region distribution, disaster recovery, CDC, observability, security, and data migration. Each exercise runs in a fully pre-configured cloud development environment — no local YugabyteDB installation required.
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Fdevcontainer.json)
+
 ---
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Fdevcontainer.json)
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Exercises](#exercises)
+  - [SQL Fundamentals](#sql-fundamentals)
+  - [Data Placement & Architecture](#data-placement--architecture)
+  - [Scalability & High Availability](#scalability--high-availability)
+  - [Multi-Region & Disaster Recovery](#multi-region--disaster-recovery)
+  - [Data Protection & Recovery](#data-protection--recovery)
+  - [Streaming & CDC](#streaming--cdc)
+  - [Observability](#observability)
+  - [Security](#security)
+  - [Search & Extensions](#search--extensions)
+  - [Migration (YB Voyager)](#migration-yb-voyager)
+  - [Ecosystem (PG Runtime-Compatible)](#ecosystem-pg-runtime-compatible)
+  - [External Resources](#external-resources)
+- [Devcontainer Reference](#devcontainer-reference)
+- [YugabyteDB Version](#yugabytedb-version)
 
 ---
 
@@ -36,33 +56,96 @@ cd ybdb-vanguard
 
 The `launch` script presents a categorised menu with role tags and resource warnings. Pick a number — the script prints a Codespaces URL, a DevPod command, and a VS Code Dev Containers instruction for the selected exercise.
 
-**Alternative launch paths — Codespaces picker:**
+### 3 · Alternative launch paths
+
+<details>
+<summary><strong>Codespaces picker</strong></summary>
+
 1. Navigate to your fork on GitHub
 2. Click **Code → Codespaces → New codespace**
 3. Select the exercise from the devcontainer configuration dropdown
 
-**GitHub CLI:**
+</details>
+
+<details>
+<summary><strong>GitHub CLI</strong></summary>
+
 ```bash
 gh codespace create \
   --repo <your-github-username>/ybdb-vanguard \
   --devcontainer-path .devcontainer/init-dsql/devcontainer.json
 ```
 
-**DevPod:**
+</details>
+
+<details>
+<summary><strong>DevPod</strong></summary>
+
 ```bash
 devpod up . --devcontainer-path .devcontainer/init-dsql/devcontainer.json
 ```
 
-**VS Code Dev Containers:**
+</details>
+
+<details>
+<summary><strong>VS Code Dev Containers</strong></summary>
+
 Open Command Palette → **Dev Containers: Open Folder in Container…** → select the exercise config.
+
+</details>
 
 ---
 
 ## Exercises
 
+### Role Badge Legend
+
+| Badge | Audience |
+|---|---|
+| ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) | Developer |
+| ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | Operations / DBA |
+| ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | Site Reliability Engineer |
+| ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge) | Architect |
+
+### Quick Reference
+
+| # | Exercise | Devcontainer | Roles | Notes |
+|---|---|---|---|---|
+| 1 | [Distributed SQL Universe](#distributed-sql-universe) | `init-dsql` | Dev, Arc | |
+| 2 | [Query Tuning Tips & Tricks](#query-tuning-tips--tricks) | `init-qt` | Dev, Arc | |
+| 3 | [Query Plan Management (QPM)](#query-plan-management-qpm) | `init-qpm` | Dev, Ops, SRE, Arc | v2025.2.3+ |
+| 4 | [Colocation & Distributed Tables](#colocation--distributed-tables) | `init-colocate` | Dev, Arc | |
+| 5 | [Tablespaces & Online Data Migration](#tablespaces--online-data-migration) | `init-tablespace` | Dev, Ops, Arc | |
+| 6 | [Data Distribution and Scalability](#data-distribution-and-scalability) | `init-scale` | Ops, SRE, Arc | ⚠ 8 CPU · 16 GB RAM |
+| 7 | [Fault Tolerance and High Availability](#fault-tolerance-and-high-availability) | `init-ft` | Ops, SRE, Arc | ⚠ 8 CPU · 16 GB RAM |
+| 8 | [Geo-distribution & Tablespaces](#geo-distribution--tablespaces) | `init-geo` | Dev, Ops, SRE, Arc | |
+| 9 | [xCluster Replication & Disaster Recovery](#xcluster-replication--disaster-recovery) | `init-xcluster` | Ops, SRE, Arc | ⚠ 8 GB RAM |
+| 10 | [Point-in-Time Recovery (PITR)](#point-in-time-recovery-pitr) | `init-pitr` | Ops, SRE | |
+| 11 | [DB Clone — Instant Database Copies](#db-clone--instant-database-copies) | `init-clone` | Dev, Ops, SRE | |
+| 12 | [Time Travel — `yb_read_time`](#time-travel--yb_read_time) | `init-tt` | Dev, Ops | |
+| 13 | [Change Data Capture — YugabyteDB → PostgreSQL](#change-data-capture--yugabytedb--postgresql) | `init-cdc` | Dev, Ops, SRE | |
+| 14 | [Observability & Performance Diagnosis](#observability--performance-diagnosis) | `init-obs` | Ops, SRE, Arc | |
+| 15 | [OpenSearch — Log Observability](#opensearch--log-observability-with-yugabytedb) | `init-opensearch` | Dev, Ops, SRE, Arc | |
+| 16 | [Elasticsearch — Logs & Metrics Observability](#elasticsearch--logs--metrics-observability-with-yugabytedb) | `init-elasticsearch` | Dev, Ops, SRE, Arc | |
+| 17 | [Encryption at Rest (EAR) + Key Rotation](#encryption-at-rest-ear--key-rotation) | `init-ear` | Ops, SRE | |
+| 18 | [Row Level Security & Multi-tenancy](#row-level-security--multi-tenancy) | `init-rls` | Dev, Arc | |
+| 19 | [Data Privacy — Column Encryption & Anonymization](#data-privacy--column-encryption--anonymization) | `init-privacy` | Dev, Arc | |
+| 20 | [Full-Text Search](#full-text-search) | `init-fts` | Dev, Arc | |
+| 21 | [Semantic Search with pgvector](#semantic-search-with-pgvector) | `init-pgvector` | Dev, Arc | |
+| 22 | [Data Migration — MySQL → YugabyteDB](#data-migration--mysql--yugabytedb) | `init-voyager-mysql` | Dev, Ops | |
+| 23 | [Data Migration — MariaDB → YugabyteDB](#data-migration--mariadb--yugabytedb) | `init-voyager-mariadb` | Dev, Ops | |
+| 24 | [Data Migration — Oracle → YugabyteDB](#data-migration--oracle--yugabytedb) | `init-voyager-oracle` | Dev, Ops, SRE | ⚠ 8 CPU · 16 GB RAM · 64 GB disk |
+| 25 | [Live Data Migration — PostgreSQL → YugabyteDB](#live-data-migration--postgresql--yugabytedb) | `init-voyager-postgres` | Dev, Ops, SRE | |
+| 26 | [Keycloak — Identity & Access Management](#keycloak--identity--access-management) | `init-keycloak` | Dev, Arc | |
+| 27 | [Kong Gateway — API Gateway](#kong-gateway--api-gateway-with-yugabytedb) | `init-kong` | Dev, Ops, Arc | |
+| 28 | [WSO2 API Manager — Enterprise API Gateway](#wso2-api-manager--enterprise-api-gateway-with-yugabytedb) | `init-wso2` | Dev, Ops, Arc | ⚠ 8 CPU · 16 GB RAM |
+
+---
+
 ### SQL Fundamentals
 
 #### Distributed SQL Universe
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
@@ -73,6 +156,7 @@ Get started with YugabyteDB: hash vs range sharding, YSQL and YCQL basics, table
 ---
 
 #### Query Tuning Tips & Tricks
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
@@ -83,6 +167,7 @@ Query execution patterns, pushdown operations, index strategies (hash, range, co
 ---
 
 #### Query Plan Management (QPM)
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
@@ -97,6 +182,7 @@ Detect, compare, and pin query plans with QPM (EA, v2025.2.3+). Capture every pl
 ### Data Placement & Architecture
 
 #### Colocation & Distributed Tables
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
@@ -107,6 +193,7 @@ Co-locate small reference tables on a single shared tablet for local joins while
 ---
 
 #### Tablespaces & Online Data Migration
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
@@ -120,6 +207,7 @@ Create placement-aware tablespaces with `replica_placement` JSON, pin tables and
 ### Scalability & High Availability
 
 #### Data Distribution and Scalability
+
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
@@ -133,6 +221,7 @@ Explore tablet-based data distribution, automatic tablet splitting, and horizont
 ---
 
 #### Fault Tolerance and High Availability
+
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
@@ -148,6 +237,7 @@ Chaos engineering on a 6-node cluster across 3 availability zones. Kill nodes, o
 ### Multi-Region & Disaster Recovery
 
 #### Geo-distribution & Tablespaces
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
@@ -160,6 +250,7 @@ Multi-region data placement and low-latency reads on a 3-node cluster simulating
 ---
 
 #### xCluster Replication & Disaster Recovery
+
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
@@ -175,6 +266,7 @@ Set up transactional xCluster replication with **automatic DDL propagation** bet
 ### Data Protection & Recovery
 
 #### Point-in-Time Recovery (PITR)
+
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 
@@ -185,6 +277,7 @@ Create snapshot schedules, simulate accidental `DELETE` and `DROP TABLE` disaste
 ---
 
 #### DB Clone — Instant Database Copies
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
@@ -196,6 +289,7 @@ Clone a live database with a single SQL statement: `CREATE DATABASE clone TEMPLA
 ---
 
 #### Time Travel — `yb_read_time`
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 
@@ -208,6 +302,7 @@ Read historical snapshots of your data by setting a session-level read timestamp
 ### Streaming & CDC
 
 #### Change Data Capture — YugabyteDB → PostgreSQL
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
@@ -219,6 +314,7 @@ Stream changes from YugabyteDB to PostgreSQL using the **YugabyteDB Debezium con
 ---
 
 #### CDC Streaming — YSQL → YCQL
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 
 [Repository →](https://github.com/srinivasa-vasu/yb-cdc-streams)
@@ -230,6 +326,7 @@ Spring Cloud Stream microservices-based CDC from YSQL to YCQL through a supplier
 ### Observability
 
 #### Observability & Performance Diagnosis
+
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
@@ -241,6 +338,7 @@ End-to-end performance investigation using built-in YugabyteDB SQL views: `pg_st
 ---
 
 #### OpenSearch — Log Observability with YugabyteDB
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
@@ -253,6 +351,7 @@ Ships YugabyteDB structured logs into **OpenSearch** using the **OpenTelemetry C
 ---
 
 #### Elasticsearch — Logs & Metrics Observability with YugabyteDB
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
@@ -267,6 +366,7 @@ Ships YugabyteDB structured logs **and** Prometheus metrics into **Elasticsearch
 ### Security
 
 #### Encryption at Rest (EAR) + Key Rotation
+
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 
@@ -277,6 +377,7 @@ Enable and rotate cluster-level encryption at rest on a live YugabyteDB node —
 ---
 
 #### Row Level Security & Multi-tenancy
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
@@ -287,6 +388,7 @@ Database-enforced tenant isolation. Covers `CREATE POLICY` with `USING` and `WIT
 ---
 
 #### Data Privacy — Column Encryption & Anonymization
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
@@ -299,6 +401,7 @@ PII protection at the column level using the `pgcrypto` extension. Covers `pgp_s
 ### Search & Extensions
 
 #### Full-Text Search
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
@@ -309,6 +412,7 @@ SQL-native full-text search without an external search engine. Covers `tsvector`
 ---
 
 #### Semantic Search with pgvector
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
@@ -318,11 +422,10 @@ Vector similarity search using the bundled `pgvector` extension. Covers all thre
 
 ---
 
----
-
-### Migration  (YB Voyager)
+### Migration (YB Voyager)
 
 #### Data Migration — MySQL → YugabyteDB
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 
@@ -333,6 +436,7 @@ Offline migration from MySQL to YugabyteDB using [YB Voyager](https://docs.yugab
 ---
 
 #### Data Migration — MariaDB → YugabyteDB
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 
@@ -343,6 +447,7 @@ Offline migration from MariaDB to YugabyteDB using YB Voyager.
 ---
 
 #### Data Migration — Oracle → YugabyteDB
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
@@ -356,6 +461,7 @@ Offline migration from Oracle Database to YugabyteDB using YB Voyager. Uses an O
 ---
 
 #### Live Data Migration — PostgreSQL → YugabyteDB
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
@@ -369,6 +475,7 @@ Live (online) migration from PostgreSQL to YugabyteDB with minimal downtime usin
 ### Ecosystem (PG Runtime-Compatible)
 
 #### Keycloak — Identity & Access Management
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
@@ -379,6 +486,7 @@ YugabyteDB as Keycloak's backend identity store using the **YugabyteDB smart JDB
 ---
 
 #### Kong Gateway — API Gateway with YugabyteDB
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
@@ -390,9 +498,11 @@ Kong Gateway stores its entire configuration (services, routes, plugins, consume
 ---
 
 #### WSO2 API Manager — Enterprise API Gateway with YugabyteDB
+
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
+
 > ⚠ Requires **8 CPU · 16 GB RAM** (WSO2 APIM JVM + YugabyteDB)
 
 [README →](init-wso2/README.md) | devcontainer: `init-wso2`
@@ -403,30 +513,12 @@ WSO2 API Manager stores all platform state — API definitions, subscriptions, t
 
 ### External Resources
 
-#### Java Microservices
-![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-
-[Repository →](https://github.com/srinivasa-vasu/yb-ms-data)
-
-Spring Boot, Quarkus, and Micronaut integration patterns with YugabyteDB (external repo).
-
----
-
-#### Java Testcontainers
-![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-
-[Repository →](https://github.com/srinivasa-vasu/ybdb-boot-data)
-
-Testcontainers integration with YugabyteDB for integration testing (external repo).
-
----
-
-#### Securing Spring Boot Microservices
-![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-
-[Repository →](https://github.com/srinivasa-vasu/ybdb-sealed-secrets)
-
-Secure a Spring Boot application with YugabyteDB over TLS using cloud-native secret management (external repo).
+| Resource | Roles | Description |
+|---|---|---|
+| [Java Microservices](https://github.com/srinivasa-vasu/yb-ms-data) | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) | Spring Boot, Quarkus, and Micronaut integration patterns with YugabyteDB |
+| [Java Testcontainers](https://github.com/srinivasa-vasu/ybdb-boot-data) | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) | Testcontainers integration with YugabyteDB for integration testing |
+| [Securing Spring Boot Microservices](https://github.com/srinivasa-vasu/ybdb-sealed-secrets) | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) | Secure a Spring Boot application with YugabyteDB over TLS using cloud-native secret management |
+| [CDC Streaming — YSQL → YCQL](https://github.com/srinivasa-vasu/yb-cdc-streams) | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) | Spring Cloud Stream microservices-based CDC from YSQL to YCQL |
 
 ---
 
