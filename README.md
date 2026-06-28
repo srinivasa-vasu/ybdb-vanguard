@@ -64,7 +64,7 @@ Open Command Palette → **Dev Containers: Open Folder in Container…** → sel
 
 #### Distributed SQL Universe
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-dsql/README.md) | devcontainer: `init-dsql`
 
@@ -74,7 +74,7 @@ Get started with YugabyteDB: hash vs range sharding, YSQL and YCQL basics, table
 
 #### Query Tuning Tips & Tricks
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-qt/README.md) | devcontainer: `init-qt`
 
@@ -85,8 +85,8 @@ Query execution patterns, pushdown operations, index strategies (hash, range, co
 #### Query Plan Management (QPM)
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-qpm/README.md) | devcontainer: `init-qpm`
 
@@ -98,7 +98,7 @@ Detect, compare, and pin query plans with QPM (EA, v2025.2.3+). Capture every pl
 
 #### Colocation & Distributed Tables
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-colocate/README.md) | devcontainer: `init-colocate`
 
@@ -109,7 +109,7 @@ Co-locate small reference tables on a single shared tablet for local joins while
 #### Tablespaces & Online Data Migration
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-tablespace/README.md) | devcontainer: `init-tablespace`
 
@@ -121,8 +121,8 @@ Create placement-aware tablespaces with `replica_placement` JSON, pin tables and
 
 #### Data Distribution and Scalability
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-scale/README.md) | devcontainer: `init-scale`
 
@@ -134,8 +134,8 @@ Explore tablet-based data distribution, automatic tablet splitting, and horizont
 
 #### Fault Tolerance and High Availability
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-ft/README.md) | devcontainer: `init-ft`
 
@@ -150,8 +150,8 @@ Chaos engineering on a 6-node cluster across 3 availability zones. Kill nodes, o
 #### Geo-distribution & Tablespaces
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-geo/README.md) | devcontainer: `init-geo`
 
@@ -161,8 +161,8 @@ Multi-region data placement and low-latency reads on a 3-node cluster simulating
 
 #### xCluster Replication & Disaster Recovery
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-xcluster/README.md) | devcontainer: `init-xcluster`
 
@@ -176,7 +176,7 @@ Set up transactional xCluster replication with **automatic DDL propagation** bet
 
 #### Point-in-Time Recovery (PITR)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 
 [README →](init-pitr/README.md) | devcontainer: `init-pitr`
 
@@ -187,7 +187,7 @@ Create snapshot schedules, simulate accidental `DELETE` and `DROP TABLE` disaste
 #### DB Clone — Instant Database Copies
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 
 [README →](init-clone/README.md) | devcontainer: `init-clone`
 
@@ -210,7 +210,7 @@ Read historical snapshots of your data by setting a session-level read timestamp
 #### Change Data Capture — YugabyteDB → PostgreSQL
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 
 [README →](init-cdc/README.md) | devcontainer: `init-cdc`
 
@@ -231,8 +231,8 @@ Spring Cloud Stream microservices-based CDC from YSQL to YCQL through a supplier
 
 #### Observability & Performance Diagnosis
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-obs/README.md) | devcontainer: `init-obs`
 
@@ -244,7 +244,7 @@ End-to-end performance investigation using built-in YugabyteDB SQL views: `pg_st
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-opensearch/README.md) | devcontainer: `init-opensearch`
 
@@ -256,7 +256,7 @@ Ships YugabyteDB structured logs into **OpenSearch** using the **OpenTelemetry C
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
 ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-elasticsearch/README.md) | devcontainer: `init-elasticsearch`
 
@@ -268,7 +268,7 @@ Ships YugabyteDB structured logs **and** Prometheus metrics into **Elasticsearch
 
 #### Encryption at Rest (EAR) + Key Rotation
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 
 [README →](init-ear/README.md) | devcontainer: `init-ear`
 
@@ -278,7 +278,7 @@ Enable and rotate cluster-level encryption at rest on a live YugabyteDB node —
 
 #### Row Level Security & Multi-tenancy
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-rls/README.md) | devcontainer: `init-rls`
 
@@ -288,7 +288,7 @@ Database-enforced tenant isolation. Covers `CREATE POLICY` with `USING` and `WIT
 
 #### Data Privacy — Column Encryption & Anonymization
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-privacy/README.md) | devcontainer: `init-privacy`
 
@@ -300,7 +300,7 @@ PII protection at the column level using the `pgcrypto` extension. Covers `pgp_s
 
 #### Full-Text Search
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-fts/README.md) | devcontainer: `init-fts`
 
@@ -310,7 +310,7 @@ SQL-native full-text search without an external search engine. Covers `tsvector`
 
 #### Semantic Search with pgvector
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-pgvector/README.md) | devcontainer: `init-pgvector`
 
@@ -345,7 +345,7 @@ Offline migration from MariaDB to YugabyteDB using YB Voyager.
 #### Data Migration — Oracle → YugabyteDB
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 
 [README →](init-voyager-oracle/README.md) | devcontainer: `init-voyager-oracle`
 
@@ -358,7 +358,7 @@ Offline migration from Oracle Database to YugabyteDB using YB Voyager. Uses an O
 #### Live Data Migration — PostgreSQL → YugabyteDB
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![SRE](https://img.shields.io/badge/sre-yellow?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
 
 [README →](init-voyager-postgres/README.md) | devcontainer: `init-voyager-postgres`
 
@@ -370,7 +370,7 @@ Live (online) migration from PostgreSQL to YugabyteDB with minimal downtime usin
 
 #### Keycloak — Identity & Access Management
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-keycloak/README.md) | devcontainer: `init-keycloak`
 
@@ -381,7 +381,7 @@ YugabyteDB as Keycloak's backend identity store using the **YugabyteDB smart JDB
 #### Kong Gateway — API Gateway with YugabyteDB
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 
 [README →](init-kong/README.md) | devcontainer: `init-kong`
 
@@ -392,7 +392,7 @@ Kong Gateway stores its entire configuration (services, routes, plugins, consume
 #### WSO2 API Manager — Enterprise API Gateway with YugabyteDB
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
 ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
-![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-red?style=for-the-badge)
 > ⚠ Requires **8 CPU · 16 GB RAM** (WSO2 APIM JVM + YugabyteDB)
 
 [README →](init-wso2/README.md) | devcontainer: `init-wso2`
