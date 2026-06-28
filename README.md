@@ -260,7 +260,7 @@ Ships YugabyteDB structured logs into **OpenSearch** using the **OpenTelemetry C
 
 [README →](init-elasticsearch/README.md) | devcontainer: `init-elasticsearch`
 
-Ships YugabyteDB structured logs **and** Prometheus metrics into **Elasticsearch** using the **OpenTelemetry Collector contrib** binary. Two `filelog` receivers handle GLog (master/tserver) and PostgreSQL/pgaudit log files; a `prometheus` receiver scrapes four YB metrics endpoints (master :7000, tserver :9000, YSQL :13000, YCQL :12000) every 15 s. Logs flow to the `yb-logs` index; metrics flow to the `yb-metrics` index via the `elasticsearch/metrics` exporter with `mapping.mode: none`. Kibana provides index-pattern search and visualization for both signals. Uses Elasticsearch 8.x with security disabled for dev simplicity.
+Ships YugabyteDB structured logs **and** Prometheus metrics into **Elasticsearch** using the **OpenTelemetry Collector contrib** binary. Two `filelog` receivers handle GLog (master/tserver) and PostgreSQL/pgaudit log files; a `prometheus` receiver scrapes four YB metrics endpoints (master :7000, tserver :9000, YSQL :13000, YCQL :12000) every 15 s. Logs flow to the `yb-logs` index; metrics flow to the `yb-metrics` index via the `elasticsearch/metrics` exporter with `mapping.mode: none`. Kibana provides index-pattern search and visualization for both signals.
 
 ---
 
@@ -366,7 +366,7 @@ Live (online) migration from PostgreSQL to YugabyteDB with minimal downtime usin
 
 ---
 
-### Ecosystem
+### Ecosystem (PG Runtime-Compatible)
 
 #### Keycloak — Identity & Access Management
 ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
@@ -385,7 +385,7 @@ YugabyteDB as Keycloak's backend identity store using the **YugabyteDB smart JDB
 
 [README →](init-kong/README.md) | devcontainer: `init-kong`
 
-Kong Gateway stores its entire configuration (services, routes, plugins, consumers) in a PostgreSQL-compatible backing database. This exercise connects Kong to **YugabyteDB YSQL** (port 5433) — Kong uses the standard PostgreSQL wire protocol and YugabyteDB speaks it back, requiring zero driver or code changes. Covers Kong bootstrap migrations (~60 tables), creating services and routes via the Admin API, proxying traffic, adding the rate-limiting plugin, and reading every config object back directly from YugabyteDB with YSQL.
+Kong Gateway stores its entire configuration (services, routes, plugins, consumers) in YugabyteDB. This exercise connects Kong to **YugabyteDB YSQL** (port 5433) — Kong uses the standard PostgreSQL wire protocol and YugabyteDB speaks it back, requiring zero driver or code changes. Covers Kong bootstrap migrations, creating services and routes via the Admin API, proxying traffic, adding the rate-limiting plugin, and reading every config object back directly from YugabyteDB with YSQL.
 
 ---
 
