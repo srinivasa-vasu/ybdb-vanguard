@@ -45,13 +45,18 @@ if [ "$NODES" -gt 1 ]; then
 fi
 
 # ── helper: start a single yugabyted node ────────────────────────────────────
-_tflags=""
-[ -n "$TSERVER_FLAGS" ] && _tflags="--tserver_flags=${TSERVER_FLAGS}"
+BASE_TFLAGS="yb_enable_read_committed_isolation=true"
+if [ -n "$TSERVER_FLAGS" ]; then
+  _tflags="--tserver_flags=${BASE_TFLAGS},${TSERVER_FLAGS}"
+else
+  _tflags="--tserver_flags=${BASE_TFLAGS}"
+fi
 
 # Optional master flags — set MASTER_FLAGS env var in the devcontainer to pass
 # extra flags to every yugabyted node (e.g. MASTER_FLAGS=enable_db_clone=true).
 _mflags=""
 [ -n "${MASTER_FLAGS:-}" ] && _mflags="--master_flags=${MASTER_FLAGS}"
+
 
 start_node() {
   local n="$1" addr="$2" az="$3"
@@ -65,7 +70,7 @@ start_node() {
     --cloud_location="ybcloud.pandora.${az}" \
     --fault_tolerance=zone \
     --background=true \
-    ${join_flag} ${_tflags} ${_mflags}
+    ${join_flag} "${_tflags}" ${_mflags}
 }
 
 # ── wait for node 1's master RPC port before joining ─────────────────────────
@@ -95,7 +100,7 @@ if [ "$NODES" -eq 1 ]; then
     --advertise_address=127.0.0.1 \
     --cloud_location=ybcloud.pandora.az1 \
     --background=true \
-    ${_tflags} ${_mflags}
+    "${_tflags}" ${_mflags}
 else
   start_node 1 127.0.0.1 az1
 

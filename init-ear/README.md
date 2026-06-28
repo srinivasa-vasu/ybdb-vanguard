@@ -58,10 +58,10 @@ Key sizes: 32 bytes (AES-256), 40 bytes, or 48 bytes.
 mkdir -p init-ear/keys
 
 # Key version 1
-openssl rand -out init-ear/keys/universe_key_v1 32
+openssl rand -out keys/universe_key_v1 32
 
 # Verify it was created
-ls -lh init-ear/keys/
+ls -lh keys/
 ```
 
 ---
@@ -70,7 +70,7 @@ ls -lh init-ear/keys/
 
 ```bash
 yb-admin --master_addresses 127.0.0.1:7100 \
-  add_universe_key_to_all_masters key_v1 init-ear/keys/universe_key_v1
+  add_universe_key_to_all_masters key_v1 keys/universe_key_v1
 ```
 
 Verify every master node has it in memory:
@@ -108,11 +108,11 @@ compaction has re-encrypted all tablets.
 
 ```bash
 # Generate new key
-openssl rand -out init-ear/keys/universe_key_v2 32
+openssl rand -out keys/universe_key_v2 32
 
 # Load into masters
 yb-admin --master_addresses 127.0.0.1:7100 \
-  add_universe_key_to_all_masters key_v2 init-ear/keys/universe_key_v2
+  add_universe_key_to_all_masters key_v2 keys/universe_key_v2
 
 # Verify all masters have it
 yb-admin --master_addresses 127.0.0.1:7100 \

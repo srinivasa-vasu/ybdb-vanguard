@@ -35,10 +35,14 @@
           "init-clone": true,
           "init-colocate": true,
           "init-dsql": true,
+          "init-elasticsearch": true,
           "init-ft": true,
           "init-fts": true,
           "init-geo": true,
+          "init-keycloak": true,
+          "init-kong": true,
           "init-obs": true,
+          "init-opensearch": true,
           "init-pgvector": true,
           "init-pitr": true,
           "init-privacy": true,
@@ -52,6 +56,7 @@
           "init-voyager-mysql": true,
           "init-voyager-oracle": true,
           "init-voyager-postgres": true,
+          "init-wso2": true,
           "init-xcluster": true
         }
       },

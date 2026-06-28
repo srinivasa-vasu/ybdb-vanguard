@@ -35,7 +35,7 @@
       "label": "clean",
       "detail": "Stop YugabyteDB + Docker Compose stacks, remove all runtime data (ybdb/, voyager-data/, keys, pscript files)",
       "type": "shell",
-      "command": "bash -c 'echo \"🛑 Stopping YugabyteDB nodes...\" && yugabyted destroy --base_dir=ybdb/ybd1 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd2 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd3 2>/dev/null; yugabyted destroy --base_dir=ybdb/source 2>/dev/null; yugabyted destroy --base_dir=ybdb/target 2>/dev/null; echo \"🐳 Stopping Docker Compose stacks...\" && for f in init-cdc/compose.yml init-voyager-postgres/compose.yml init-voyager-mysql/compose.yml init-voyager-mariadb/compose.yml init-voyager-oracle/compose.yml; do [ -f \"$f\" ] && docker-compose -f \"$f\" down --remove-orphans 2>/dev/null || true; done; echo \"🧹 Removing runtime data...\" && rm -rf ybdb voyager-data init-ear/keys init-cdc/kafka-plugins init-voyager-postgres/voyager-data init-voyager-mysql/voyager-data init-voyager-mariadb/voyager-data init-voyager-oracle/voyager-data && find . -name pscript -not -path \"./.git/*\" -delete && echo \"✅ All runtime data removed and services stopped.\"'",
+      "command": "bash -c 'echo \"🛑 Stopping YugabyteDB nodes...\" && yugabyted destroy --base_dir=ybdb/ybd1 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd2 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd3 2>/dev/null; yugabyted destroy --base_dir=ybdb/source 2>/dev/null; yugabyted destroy --base_dir=ybdb/target 2>/dev/null; echo \"🐳 Stopping Docker Compose stacks...\" && for f in init-cdc/compose.yml init-voyager-postgres/compose.yml init-voyager-mysql/compose.yml init-voyager-mariadb/compose.yml init-voyager-oracle/compose.yml; do [ -f \"$f\" ] && docker-compose -f \"$f\" down --remove-orphans 2>/dev/null || true; done; echo \"🐳 Stopping ecosystem containers...\" && docker rm -f keycloak-ybdb kong-gateway wso2-apim opensearch-ybdb opensearch-dashboards-ybdb 2>/dev/null || true; echo \"🧹 Removing runtime data...\" && rm -rf ybdb voyager-data init-ear/keys init-cdc/kafka-plugins init-voyager-postgres/voyager-data init-voyager-mysql/voyager-data init-voyager-mariadb/voyager-data init-voyager-oracle/voyager-data && find . -name pscript -not -path \"./.git/*\" -delete && echo \"✅ All runtime data removed and services stopped.\"'",
       "presentation": {
         "reveal": "always",
         "panel": "shared",
@@ -103,7 +103,7 @@
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "qpm",
+        "group": "qpm-demo",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -199,15 +199,15 @@
       "detail": "\"The Compliance Mandate\" — enable EAR, verify, rotate encryption key (init-ear/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-ear' ] || exit 0; cd init-ear && echo '🔐 ear-demo  —  Encryption at Rest' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "ear",
+        "group": "ear-demo",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -225,11 +225,11 @@
       "detail": "\"The SaaS Tenant Isolation Problem\" — RLS policies, session vars, BYPASSRLS (init-rls/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-rls' ] || exit 0; cd init-rls && echo '🔒 rls-demo  —  Row Level Security & Multi-tenancy' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -243,6 +243,195 @@
 
 
     // ═══════════════════════════════════════════════════════════════════════
+    // init-keycloak  — Keycloak: Identity & Access Management with YugabyteDB
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "keycloak-demo",
+      "detail": "Keycloak IAM with YugabyteDB as identity store — YB JDBC driver demo (init-keycloak/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-keycloak' ] || exit 0; cd init-keycloak && echo '🔐 keycloak-demo  —  Keycloak + YugabyteDB' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "keycloak-demo",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "keycloak-ws",
+      "detail": "Workshop shell for Keycloak + YugabyteDB manual exercises (init-keycloak/)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-keycloak' ] || exit 0; bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:8080/' 'Keycloak :8080' && cd init-keycloak && echo '🔐 keycloak-ws  —  Workshop shell' && echo '   Run manual ysqlsh / curl / docker commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "keycloak-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-opensearch  — OpenSearch: Log & Metric Observability with YugabyteDB
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "opensearch-demo",
+      "detail": "YugabyteDB logs + metrics shipped via OTel into OpenSearch — observability demo (init-opensearch/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-opensearch' ] || exit 0; cd init-opensearch && echo '🔭 opensearch-demo  —  OpenSearch + YugabyteDB Observability' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "opensearch-demo",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "opensearch-ws",
+      "detail": "Workshop shell for OpenSearch + YugabyteDB manual exercises (init-opensearch/)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-opensearch' ] || exit 0; bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:9200/_cluster/health' 'OpenSearch :9200' 'http://localhost:5601/api/status' 'OpenSearch Dashboards :5601' && cd init-opensearch && echo '🔭 opensearch-ws  —  Workshop shell' && echo '   Run manual curl / ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "opensearch-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-elasticsearch  — Elasticsearch: Logs & Metrics Observability with YugabyteDB
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "elasticsearch-demo",
+      "detail": "YugabyteDB logs + Prometheus metrics shipped via OTel into Elasticsearch — observability demo (init-elasticsearch/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-elasticsearch' ] || exit 0; bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:9200/_cluster/health' 'Elasticsearch :9200' 'http://localhost:5601/api/status' 'Kibana :5601' 'pid:/tmp/elasticsearch-init/filebeat.pid' 'Filebeat' 'pid:/tmp/elasticsearch-init/metricbeat.pid' 'Metricbeat' && cd init-elasticsearch && echo '🔍 elasticsearch-demo  —  Elasticsearch + YugabyteDB Observability' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "elasticsearch-demo",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "elasticsearch-ws",
+      "detail": "Workshop shell for Elasticsearch + YugabyteDB manual exercises (init-elasticsearch/)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-elasticsearch' ] || exit 0; bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:9200/_cluster/health' 'Elasticsearch :9200' 'http://localhost:5601/api/status' 'Kibana :5601' 'pid:/tmp/elasticsearch-init/filebeat.pid' 'Filebeat' 'pid:/tmp/elasticsearch-init/metricbeat.pid' 'Metricbeat' && cd init-elasticsearch && echo '🔍 elasticsearch-ws  —  Workshop shell' && echo '   Run manual curl / ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "elasticsearch-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-kong  — Kong Gateway: API Gateway with YugabyteDB
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "kong-demo",
+      "detail": "Kong Gateway with YugabyteDB as backing store — API gateway demo (init-kong/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-kong' ] || exit 0; cd init-kong && echo '🦍 kong-demo  —  Kong Gateway + YugabyteDB' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "kong-demo",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "kong-ws",
+      "detail": "Workshop shell for Kong Gateway + YugabyteDB manual exercises (init-kong/)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-kong' ] || exit 0; bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:8001/' 'Kong Admin API :8001' && cd init-kong && echo '🦍 kong-ws  —  Workshop shell' && echo '   Run manual curl / ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "kong-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-wso2  — WSO2 API Manager: Enterprise API Gateway with YugabyteDB
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "wso2-demo",
+      "detail": "WSO2 APIM with YugabyteDB (wso2_amdb + wso2_shareddb) — YB JDBC driver demo (init-wso2/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-wso2' ] || exit 0; cd init-wso2 && echo '🔷 wso2-demo  —  WSO2 API Manager + YugabyteDB' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "wso2-demo",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "wso2-ws",
+      "detail": "Workshop shell for WSO2 API Manager + YugabyteDB manual exercises (init-wso2/)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-wso2' ] || exit 0; bash .devcontainer/scripts/wait-for-svc.sh 'https://localhost:9443/' 'WSO2 API Manager :9443' && cd init-wso2 && echo '🔷 wso2-ws  —  Workshop shell' && echo '   Run manual curl / ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "wso2-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+
     // init-privacy  — Data Privacy: Column Encryption & Anonymization
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -251,7 +440,7 @@
       "detail": "\"The GDPR Audit\" — pgcrypto encryption, HMAC audit logs, anonymized views (init-privacy/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-privacy' ] || exit 0; cd init-privacy && echo '🛡️  privacy-demo  —  Data Privacy & Column Encryption' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
@@ -274,7 +463,7 @@
       "detail": "\"The Global Banking Platform\" — tablespaces, geo-partitioning, follower reads (init-geo/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-geo' ] || exit 0; cd init-geo && echo '🌍 geo-demo  —  Geo-distribution & Tablespaces' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
@@ -298,7 +487,7 @@
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-obs' ] || exit 0; until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && cd init-obs && bash run-load.sh",
       "runOptions": { "runOn": "folderOpen" },
-      
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -421,11 +610,11 @@
       "detail": "Start YSQL SqlInserts load against the 6-node cluster (init-ft)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-ft' ] || exit 0; java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 5 --num_threads_write 2 --nodes ${env:HOST_LB}:5433,${env:HOST_LB2}:5433,${env:HOST_LB3}:5433 --password ${env:SECRET} --username ${env:YB_USER}",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -443,11 +632,11 @@
       "detail": "Start YCQL CassandraKeyValue load against the 6-node cluster (init-ft)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-ft' ] || exit 0; java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 5 --num_threads_write 2 --nodes ${env:HOST_LB}:9042,${env:HOST_LB2}:9042,${env:HOST_LB3}:9042 --password ${env:SECRET} --username ${env:YB_USER}",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -461,15 +650,15 @@
 
     // ── Chaos / demo shell ────────────────────────────────────────────────────
     {
-      "label": "az-fd",
-      "detail": "Open the chaos engineering demo shell (init-ft/prompt.sh)",
+      "label": "ft-demo",
+      "detail": "\"Fault Tolerance\" — guided chaos engineering demo (init-ft/prompt.sh)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-ft' ] || exit 0; cd init-ft && echo '🔥 az-fd  —  Chaos Engineering demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+      "command": "[ '${env:ART_PATH}' = 'init-ft' ] || exit 0; cd init-ft && echo '🔥 ft-demo  —  Fault Tolerance demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -484,8 +673,8 @@
     // ── Convenience: launch all three at once ─────────────────────────────────
     {
       "label": "ft: start all",
-      "detail": "Launch ysql-load, ycql-load and az-fd together (init-ft)",
-      "dependsOn": ["ysql-load", "ycql-load", "az-fd"],
+      "detail": "Launch ysql-load, ycql-load and ft-demo together (init-ft)",
+      "dependsOn": ["ysql-load", "ycql-load", "ft-demo"],
       "dependsOrder": "parallel",
       "presentation": {
         "reveal": "silent",
@@ -505,11 +694,11 @@
       "detail": "Start YSQL SqlInserts load against the 3-node cluster (init-scale)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-scale' ] || exit 0; java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 2 --num_threads_write 1 --nodes ${env:HOST_LB}:5433,${env:HOST_LB2}:5433,${env:HOST_LB3}:5433 --password ${env:SECRET} --username ${env:YB_USER}",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -527,11 +716,11 @@
       "detail": "Start YCQL CassandraKeyValue load against the 3-node cluster (init-scale)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-scale' ] || exit 0; java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 3 --num_threads_write 1 --nodes ${env:HOST_LB}:9042,${env:HOST_LB2}:9042,${env:HOST_LB3}:9042 --password ${env:SECRET} --username ${env:YB_USER}",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -545,15 +734,15 @@
 
     // ── Scale-out demo shell ──────────────────────────────────────────────────
     {
-      "label": "ybdb-scale",
-      "detail": "Open the scale-out demo shell (init-scale/prompt.sh)",
+      "label": "scale-demo",
+      "detail": "\"Scale-out\" — guided distribution and scalability demo (init-scale/prompt.sh)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-scale' ] || exit 0; cd init-scale && echo '📈 ybdb-scale  —  Scale-out demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+      "command": "[ '${env:ART_PATH}' = 'init-scale' ] || exit 0; cd init-scale && echo '📈 scale-demo  —  Scale-out demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -568,8 +757,8 @@
     // ── Convenience: launch all three at once ─────────────────────────────────
     {
       "label": "scale: start all",
-      "detail": "Launch scale: ysql-load, scale: ycql-load and ybdb-scale together",
-      "dependsOn": ["scale: ysql-load", "scale: ycql-load", "ybdb-scale"],
+      "detail": "Launch scale: ysql-load, scale: ycql-load and scale-demo together",
+      "dependsOn": ["scale: ysql-load", "scale: ycql-load", "scale-demo"],
       "dependsOrder": "parallel",
       "presentation": {
         "reveal": "silent",
@@ -588,11 +777,11 @@
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-cdc' ] || exit 0; cd init-cdc && echo '🔄 cdc-demo  —  CDC pipeline demo (YugabyteDB → Kafka → PostgreSQL)' && echo '   Run when ready: bash prompt.sh' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
-      
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "cdc",
+        "group": "cdc-demo",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -601,16 +790,15 @@
     },
 
     {
-      "label": "connector-config",
-      "detail": "Open the interactive CDC command shell for curl connector operations (init-cdc)",
+      "label": "cdc-ws",
+      "detail": "Workshop shell for manual CDC commands — curl, yb-admin (init-cdc)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-cdc' ] || exit 0; echo '🔌 connector-config — run yb-admin and curl commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc' ] || exit 0; cd init-cdc && echo '🔌 cdc-ws  —  Workshop shell' && echo '   Run manual yb-admin and curl commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
-
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "cdc",
+        "group": "cdc-ws",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -622,12 +810,12 @@
       "label": "ear-ws",
       "detail": "Workshop shell for manual EAR commands — yb-admin, openssl (init-ear)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-ear' ] || exit 0; echo '🔐 ear-ws — Workshop shell (workspace root)' && echo '   Run manual yb-admin and openssl commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-ear' ] || exit 0; cd init-ear && echo '🔐 ear-ws — Workshop shell' && echo '   Run manual yb-admin and openssl commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "ear",
+        "group": "ear-ws",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -639,12 +827,12 @@
       "label": "pitr-ws",
       "detail": "Workshop shell for manual PITR commands — yb-admin (init-pitr)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-pitr' ] || exit 0; echo '⏪ pitr-ws — Workshop shell (workspace root)' && echo '   Run manual yb-admin commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-pitr' ] || exit 0; cd init-pitr && echo '⏪ pitr-ws — Workshop shell' && echo '   Run manual yb-admin commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "pitr",
+        "group": "pitr-ws",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -656,12 +844,12 @@
       "label": "qpm-ws",
       "detail": "Workshop shell for manual QPM commands — ysqlsh, ysqlsh -f (init-qpm)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-qpm' ] || exit 0; echo '📌 qpm-ws — Workshop shell (workspace root)' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-qpm' ] || exit 0; cd init-qpm && echo '📌 qpm-ws — Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "qpm",
+        "group": "qpm-ws",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -673,12 +861,12 @@
       "label": "clone-ws",
       "detail": "Workshop shell for manual Clone commands — yb-admin (init-clone)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-clone' ] || exit 0; echo '🧬 clone-ws — Workshop shell (workspace root)' && echo '   Run manual yb-admin commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-clone' ] || exit 0; cd init-clone && echo '🧬 clone-ws — Workshop shell' && echo '   Run manual yb-admin commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "clone",
+        "group": "clone-ws",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -690,12 +878,301 @@
       "label": "xcluster-ws",
       "detail": "Workshop shell for manual xCluster commands — yb-admin, ysqlsh (init-xcluster)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; cd init-xcluster && echo '🔄 xcluster-ws — Workshop shell (init-xcluster)' && echo '   Run manual yb-admin and ysqlsh commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-xcluster' ] || exit 0; cd init-xcluster && echo '🔄 xcluster-ws — Workshop shell' && echo '   Run manual yb-admin and ysqlsh commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "xcluster",
+        "group": "xcluster-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "dsql-ws",
+      "detail": "Workshop shell for manual Distributed SQL commands — ysqlsh (init-dsql)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-dsql' ] || exit 0; cd init-dsql && echo '🗃️  dsql-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dsql-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "qt-ws",
+      "detail": "Workshop shell for manual Query Tuning commands — ysqlsh (init-qt)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-qt' ] || exit 0; cd init-qt && echo '⚡ qt-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "qt-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "colocate-ws",
+      "detail": "Workshop shell for manual Colocation commands — ysqlsh (init-colocate)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-colocate' ] || exit 0; cd init-colocate && echo '📦 colocate-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "colocate-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "tablespace-ws",
+      "detail": "Workshop shell for manual Tablespace commands — ysqlsh (init-tablespace)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-tablespace' ] || exit 0; cd init-tablespace && echo '🗂️  tablespace-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "tablespace-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "rls-ws",
+      "detail": "Workshop shell for manual RLS commands — ysqlsh (init-rls)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-rls' ] || exit 0; cd init-rls && echo '🔒 rls-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "rls-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "privacy-ws",
+      "detail": "Workshop shell for manual Privacy commands — ysqlsh, pgcrypto (init-privacy)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-privacy' ] || exit 0; cd init-privacy && echo '🛡️  privacy-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "privacy-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "geo-ws",
+      "detail": "Workshop shell for manual Geo-distribution commands — ysqlsh (init-geo)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-geo' ] || exit 0; cd init-geo && echo '🌍 geo-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "geo-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "obs-ws",
+      "detail": "Workshop shell for manual Observability commands — ysqlsh, pg_stat_statements (init-obs)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-obs' ] || exit 0; cd init-obs && echo '🔍 obs-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "obs-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "fts-ws",
+      "detail": "Workshop shell for manual Full-Text Search commands — ysqlsh (init-fts)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-fts' ] || exit 0; cd init-fts && echo '🔍 fts-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "fts-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "pgvector-ws",
+      "detail": "Workshop shell for manual pgvector commands — ysqlsh (init-pgvector)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pgvector' ] || exit 0; cd init-pgvector && echo '🧮 pgvector-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "pgvector-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "tt-ws",
+      "detail": "Workshop shell for manual Time Travel commands — ysqlsh (init-tt)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-tt' ] || exit 0; cd init-tt && echo '⏰ tt-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "tt-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ft-ws",
+      "detail": "Workshop shell for manual Fault Tolerance commands — ysqlsh, yb-admin (init-ft)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-ft' ] || exit 0; cd init-ft && echo '🔥 ft-ws  —  Workshop shell' && echo '   Run manual ysqlsh and yb-admin commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ft-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "scale-ws",
+      "detail": "Workshop shell for manual Scale-out commands — ysqlsh, yb-admin (init-scale)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-scale' ] || exit 0; cd init-scale && echo '📈 scale-ws  —  Workshop shell' && echo '   Run manual ysqlsh and yb-admin commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "scale-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "mysql-ws",
+      "detail": "Workshop shell for manual MySQL migration commands — yb-voyager, ysqlsh (init-voyager-mysql)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-mysql' ] || exit 0; cd init-voyager-mysql && echo '🐬 mysql-ws  —  Workshop shell' && echo '   Run manual yb-voyager commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "mysql-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "mariadb-ws",
+      "detail": "Workshop shell for manual MariaDB migration commands — yb-voyager, ysqlsh (init-voyager-mariadb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-mariadb' ] || exit 0; cd init-voyager-mariadb && echo '🦭 mariadb-ws  —  Workshop shell' && echo '   Run manual yb-voyager commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "mariadb-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "oracle-ws",
+      "detail": "Workshop shell for manual Oracle migration commands — yb-voyager, ysqlsh (init-voyager-oracle)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-oracle' ] || exit 0; cd init-voyager-oracle && echo '🔴 oracle-ws  —  Workshop shell' && echo '   Run manual yb-voyager commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "oracle-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "postgres-live-ws",
+      "detail": "Workshop shell for manual PostgreSQL live migration commands — yb-voyager, ysqlsh (init-voyager-postgres)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '🐘 postgres-live-ws  —  Workshop shell' && echo '   Run manual yb-voyager commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "postgres-live-ws",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -714,11 +1191,11 @@
       "detail": "Open a MySQL client session against the source database (init-voyager-mysql)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-voyager-mysql' ] || exit 0; docker-compose -f init-voyager-mysql/compose.yml exec mysql mysql -uroot -p${env:SRC_SECRET}",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -741,7 +1218,7 @@
       "type": "shell",
       // compose service name is 'mysql' even for the mariadb image
       "command": "[ '${env:ART_PATH}' = 'init-voyager-mariadb' ] || exit 0; docker-compose -f init-voyager-mariadb/compose.yml exec mysql mariadb -uroot -p${env:SRC_SECRET}",
-      
+
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
@@ -759,11 +1236,11 @@
       "detail": "\"The MySQL Migration\" — assess, export, import, finalise (init-voyager-mysql/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-voyager-mysql' ] || exit 0; cd init-voyager-mysql && echo '🐬 mysql-demo  —  MySQL → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -779,11 +1256,11 @@
       "detail": "\"The MariaDB Migration\" — assess, export, import, finalise (init-voyager-mariadb/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-voyager-mariadb' ] || exit 0; cd init-voyager-mariadb && echo '🦭 mariadb-demo  —  MariaDB → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -822,7 +1299,7 @@
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-voyager-oracle' ] || exit 0; echo '⏳ Waiting for Oracle to become ready (2-3 min on first start)...'; until docker logs oracle 2>/dev/null | grep -q 'DATABASE IS READY TO USE'; do sleep 5; done; exec docker exec -it oracle sqlplus ${env:SRC_USER}/${env:SRC_SECRET}@//localhost:1521/${env:ORACLE_PDB}",
       "runOptions": { "runOn": "folderOpen" },
-      
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -864,11 +1341,11 @@
       "detail": "\"Zero-Downtime Live Migration\" — snapshot + CDC streaming, cutover (init-voyager-postgres/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '═══ Zero-Downtime Live Migration: PostgreSQL → YugabyteDB ═══' && echo '' && echo '  1. psql shell          → bash pre-step.sh           (verify source)' && echo '  2. yb-voyager-export   → bash prompt.sh              (Steps 0-2 + Step 4)' && echo '  3. yb-voyager-import   → bash prompt-import.sh       (Step 3 + Step 5)' && echo '  4. yb-voyager-wa       → bash prompt-wa.sh           (Steps 6-11)' && echo '' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -887,11 +1364,11 @@
       // PGUSER / PGPASSWORD are set by the devcontainer env; -h overrides PGHOST so
       // this task always reaches the postgres container, never YugabyteDB.
       "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '🐘 psql  (Pre-step → show source data)' && echo '' && echo '   Run: bash pre-step.sh' && echo '   Or connect directly: psql -h postgres' && echo '' && until (echo >/dev/tcp/postgres/5432) 2>/dev/null; do echo 'Waiting for PostgreSQL...'; sleep 3; done && echo 'PostgreSQL ready.' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -945,15 +1422,15 @@
       "detail": "\"The 2 AM Incident\" — enable PITR, simulate DELETE disaster, recover online (init-pitr/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-pitr' ] || exit 0; cd init-pitr && echo '⏪ pitr-demo  —  Point-in-Time Recovery demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "pitr",
+        "group": "pitr-demo",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -966,15 +1443,15 @@
       "detail": "\"The Safe Migration Runway\" — clone production, test a migration, verify isolation (init-clone/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-clone' ] || exit 0; cd init-clone && echo '🧬 clone-demo  —  DB Clone demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "clone",
+        "group": "clone-demo",
         "showReuseMessage": false,
         "clear": true,
         "close": true
@@ -987,11 +1464,11 @@
       "detail": "\"The Compliance Audit\" — forensic yb_read_time flashback queries, no restore needed (init-tt/prompt.sh)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-tt' ] || exit 0; cd init-tt && echo '⏰ tt-demo  —  Time Travel (yb_read_time) demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -1010,11 +1487,11 @@
       "detail": "Open the Voyager cutover shell (migration report / cutover / end migration) (init-voyager-postgres)",
       "type": "shell",
       "command": "[ '${env:ART_PATH}' = 'init-voyager-postgres' ] || exit 0; cd init-voyager-postgres && echo '✂️  yb-voyager-wa  (Steps 6–11 → report, cutover, finalize, archive, end, verify)' && echo '   Run after Steps 4+5 are streaming in export/import shells.' && echo '' && echo '   Run: bash prompt-wa.sh' && exec bash",
-      
+
       "runOptions": { "runOn": "folderOpen" },
-      
-      
-      
+
+
+
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",

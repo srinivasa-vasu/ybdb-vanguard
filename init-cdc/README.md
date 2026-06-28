@@ -8,9 +8,9 @@ A **Debezium JDBC sink connector** (`io.debezium.connector.jdbc.JdbcSinkConnecto
 
 **Quick start:** Two terminals open automatically:
 - **`cdc-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
-- **`connector-config`** — ad-hoc shell for the manual commands below
+- **`cdc-ws`** — Workshop shell for the manual commands below
 
-Run all manual `curl` / `docker exec` commands from the `connector-config` shell.
+Run all manual `curl` / `docker exec` commands from the `cdc-ws` shell.
 
 ---
 
@@ -212,7 +212,7 @@ INSERT INTO public.demo_events (event, status) VALUES ('payment_pending', 'pendi
 > Capture the actual IDs before running the UPDATE / DELETE commands below:
 
 ```bash
-# Run from the connector-config shell (ysqlsh targets YugabyteDB on port 5433)
+# Run from the cdc-ws shell (ysqlsh targets YugabyteDB on port 5433)
 _id_full=$(ysqlsh -h 127.0.0.1 -tAc \
   "SELECT id FROM public.demo_events WHERE event='order_placed' ORDER BY id DESC LIMIT 1;" \
   | tr -d '[:space:]')

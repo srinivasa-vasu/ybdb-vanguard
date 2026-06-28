@@ -57,3 +57,38 @@ updates:
       interval: monthly
       day: monday
     labels: [dependencies]
+
+  - package-ecosystem: docker
+    directory: /init-keycloak
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
+  - package-ecosystem: docker
+    directory: /init-kong
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
+  - package-ecosystem: docker
+    directory: /init-wso2
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
+  - package-ecosystem: docker
+    directory: /init-opensearch
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
+  - package-ecosystem: docker
+    directory: /init-elasticsearch
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]

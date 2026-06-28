@@ -148,7 +148,7 @@ _RESTORE_ID=$(echo "${_IMPORT_OUT}" | awk '/^Snapshot/{print $NF}')
 
 # Copy SST files: walk Table→Tablet lines in order so each tablet is associated with
 # its own table (there may be multiple tables: products + xCluster system tables).
-# ybdb/ is at the workspace root; prompt.sh runs from init-xcluster/, so use PWD/..
+# ybdb/ is one level up from init-xcluster/; use PWD/.. to reach workspace root
 _SRC_ROCKSDB="${PWD}/../ybdb/source/data/yb-data/tserver/data/rocksdb"
 _TGT_ROCKSDB="${PWD}/../ybdb/target/data/yb-data/tserver/data/rocksdb"
 _cur_old_tbl=""

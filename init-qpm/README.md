@@ -76,7 +76,7 @@ ysqlsh -h 127.0.0.1 -c "SET yb_bnl_batch_size = 1024; EXPLAIN (ANALYZE, DIST) SE
 `EXPLAIN` itself is not tracked by QPM — only real executions are. Run the query 100 times to populate `pg_stat_statements` and `yb_pg_stat_plans`:
 
 ```bash
-ysqlsh -h 127.0.0.1 -f init-qpm/workload.sql
+ysqlsh -h 127.0.0.1 -f workload.sql
 ```
 
 Read the captured plan back. `yb_pg_stat_plans` has no query text, so join `pg_stat_statements` on `queryid`:
@@ -120,7 +120,7 @@ ysqlsh -h 127.0.0.1 -c "SET yb_enable_batchednl = off; SET yb_bnl_batch_size = 1
 Run the workload 100 times in that regressed state so QPM captures the new plan (`workload_nobnl.sql` sets both flags in the same session):
 
 ```bash
-ysqlsh -h 127.0.0.1 -f init-qpm/workload_nobnl.sql
+ysqlsh -h 127.0.0.1 -f workload_nobnl.sql
 ```
 
 `yb_pg_stat_plans` now shows **two** plans for the same query — note the different `planid`, `first_used`, and `avg_exec_time`. This is the plan history:
@@ -269,7 +269,7 @@ Only `SELECT`, `INSERT`, `UPDATE`, `MERGE`, `DELETE`, and `EXECUTE` statements *
 
 ```bash
 # Re-run the bootstrap (idempotent — recreates the demo tables)
-ysqlsh -h 127.0.0.1 -f init-qpm/setup.sql
+ysqlsh -h 127.0.0.1 -f setup.sql
 
 # Open a YSQL shell
 ysqlsh -h 127.0.0.1

@@ -1,0 +1,25 @@
+{
+  "name": "Kong Gateway — API Gateway with YugabyteDB",
+  "containerEnv": {
+    "ART_PATH": "init-kong",
+    "SCRIPT_PATH": "init-kong",
+    "KONG_VERSION": "3.9.3",
+    "MASTERS": "127.0.0.1:7100"
+  },
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "postStartCommand": "bash .devcontainer/scripts/start-kong.sh && echo '▶  Open terminals:  kong-demo  →  kong-ws'",
+  "postStopCommand": "docker rm -f kong-gateway 2>/dev/null || true",
+  "extraForwardPorts": [8000, 8001],
+  "extraPortsAttributes": {
+    "8000": {
+      "label": "Kong Proxy",
+      "onAutoForward": "silent"
+    },
+    "8001": {
+      "label": "Kong Admin API",
+      "onAutoForward": "silent"
+    }
+  }
+}

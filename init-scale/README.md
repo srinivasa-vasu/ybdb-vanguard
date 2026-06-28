@@ -20,19 +20,20 @@ Open the task shells from the VS Code **Terminal** menu:
 |---|---|
 | **Terminal → Run Task → `scale: ysql-load`** | YSQL `SqlInserts` load — 2 read threads / 1 write thread |
 | **Terminal → Run Task → `scale: ycql-load`** | YCQL `CassandraKeyValue` load — 3 read threads / 1 write thread |
-| **Terminal → Run Task → `ybdb-scale`** | Scale-out demo script (`prompt.sh`) |
+| **Terminal → Run Task → `scale-demo`** | Scale-out demo script (`prompt.sh`) |
+| **Terminal → Run Task → `scale-ws`** | Workshop shell for manual commands |
 | **Terminal → Run Task → `scale: start all`** | Launches all three in parallel |
 
 **Recommended flow:**
 1. Start `scale: ysql-load` and `scale: ycql-load` first and let them reach steady throughput
 2. Open the yugabyted UI at `localhost:15433` to observe tablet distribution
-3. Then run `ybdb-scale` to trigger the scale-out from 3 → 6 nodes
+3. Then run `scale-demo` to trigger the scale-out from 3 → 6 nodes
 
 ---
 
 ## What the demo shows
 
-The `ybdb-scale` demo (`prompt.sh`) adds three new nodes — one per AZ — while load generators run continuously:
+The `scale-demo` demo (`prompt.sh`) adds three new nodes — one per AZ — while load generators run continuously:
 
 1. **Baseline** — observe tablet leaders spread across 3 nodes
 2. **Add node 4** (AZ1, `127.0.0.4`) — watch tablets rebalance automatically

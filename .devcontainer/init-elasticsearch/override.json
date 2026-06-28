@@ -1,0 +1,25 @@
+{
+  "name": "Elasticsearch — Logs & Metrics Observability with YugabyteDB",
+  "containerEnv": {
+    "ART_PATH": "init-elasticsearch",
+    "SCRIPT_PATH": "init-elasticsearch",
+    "ELASTICSEARCH_VERSION": "8.17.0",
+    "MASTERS": "127.0.0.1:7100"
+  },
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-elasticsearch.sh && echo \"\" && echo \">> Terminal > Run Task > elasticsearch-demo   (guided YB observability demo)\" && echo \">> Terminal > Run Task > elasticsearch-ws     (Workshop shell for manual exercises)\"'",
+  "postStopCommand": "docker rm -f elasticsearch-ybdb kibana-ybdb 2>/dev/null || true",
+  "extraForwardPorts": [9200, 5601],
+  "extraPortsAttributes": {
+    "9200": { "label": "Elasticsearch API", "onAutoForward": "silent" },
+    "5601": { "label": "Kibana", "onAutoForward": "silent" },
+    "5": { "onAutoForward": "ignore" },
+    "920": { "onAutoForward": "ignore" },
+    "8888": { "onAutoForward": "ignore" }
+  },
+  "otherPortsAttributes": {
+    "onAutoForward": "ignore"
+  }
+}

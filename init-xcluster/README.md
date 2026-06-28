@@ -209,8 +209,8 @@ In a multi-host deployment you would transfer files via S3 or GCS. In this devco
 
 ```bash
 # Source path uses the original SNAPSHOT_UUID; target uses the RESTORE_UUID from the Snapshot row.
-cp -r ybdb/source/data/yb-data/tserver/data/rocksdb/table-<SRC_TABLE>/tablet-<SRC_TABLET>.snapshots/<SNAPSHOT_UUID>/. \
-      ybdb/target/data/yb-data/tserver/data/rocksdb/table-<TGT_TABLE>/tablet-<TGT_TABLET>.snapshots/<RESTORE_UUID>/
+cp -r ../ybdb/source/data/yb-data/tserver/data/rocksdb/table-<SRC_TABLE>/tablet-<SRC_TABLET>.snapshots/<SNAPSHOT_UUID>/. \
+      ../ybdb/target/data/yb-data/tserver/data/rocksdb/table-<TGT_TABLE>/tablet-<TGT_TABLET>.snapshots/<RESTORE_UUID>/
 ```
 
 The demo script (`bash prompt.sh`) handles this copy automatically for all tables.

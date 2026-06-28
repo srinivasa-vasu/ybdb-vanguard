@@ -20,18 +20,19 @@ Once the cluster is ready, open the load generator shells from the VS Code **Ter
 |---|---|---|
 | **Terminal → Run Task → `ysql-load`** | `ysql-load` | YSQL `SqlInserts` load generator |
 | **Terminal → Run Task → `ycql-load`** | `ycql-load` | YCQL `CassandraKeyValue` load generator |
-| **Terminal → Run Task → `az-fd`** | `az-fd` | Chaos engineering demo script |
+| **Terminal → Run Task → `ft-demo`** | `ft-demo` | Chaos engineering demo script |
+| **Terminal → Run Task → `ft-ws`** | `ft-ws` | Workshop shell for manual commands |
 | **Terminal → Run Task → `ft: start all`** | all three | Launches all shells in parallel |
 
-Each task opens in its own **dedicated terminal panel** — you can observe metrics in `ysql-load` and `ycql-load` while running chaos experiments in `az-fd`.
+Each task opens in its own **dedicated terminal panel** — you can observe metrics in `ysql-load` and `ycql-load` while running chaos experiments in `ft-demo`.
 
 ---
 
 ## Running the chaos experiments
 
-Once both load generators are running and showing steady throughput, open the `az-fd` shell:
+Once both load generators are running and showing steady throughput, open the `ft-demo` shell:
 
-**Terminal → Run Task → `az-fd`** — then type `bash prompt.sh` when ready.
+**Terminal → Run Task → `ft-demo`** — then type `bash prompt.sh` when ready.
 
 The `prompt.sh` demo script walks through:
 1. Observing data placement across zones via the yugabyted UI (`localhost:15433`)

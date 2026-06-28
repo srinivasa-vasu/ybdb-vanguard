@@ -240,6 +240,30 @@ End-to-end performance investigation using built-in YugabyteDB SQL views: `pg_st
 
 ---
 
+#### OpenSearch — Log Observability with YugabyteDB
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+
+[README →](init-opensearch/README.md) | devcontainer: `init-opensearch`
+
+Ships YugabyteDB structured logs into **OpenSearch** using the **OpenTelemetry Collector contrib** binary. The OTel Collector runs as a process inside the devcontainer (not a sibling Docker container) so it can read YB GLog files directly from the filesystem. A `filelog` receiver tails master and tserver `.INFO` log files with GLog multiline parsing; a second `filelog` receiver captures PostgreSQL and pgaudit log entries. Logs flow to the `yb-logs` index. OpenSearch Dashboards provides search, index-pattern exploration, and visualization.
+
+---
+
+#### Elasticsearch — Logs & Metrics Observability with YugabyteDB
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+
+[README →](init-elasticsearch/README.md) | devcontainer: `init-elasticsearch`
+
+Ships YugabyteDB structured logs **and** Prometheus metrics into **Elasticsearch** using the **OpenTelemetry Collector contrib** binary. Two `filelog` receivers handle GLog (master/tserver) and PostgreSQL/pgaudit log files; a `prometheus` receiver scrapes four YB metrics endpoints (master :7000, tserver :9000, YSQL :13000, YCQL :12000) every 15 s. Logs flow to the `yb-logs` index; metrics flow to the `yb-metrics` index via the `elasticsearch/metrics` exporter with `mapping.mode: none`. Kibana provides index-pattern search and visualization for both signals. Uses Elasticsearch 8.x with security disabled for dev simplicity.
+
+---
+
 ### Security
 
 #### Encryption at Rest (EAR) + Key Rotation
@@ -294,6 +318,8 @@ Vector similarity search using the bundled `pgvector` extension. Covers all thre
 
 ---
 
+---
+
 ### Migration  (YB Voyager)
 
 #### Data Migration — MySQL → YugabyteDB
@@ -337,6 +363,41 @@ Offline migration from Oracle Database to YugabyteDB using YB Voyager. Uses an O
 [README →](init-voyager-postgres/README.md) | devcontainer: `init-voyager-postgres`
 
 Live (online) migration from PostgreSQL to YugabyteDB with minimal downtime using YB Voyager — export + streaming CDC changes + cutover.
+
+---
+
+### Ecosystem
+
+#### Keycloak — Identity & Access Management
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+
+[README →](init-keycloak/README.md) | devcontainer: `init-keycloak`
+
+YugabyteDB as Keycloak's backend identity store using the **YugabyteDB smart JDBC driver** (`com.yugabyte.Driver`, `jdbc:yugabytedb://`). Drop in the YB JDBC JAR and set `KC_DB_DRIVER` + `KC_DB_URL` — Keycloak needs no other changes. Covers Liquibase schema migration (~90 tables), real-time YSQL queries alongside Keycloak Admin API calls, realm and user creation via REST, and connection load-balancing across YugabyteDB nodes.
+
+---
+
+#### Kong Gateway — API Gateway with YugabyteDB
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+
+[README →](init-kong/README.md) | devcontainer: `init-kong`
+
+Kong Gateway stores its entire configuration (services, routes, plugins, consumers) in a PostgreSQL-compatible backing database. This exercise connects Kong to **YugabyteDB YSQL** (port 5433) — Kong uses the standard PostgreSQL wire protocol and YugabyteDB speaks it back, requiring zero driver or code changes. Covers Kong bootstrap migrations (~60 tables), creating services and routes via the Admin API, proxying traffic, adding the rate-limiting plugin, and reading every config object back directly from YugabyteDB with YSQL.
+
+---
+
+#### WSO2 API Manager — Enterprise API Gateway with YugabyteDB
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+![Architect](https://img.shields.io/badge/arc-green?style=for-the-badge)
+> ⚠ Requires **8 CPU · 16 GB RAM** (WSO2 APIM JVM + YugabyteDB)
+
+[README →](init-wso2/README.md) | devcontainer: `init-wso2`
+
+WSO2 API Manager stores all platform state — API definitions, subscriptions, throttling policies, users, OAuth clients, and OIDC tokens — across two YugabyteDB databases. The standard PostgreSQL JDBC driver is replaced with the **YugabyteDB smart JDBC driver** (`com.yugabyte.Driver`, `jdbc:yugabytedb://`) in `deployment.toml`, adding built-in connection load-balancing with zero WSO2 code changes. Covers two-database architecture (`wso2_amdb` for API management, `wso2_shareddb` for Carbon/Identity), DDL bootstrap from WSO2's shipped SQL scripts, the Publisher REST API, and direct YSQL queries against both databases.
 
 ---
 
@@ -394,6 +455,8 @@ Secure a Spring Boot application with YugabyteDB over TLS using cloud-native sec
 | CDC (Debezium) | `init-cdc` | 1 | 4 | 8 GB | 32 GB |
 | **Observability** | | | | | |
 | Observability | `init-obs` | 3 | 4 | 8 GB | 32 GB |
+| OpenSearch Observability | `init-opensearch` | 1 | 4 | 8 GB | 32 GB |
+| Elasticsearch Observability | `init-elasticsearch` | 1 | 4 | 8 GB | 32 GB |
 | **Security** | | | | | |
 | Encryption at Rest | `init-ear` | 1 | 4 | 8 GB | 32 GB |
 | Row Level Security | `init-rls` | 1 | 4 | 8 GB | 32 GB |
@@ -406,6 +469,10 @@ Secure a Spring Boot application with YugabyteDB over TLS using cloud-native sec
 | MariaDB Migration | `init-voyager-mariadb` | 1 | 4 | 8 GB | 32 GB |
 | Oracle Migration | `init-voyager-oracle` | 1 | **8** | **16 GB** | **64 GB** |
 | PostgreSQL Migration | `init-voyager-postgres` | 1 | 4 | 8 GB | 32 GB |
+| **Ecosystem** | | | | | |
+| Keycloak IAM | `init-keycloak` | 1 | 4 | 8 GB | 32 GB |
+| Kong Gateway | `init-kong` | 1 | 4 | 8 GB | 32 GB |
+| WSO2 API Manager | `init-wso2` | 1 | **8** | **16 GB** | 32 GB |
 
 All exercises default to Ubuntu-based devcontainer image on `linux/amd64` and `linux/arm64`.
 

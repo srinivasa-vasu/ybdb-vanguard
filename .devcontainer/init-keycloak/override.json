@@ -1,0 +1,19 @@
+{
+  "name": "Keycloak — Identity & Access Management with YugabyteDB",
+  "containerEnv": {
+    "ART_PATH": "init-keycloak",
+    "SCRIPT_PATH": "init-keycloak",
+    "KC_VERSION": "26.6.0",
+    "KC_PORT": "8080",
+    "MASTERS": "127.0.0.1:7100"
+  },
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-keycloak.sh && echo \"\" && echo \"▶  Terminal → Run Task → keycloak-demo   (guided Keycloak + YugabyteDB demo)\" && echo \"▶  Terminal → Run Task → ysql             (YSQL shell → keycloak database)\" && echo \"▶  Terminal → Run Task → keycloak-ws     (Workshop shell for manual exercises)\"'",
+  "postStopCommand": "docker rm -f keycloak-ybdb 2>/dev/null || true",
+  "extraForwardPorts": [8080],
+  "extraPortsAttributes": {
+    "8080": { "label": "Keycloak Admin Console", "onAutoForward": "notify" }
+  }
+}

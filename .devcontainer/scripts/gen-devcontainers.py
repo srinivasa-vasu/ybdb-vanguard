@@ -84,7 +84,8 @@ def generate(exercise, base, exercises):
     out["build"] = base["build"]
 
     # optional passthrough keys — present in override only when needed
-    for k in ("initializeCommand", "features", "mounts", "postCreateCommand", "waitFor"):
+    for k in ("initializeCommand", "features", "mounts", "postCreateCommand", "waitFor",
+              "postStopCommand"):
         if k in ov:
             out[k] = ov.pop(k)
 
@@ -112,6 +113,8 @@ def generate(exercise, base, exercises):
     attrs = {**(ports_replace if ports_replace is not None else base["portsAttributes"]),
              **extra_attrs}
     out["portsAttributes"] = attrs
+    if "otherPortsAttributes" in ov:
+        out["otherPortsAttributes"] = ov.pop("otherPortsAttributes")
 
     out["remoteUser"] = base["remoteUser"]
 
