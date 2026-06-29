@@ -7,7 +7,6 @@
 #   wso2_amdb      —  API Manager tables (AM_*)
 #
 # YugabyteDB driver swap:  standard PostgreSQL JDBC  →  com.yugabyte.Driver
-#   - YB JAR bind-mounted into  repository/components/lib/
 #   - deployment.toml patched to use YugabyteDB URL + driver class
 #
 # Schema bootstrap:  SQL scripts piped directly from the image via
@@ -43,8 +42,6 @@ DC_ID=$(grep -oE '/docker/[0-9a-f]+' /proc/1/cpuset 2>/dev/null \
 echo "Devcontainer ID: ${DC_ID:0:12}..."
 
 # ── 1. YugabyteDB ─────────────────────────────────────────────────────────────
-# Preview flags required for WSO2's concurrent DDL: object-level table locks and
-# DDL transaction blocks prevent mid-schema aborts (YB001) on large SQL scripts.
 WSO2_TFLAGS="allowed_preview_flags_csv={ysql_yb_ddl_transaction_block_enabled,enable_object_locking_for_table_locks},ysql_yb_ddl_transaction_block_enabled=true,enable_object_locking_for_table_locks=true"
 bash .devcontainer/scripts/start-ybdb.sh 1 "${WSO2_TFLAGS}"
 
@@ -187,9 +184,7 @@ fi
 echo "✅ YugabyteDB JDBC driver ready."
 
 # ── 7. Build patched WSO2 image (bakes deployment.toml + YB JAR in) ───────────
-# We cannot bind-mount files from the devcontainer's /tmp into sibling Docker
-# containers because the Docker daemon resolves host paths on the Mac host, not
-# inside the devcontainer.  Instead we build a thin wrapper image — docker build
+# Build a thin wrapper image — docker build
 # sends the build context via the socket as a tar stream, so paths are resolved
 # client-side (devcontainer) without any host-path dependency.
 WSO2_PATCHED_IMAGE="wso2am-ybdb:${WSO2_VERSION}"
