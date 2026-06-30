@@ -43,6 +43,7 @@ exercises=(
 
   # ── Streaming & CDC ───────────────────────────────────────────────────────
   "CDC — YugabyteDB → PostgreSQL  (Debezium)"
+  "CDC — SQL Server → YugabyteDB  (Debezium)"
   "CDC Streaming — YSQL → YCQL"
 
   # ── Observability ─────────────────────────────────────────────────────────
@@ -89,7 +90,8 @@ devcontainers=(
   "init-pitr"
   "init-clone"
   "init-tt"
-  "init-cdc"
+  "init-cdc-ybdb-pg"
+  "init-cdc-sqlserver-ybdb"
   ""
   "init-obs"
   "init-ear"
@@ -112,6 +114,7 @@ devcontainers=(
 )
 
 links=(
+  ""
   ""
   ""
   ""
@@ -161,6 +164,7 @@ categories=(
   "Data Protection & Recovery"
   "Streaming & CDC"
   "Streaming & CDC"
+  "Streaming & CDC"
   "Observability"
   "Security"
   "Security"
@@ -195,6 +199,7 @@ roles=(
   "ops sre"
   "dev ops sre"
   "dev ops"
+  "dev ops sre"
   "dev ops sre"
   "dev"
   "ops sre arc"
@@ -232,6 +237,7 @@ resources=(
   ""
   ""
   ""
+  "8c · 16g"
   ""
   ""
   ""

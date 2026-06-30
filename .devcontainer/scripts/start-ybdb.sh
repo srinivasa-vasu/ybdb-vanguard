@@ -28,7 +28,7 @@ rm -rf \
   "${PWD}/ybdb" \
   "${PWD}/voyager-data" \
   "${PWD}/init-ear/keys" \
-  "${PWD}/init-cdc/kafka-plugins" \
+  "${PWD}/init-cdc-ybdb-pg/kafka-plugins" \
   "${PWD}/init-voyager-postgres/voyager-data" \
   "${PWD}/init-voyager-mysql/voyager-data" \
   "${PWD}/init-voyager-mariadb/voyager-data" \
@@ -52,10 +52,14 @@ else
   _tflags="--tserver_flags=${BASE_TFLAGS}"
 fi
 
+echo "   TServer flags: ${_tflags#--tserver_flags=}"
+
 # Optional master flags — set MASTER_FLAGS env var in the devcontainer to pass
 # extra flags to every yugabyted node (e.g. MASTER_FLAGS=enable_db_clone=true).
 _mflags=""
 [ -n "${MASTER_FLAGS:-}" ] && _mflags="--master_flags=${MASTER_FLAGS}"
+
+echo "   Master flags: ${_mflags#--master_flags=}"
 
 
 start_node() {

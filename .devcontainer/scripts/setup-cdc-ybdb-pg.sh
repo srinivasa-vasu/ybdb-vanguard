@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# setup-cdc.sh  --  one-time CDC environment setup (postCreateCommand)
+# setup-cdc-ybdb-pg.sh  --  one-time CDC environment setup (postCreateCommand)
 #
 # Downloads the YugabyteDB source connector JAR into the 'kafka-plugins' Docker
 # named volume so Kafka Connect can find it at runtime.
@@ -73,24 +73,24 @@ ls -lh "${STAGING}/"
 # -- Load JARs into the named volume via docker cp ----------------------------
 # docker cp reads SOURCE from the client's (devcontainer's) filesystem over
 # the API socket -- it does NOT suffer from the DooD bind-mount path issue.
-echo "Populating init-cdc_kafka-plugins volume..."
-$DOCKER volume create init-cdc_kafka-plugins 2>/dev/null || true
+echo "Populating init-cdc-ybdb-pg_kafka-plugins volume..."
+$DOCKER volume create init-cdc-ybdb-pg_kafka-plugins 2>/dev/null || true
 
 _tmp_ctr="cdc-jar-copy-$$"
 $DOCKER create --name "${_tmp_ctr}" \
-    -v init-cdc_kafka-plugins:/plugins \
+    -v init-cdc-ybdb-pg_kafka-plugins:/plugins \
     busybox true
 $DOCKER cp "${STAGING}/." "${_tmp_ctr}:/plugins/"
 $DOCKER rm "${_tmp_ctr}" >/dev/null
 
 echo "Volume contents:"
-$DOCKER run --rm -v init-cdc_kafka-plugins:/plugins busybox ls -lh /plugins/
+$DOCKER run --rm -v init-cdc-ybdb-pg_kafka-plugins:/plugins busybox ls -lh /plugins/
 
 # -- Pre-pull Debezium stack images -------------------------------------------
 echo "Pulling Debezium and PostgreSQL Docker images..."
-docker-compose -f init-cdc/compose.yml pull
+docker-compose -f init-cdc-ybdb-pg/compose.yml pull
 echo "Docker images ready."
 
 echo ""
 echo "CDC setup complete."
-echo "  JARs loaded into Docker volume 'init-cdc_kafka-plugins'"
+echo "  JARs loaded into Docker volume 'init-cdc-ybdb-pg_kafka-plugins'"

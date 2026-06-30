@@ -35,7 +35,7 @@
       "label": "clean",
       "detail": "Stop YugabyteDB + Docker Compose stacks, remove all runtime data (ybdb/, voyager-data/, keys, pscript files)",
       "type": "shell",
-      "command": "bash -c 'echo \"🛑 Stopping YugabyteDB nodes...\" && yugabyted destroy --base_dir=ybdb/ybd1 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd2 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd3 2>/dev/null; yugabyted destroy --base_dir=ybdb/source 2>/dev/null; yugabyted destroy --base_dir=ybdb/target 2>/dev/null; echo \"🐳 Stopping Docker Compose stacks...\" && for f in init-cdc/compose.yml init-voyager-postgres/compose.yml init-voyager-mysql/compose.yml init-voyager-mariadb/compose.yml init-voyager-oracle/compose.yml; do [ -f \"$f\" ] && docker-compose -f \"$f\" down --remove-orphans 2>/dev/null || true; done; echo \"🐳 Stopping ecosystem containers...\" && docker rm -f keycloak-ybdb kong-gateway wso2-apim opensearch-ybdb opensearch-dashboards-ybdb 2>/dev/null || true; echo \"🧹 Removing runtime data...\" && rm -rf ybdb voyager-data init-ear/keys init-cdc/kafka-plugins init-voyager-postgres/voyager-data init-voyager-mysql/voyager-data init-voyager-mariadb/voyager-data init-voyager-oracle/voyager-data && find . -name pscript -not -path \"./.git/*\" -delete && echo \"✅ All runtime data removed and services stopped.\"'",
+      "command": "bash -c 'echo \"🛑 Stopping YugabyteDB nodes...\" && yugabyted destroy --base_dir=ybdb/ybd1 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd2 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd3 2>/dev/null; yugabyted destroy --base_dir=ybdb/source 2>/dev/null; yugabyted destroy --base_dir=ybdb/target 2>/dev/null; echo \"🐳 Stopping Docker Compose stacks...\" && for f in init-cdc-ybdb-pg/compose.yml init-voyager-postgres/compose.yml init-voyager-mysql/compose.yml init-voyager-mariadb/compose.yml init-voyager-oracle/compose.yml; do [ -f \"$f\" ] && docker-compose -f \"$f\" down --remove-orphans 2>/dev/null || true; done; echo \"🐳 Stopping ecosystem containers...\" && docker rm -f keycloak-ybdb kong-gateway wso2-apim opensearch-ybdb opensearch-dashboards-ybdb init-cdc-sqlserver-ybdb-zookeeper-1 init-cdc-sqlserver-ybdb-kafka-1 init-cdc-sqlserver-ybdb-connect-1 sqlserver 2>/dev/null || true; echo \"🧹 Removing runtime data...\" && rm -rf ybdb voyager-data init-ear/keys init-cdc-ybdb-pg/kafka-plugins init-cdc-sqlserver-ybdb/kafka-plugins init-voyager-postgres/voyager-data init-voyager-mysql/voyager-data init-voyager-mariadb/voyager-data init-voyager-oracle/voyager-data && find . -name pscript -not -path \"./.git/*\" -delete && echo \"✅ All runtime data removed and services stopped.\"'",
       "presentation": {
         "reveal": "always",
         "panel": "shared",
@@ -768,14 +768,14 @@
     },
 
     // ═══════════════════════════════════════════════════════════════════════
-    // init-cdc  — Change Data Capture
+    // init-cdc-ybdb-pg  — Change Data Capture
     // ═══════════════════════════════════════════════════════════════════════
 
     {
       "label": "cdc-demo",
-      "detail": "\"The Live Sync Pipeline\" — guided CDC demo: register connectors, snapshot, live INSERT/UPDATE/DELETE (init-cdc/prompt.sh)",
+      "detail": "\"The Live Sync Pipeline\" — guided CDC demo: register connectors, snapshot, live INSERT/UPDATE/DELETE (init-cdc-ybdb-pg/prompt.sh)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-cdc' ] || exit 0; cd init-cdc && echo '🔄 cdc-demo  —  CDC pipeline demo (YugabyteDB → Kafka → PostgreSQL)' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc-ybdb-pg' ] || exit 0; cd init-cdc-ybdb-pg && echo '🔄 cdc-demo  —  CDC pipeline demo (YugabyteDB → Kafka → PostgreSQL)' && echo '   Run when ready: bash prompt.sh' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
 
       "presentation": {
@@ -791,14 +791,69 @@
 
     {
       "label": "cdc-ws",
-      "detail": "Workshop shell for manual CDC commands — curl, yb-admin (init-cdc)",
+      "detail": "Workshop shell for manual CDC commands — curl, yb-admin (init-cdc-ybdb-pg)",
       "type": "shell",
-      "command": "[ '${env:ART_PATH}' = 'init-cdc' ] || exit 0; cd init-cdc && echo '🔌 cdc-ws  —  Workshop shell' && echo '   Run manual yb-admin and curl commands here' && exec bash",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc-ybdb-pg' ] || exit 0; cd init-cdc-ybdb-pg && echo '🔌 cdc-ws  —  Workshop shell' && echo '   Run manual yb-admin and curl commands here' && exec bash",
       "runOptions": { "runOn": "folderOpen" },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
         "group": "cdc-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-cdc-sqlserver-ybdb  — Change Data Capture from SQL Server to YugabyteDB
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "cdc-sqlserver-ybdb-demo",
+      "detail": "\"The Live Sync Pipeline\" — guided SQL Server CDC demo: register connectors, snapshot, live INSERT/UPDATE/DELETE (init-cdc-sqlserver-ybdb/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc-sqlserver-ybdb' ] || exit 0; cd init-cdc-sqlserver-ybdb && echo '🔄 cdc-sqlserver-ybdb-demo  —  CDC pipeline demo (SQL Server → Kafka → YugabyteDB)' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "cdc-sqlserver-ybdb-demo",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "cdc-sqlserver-ybdb-ws",
+      "detail": "Workshop shell for manual CDC commands — curl, yb-admin (init-cdc-sqlserver-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc-sqlserver-ybdb' ] || exit 0; cd init-cdc-sqlserver-ybdb && echo '🔌 cdc-sqlserver-ybdb-ws  —  Workshop shell' && echo '   Run manual yb-admin and curl commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "cdc-sqlserver-ybdb-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "sqlserver",
+      "detail": "Open a SQL Server command-line client (sqlcmd) (init-cdc-sqlserver-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc-sqlserver-ybdb' ] || exit 0; echo '⏳ Waiting for SQL Server on :1433...'; until (echo >/dev/tcp/127.0.0.1/1433) 2>/dev/null; do sleep 2; done; exec docker exec -it sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Yugabyte@123 -C",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "sqlserver",
         "showReuseMessage": false,
         "clear": true,
         "close": true

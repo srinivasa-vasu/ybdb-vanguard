@@ -23,7 +23,7 @@ updates:
 
   # ── CDC compose — Debezium stack + PostgreSQL sink ───────────────────────────
   - package-ecosystem: docker
-    directory: /init-cdc
+    directory: /init-cdc-ybdb-pg
     schedule:
       interval: monthly
       day: monday

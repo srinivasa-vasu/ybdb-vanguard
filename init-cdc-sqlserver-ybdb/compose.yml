@@ -1,0 +1,52 @@
+version: '3.9'
+
+# ── SQL Server to YugabyteDB CDC stack ─────────────────────────────────────────
+
+services:
+
+  zookeeper:
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION:-3.1.3.Final}
+    platform: linux/amd64
+    network_mode: host
+    restart: on-failure
+
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION:-3.1.3.Final}
+    platform: linux/amd64
+    network_mode: host
+    depends_on: [zookeeper]
+    environment:
+      - ZOOKEEPER_CONNECT=127.0.0.1:2181
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_ADVERTISED_HOST_NAME=127.0.0.1
+    restart: on-failure
+
+  connect:
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION:-3.1.3.Final}
+    platform: linux/amd64
+    network_mode: host
+    depends_on: [kafka]
+    environment:
+      - BOOTSTRAP_SERVERS=127.0.0.1:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=cdc_connect_configs
+      - OFFSET_STORAGE_TOPIC=cdc_connect_offsets
+      - STATUS_STORAGE_TOPIC=cdc_connect_statuses
+    volumes:
+      - kafka-plugins:/kafka/connect/yugabytedb
+    restart: on-failure
+
+  sqlserver:
+    container_name: sqlserver
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    network_mode: host
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-Yugabyte@123}
+      - MSSQL_PID=Developer
+      - MSSQL_AGENT_ENABLED=true
+    restart: on-failure
+
+volumes:
+  kafka-plugins:

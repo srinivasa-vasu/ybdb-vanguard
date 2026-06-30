@@ -29,6 +29,12 @@ TYPE_SPEED=70
 NO_WAIT=false
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
+# wait for start-cdc-ybdb-pg.sh script to finish before running this script; check for the process status
+while pgrep -f start-cdc-ybdb-pg.sh >/dev/null 2>&1; do
+    printf "\r  waiting for the cdc infrastructure to start..."
+    sleep 2
+done
+
 KC_HOST="127.0.0.1"
 PG_HOST="127.0.0.1"
 KC_URL="http://${KC_HOST}:${KAFKA_CONNECT_PORT:-8083}"
@@ -37,7 +43,7 @@ KC_URL="http://${KC_HOST}:${KAFKA_CONNECT_PORT:-8083}"
 KAFKA_CTR=$(docker ps --format '{{.Names}}' 2>/dev/null \
     | grep -v 'zookeeper\|connect\|postgres\|yugabyte' \
     | grep -i 'kafka' | head -1)
-KAFKA_CTR="${KAFKA_CTR:-init-cdc-kafka-1}"
+KAFKA_CTR="${KAFKA_CTR:-init-cdc-ybdb-pg-kafka-1}"
 KAFKA_BIN="docker exec ${KAFKA_CTR} /kafka/bin"
 
 # Kafka Connect names sink consumer groups "connect-<connector-name>" by convention.
@@ -354,7 +360,7 @@ _id_sparse=$(ysqlsh -h 127.0.0.1 -tAc \
 _id_full="${_id_full:-2}"
 _id_sparse="${_id_sparse:-3}"
 
-_wait_for_topic_lag_zero "${_demo_topic}" 5
+_wait_for_topic_lag_zero "${_demo_topic}" 3
 
 p ""
 p "Raw Debezium change event in Kafka (YugabyteDB wraps each field in {value,set}):"
@@ -386,7 +392,7 @@ p "Update every column on the fully-populated row (id=${_id_full}):"
 
 pe "ysqlsh -h 127.0.0.1 -c \"UPDATE public.demo_events SET event='order_confirmed', status='confirmed', payload='{\\\"item\\\": \\\"guitar\\\", \\\"qty\\\": 5}' WHERE id = ${_id_full};\""
 
-_wait_for_topic_lag_zero "${_demo_topic}" 5
+_wait_for_topic_lag_zero "${_demo_topic}" 3
 
 p ""
 p "Consumer group offset — full-row update consumed (op=u), LAG=0:"
@@ -409,7 +415,7 @@ p "Update only event on the sparse row (id=${_id_sparse}) — status and payload
 
 pe "ysqlsh -h 127.0.0.1 -c \"UPDATE public.demo_events SET event='payment_received', status=NULL WHERE id = ${_id_sparse};\""
 
-_wait_for_topic_lag_zero "${_demo_topic}" 5
+_wait_for_topic_lag_zero "${_demo_topic}" 3
 
 p ""
 p "Consumer group offset — partial update consumed (op=u), LAG=0:"
@@ -432,7 +438,7 @@ p "Delete the confirmed order row (id=${_id_full}); seed and sparse rows remain:
 
 pe "ysqlsh -h 127.0.0.1 -c \"DELETE FROM public.demo_events WHERE id = ${_id_full};\""
 
-_wait_for_topic_lag_zero "${_demo_topic}" 5
+_wait_for_topic_lag_zero "${_demo_topic}" 3
 
 p ""
 p "Tombstone event consumed — pgsink issued a DELETE in PostgreSQL:"

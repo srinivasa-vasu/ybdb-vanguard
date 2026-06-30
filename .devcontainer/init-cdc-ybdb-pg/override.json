@@ -1,7 +1,7 @@
 {
   "name": "Change Data Capture — YugabyteDB → PostgreSQL via Debezium",
   "containerEnv": {
-    "ART_PATH": "init-cdc",
+    "ART_PATH": "init-cdc-ybdb-pg",
     "DEBEZIUM_VERSION": "3.1.3.Final",
     "YBDB_CONNECTOR_VERSION": "dz.2.5.2.yb.2025.2.3",
     "KAFKA_CONNECT_PORT": "8083",
@@ -19,9 +19,9 @@
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
-  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client && bash .devcontainer/scripts/setup-cdc.sh && echo \"✅ CDC exercise ready\"'",
+  "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client && bash .devcontainer/scripts/setup-cdc-ybdb-pg.sh && echo \"✅ CDC exercise ready\"'",
   "waitFor": "postCreateCommand",
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-cdc.sh && echo \"\" && echo \"▶  Terminal → Run Task → cdc-demo   (guided CDC demo script)\" && echo \"▶  Terminal → Run Task → cdc-ws     (Workshop shell for manual commands)\"'",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-cdc-ybdb-pg.sh && echo \"\" && echo \"▶  Terminal → Run Task → cdc-demo   (guided CDC demo script)\" && echo \"▶  Terminal → Run Task → cdc-ws     (Workshop shell for manual commands)\"'",
   "extraForwardPorts": [5432, 2181, 9092, 8083],
   "extraPortsAttributes": {
     "5432": { "label": "postgres",      "onAutoForward": "ignore" },

@@ -24,7 +24,7 @@ rm -rf \
   "${PWD}/ybdb" \
   "${PWD}/voyager-data" \
   "${PWD}/init-ear/keys" \
-  "${PWD}/init-cdc/kafka-plugins" \
+  "${PWD}/init-cdc-ybdb-pg/kafka-plugins" \
   "${PWD}/init-voyager-postgres/voyager-data" \
   "${PWD}/init-voyager-mysql/voyager-data" \
   "${PWD}/init-voyager-mariadb/voyager-data" \

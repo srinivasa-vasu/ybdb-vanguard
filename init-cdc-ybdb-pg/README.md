@@ -1,4 +1,4 @@
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-cdc%2Fdevcontainer.json)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/srinivasa-vasu/ybdb-vanguard?devcontainer_path=.devcontainer%2Finit-cdc-ybdb-pg%2Fdevcontainer.json)
 
 ## Change data capture workflow from YugabyteDB to PostgreSQL
 
@@ -94,7 +94,7 @@ curl -s http://localhost:8083/connectors | python3 -m json.tool
 ### Inspect Kafka topics
 
 ```bash
-KAFKA_CTR=init-cdc-kafka-1
+KAFKA_CTR=init-cdc-ybdb-pg-kafka-1
 
 # List all topics (data topics + 3 internal Connect topics)
 docker exec $KAFKA_CTR /kafka/bin/kafka-topics.sh \
@@ -151,7 +151,7 @@ curl -s http://localhost:8083/connectors/pgsink/status | python3 -m json.tool
 The sink connector creates a consumer group named `connect-pgsink` that tracks how many messages have been written to PostgreSQL.
 
 ```bash
-KAFKA_CTR=init-cdc-kafka-1
+KAFKA_CTR=init-cdc-ybdb-pg-kafka-1
 
 # List all consumer groups
 docker exec $KAFKA_CTR /kafka/bin/kafka-consumer-groups.sh \

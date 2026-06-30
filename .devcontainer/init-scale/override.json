@@ -25,5 +25,5 @@
     }
   },
   "postCreateCommand": "bash -c 'wget -q https://github.com/yugabyte/yb-sample-apps/releases/download/v${YB_SAMPLE_APPS_VERSION}/yb-sample-apps.jar && echo \"✅ Scale exercise ready\"'",
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 ysql_num_shards_per_tserver=2,yb_num_shards_per_tserver=2 && echo \"\" && echo \"▶  Terminal → Run Task → scale: ysql-load   (YSQL load generator)\" && echo \"▶  Terminal → Run Task → scale: ycql-load   (YCQL load generator)\" && echo \"▶  Terminal → Run Task → scale-demo           (guided scale-out demo)\" && echo \"▶  Terminal → Run Task → scale-ws             (Workshop shell for manual commands)\" && echo \"▶  Terminal → Run Task → scale: start all    (launch all three at once)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 ysql_num_tablets=-1,ysql_num_shards_per_tserver=2,yb_num_shards_per_tserver=2 && echo \"\" && echo \"▶  Terminal → Run Task → scale: ysql-load   (YSQL load generator)\" && echo \"▶  Terminal → Run Task → scale: ycql-load   (YCQL load generator)\" && echo \"▶  Terminal → Run Task → scale-demo           (guided scale-out demo)\" && echo \"▶  Terminal → Run Task → scale-ws             (Workshop shell for manual commands)\" && echo \"▶  Terminal → Run Task → scale: start all    (launch all three at once)\"'"
 }
