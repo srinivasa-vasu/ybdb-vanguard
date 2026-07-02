@@ -44,22 +44,16 @@ exercises=(
   # ── Streaming & CDC ───────────────────────────────────────────────────────
   "CDC — YugabyteDB → PostgreSQL  (Debezium)"
   "CDC — SQL Server → YugabyteDB  (Debezium)"
-  "CDC Streaming — YSQL → YCQL"
 
   # ── Observability ─────────────────────────────────────────────────────────
   "Observability & Performance Diagnosis"
+  "OpenSearch — Log Observability with YugabyteDB"
+  "Elasticsearch — Logs & Metrics Observability with YugabyteDB"
 
   # ── Security ──────────────────────────────────────────────────────────────
   "Encryption at Rest (EAR) + Key Rotation"
   "Row Level Security & Multi-tenancy"
   "Data Privacy — Column Encryption & Anonymization"
-
-  # ── Ecosystem ────────────────────────────────────────────────────────────
-  "Keycloak — Identity & Access Management"
-  "Kong Gateway — API Gateway with YugabyteDB"
-  "WSO2 API Manager — Enterprise API Gateway with YugabyteDB"
-  "OpenSearch — Log Observability with YugabyteDB"
-  "Elasticsearch — Logs & Metrics Observability with YugabyteDB"
 
   # ── Search & Extensions ───────────────────────────────────────────────────
   "Full-Text Search"
@@ -71,10 +65,10 @@ exercises=(
   "Oracle → YugabyteDB"
   "PostgreSQL → YugabyteDB  (live migration)"
 
-  # ── External Resources ────────────────────────────────────────────────────
-  "Java Microservices  (Spring Boot)"
-  "Java Testcontainers"
-  "Securing Spring Boot Microservices"
+  # ── Ecosystem ────────────────────────────────────────────────────────────
+  "Keycloak — Identity & Access Management"
+  "Kong Gateway — API Gateway with YugabyteDB"
+  "WSO2 API Manager — Enterprise API Gateway with YugabyteDB"
 )
 
 devcontainers=(
@@ -92,25 +86,21 @@ devcontainers=(
   "init-tt"
   "init-cdc-ybdb-pg"
   "init-cdc-sqlserver-ybdb"
-  ""
   "init-obs"
+  "init-opensearch"
+  "init-elasticsearch"
   "init-ear"
   "init-rls"
   "init-privacy"
-  "init-keycloak"
-  "init-kong"
-  "init-wso2"
-  "init-opensearch"
-  "init-elasticsearch"
   "init-fts"
   "init-pgvector"
   "init-voyager-mysql"
   "init-voyager-mariadb"
   "init-voyager-oracle"
   "init-voyager-postgres"
-  ""
-  ""
-  ""
+  "init-keycloak"
+  "init-kong"
+  "init-wso2"
 )
 
 links=(
@@ -128,7 +118,6 @@ links=(
   ""
   ""
   ""
-  "https://github.com/srinivasa-vasu/yb-cdc-streams"
   ""
   ""
   ""
@@ -144,9 +133,6 @@ links=(
   ""
   ""
   ""
-  "https://github.com/srinivasa-vasu/yb-ms-data"
-  "https://github.com/srinivasa-vasu/ybdb-boot-data"
-  "https://github.com/srinivasa-vasu/ybdb-sealed-secrets"
 )
 
 categories=(
@@ -164,31 +150,27 @@ categories=(
   "Data Protection & Recovery"
   "Streaming & CDC"
   "Streaming & CDC"
-  "Streaming & CDC"
+  "Observability"
+  "Observability"
   "Observability"
   "Security"
   "Security"
   "Security"
-  "Ecosystem"
-  "Ecosystem"
-  "Ecosystem"
-  "Ecosystem"
-  "Ecosystem"
   "Search & Extensions"
   "Search & Extensions"
   "Migration  (YB Voyager)"
   "Migration  (YB Voyager)"
   "Migration  (YB Voyager)"
   "Migration  (YB Voyager)"
-  "External Resources"
-  "External Resources"
-  "External Resources"
+  "Ecosystem"
+  "Ecosystem"
+  "Ecosystem"
 )
 
 # Audience tags: dev  ops  sre  arc
 roles=(
-  "dev arc"
-  "dev arc"
+  "dev ops sre arc"
+  "dev ops arc"
   "dev ops sre arc"
   "dev arc"
   "dev ops arc"
@@ -201,25 +183,21 @@ roles=(
   "dev ops"
   "dev ops sre"
   "dev ops sre"
-  "dev"
   "ops sre arc"
+  "dev ops sre arc"
+  "dev ops sre arc"
   "ops sre"
-  "dev arc"
-  "dev arc"
-  "dev arc"
   "dev ops arc"
   "dev ops arc"
-  "dev ops sre arc"
-  "dev ops sre arc"
   "dev arc"
   "dev arc"
   "dev ops"
   "dev ops"
+  "dev ops"
   "dev ops sre"
-  "dev ops sre"
-  "dev"
-  "dev"
-  "dev"
+  "dev arc"
+  "dev ops arc"
+  "dev ops arc"
 )
 
 # Non-default resource requirements (shown as a warning; "" = standard 4c/8g)
@@ -245,10 +223,6 @@ resources=(
   ""
   ""
   ""
-  "8c · 16g"
-  ""
-  ""
-  ""
   ""
   ""
   ""
@@ -256,7 +230,7 @@ resources=(
   ""
   ""
   ""
-  ""
+  "8c · 16g"
 )
 
 # ── ANSI colours ──────────────────────────────────────────────────────────────
