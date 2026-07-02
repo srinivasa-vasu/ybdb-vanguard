@@ -109,37 +109,89 @@ Open Command Palette → **Dev Containers: Open Folder in Container…** → sel
 
 ### Quick Reference
 
-| # | Exercise | Description | Devcontainer | Roles | Notes |
-|---|---|---|---|---|---|
-| 1 | [Distributed SQL Universe](#distributed-sql-universe) | YSQL & YCQL basics, sharding, tablet distribution | `init-dsql` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
-| 2 | [Query Tuning Tips & Tricks](#query-tuning-tips--tricks) | Index strategies, EXPLAIN ANALYZE, join optimisation | `init-qt` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 3 | [Query Plan Management (QPM)](#query-plan-management-qpm) | Detect plan regressions, pin known-good query plans | `init-qpm` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ev2025.2.3+ |
-| 4 | [Colocation & Distributed Tables](#colocation--distributed-tables) | Co-locate small reference tables, keep others distributed | `init-colocate` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 5 | [Tablespaces & Online Data Migration](#tablespaces--online-data-migration) | Placement tablespaces and live ALTER SET TABLESPACE | `init-tablespace` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 6 | [Data Distribution and Scalability](#data-distribution-and-scalability) | Tablet auto-splitting and scale-out under live load | `init-scale` | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
-| 7 | [Fault Tolerance and High Availability](#fault-tolerance-and-high-availability) | Kill nodes, verify Raft replication and zero data loss | `init-ft` | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
-| 8 | [Geo-distribution & Tablespaces](#geo-distribution--tablespaces) | Multi-region placement, geo-partitioning, follower reads | `init-geo` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 9 | [xCluster Replication & Disaster Recovery](#xcluster-replication--disaster-recovery) | xCluster with auto DDL propagation and planned failover | `init-xcluster` | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 GB RAM |
-| 10 | [Point-in-Time Recovery (PITR)](#point-in-time-recovery-pitr) | Online restore to any second within retention window | `init-pitr` | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
-| 11 | [DB Clone/Branch — Instant Database Copies](#db-clone--instant-database-copies) | Instant `CREATE DATABASE … AS OF` snapshot copy | `init-clone` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
-| 12 | [Time Travel](#time-travel--yb_read_time) | Historical read timestamps for forensic queries | `init-tt` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
-| 13 | [Change Data Capture — YugabyteDB → PostgreSQL](#change-data-capture--yugabytedb--postgresql) | YB Debezium connector → PostgreSQL via JDBC sink | `init-cdc-ybdb-pg` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
-| 14 | [Change Data Capture — SQL Server → YugabyteDB](#change-data-capture--sql-server--yugabytedb) | SQL Server CDC captured into YugabyteDB via Debezium | `init-cdc-sqlserver-ybdb` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
-| 15 | [Observability & Performance Diagnosis](#observability--performance-diagnosis) | pg_stat_statements, ASH, pg_locks, query diagnostics | `init-obs` | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 16 | [OpenSearch — Log Observability](#opensearch--log-observability-with-yugabytedb) | OTel tails GLog + pgaudit logs into OpenSearch | `init-opensearch` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 17 | [Elasticsearch — Logs & Metrics Observability](#elasticsearch--logs--metrics-observability-with-yugabytedb) | OTel ships GLog + Prometheus metrics into Elasticsearch | `init-elasticsearch` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 18 | [Encryption at Rest (EAR) + Key Rotation](#encryption-at-rest-ear--key-rotation) | yb-admin key rotation on live cluster, no restart | `init-ear` | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
-| 19 | [Row Level Security & Multi-tenancy](#row-level-security--multi-tenancy) | CREATE POLICY tenant isolation with session variables | `init-rls` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 20 | [Data Privacy — Column Encryption & Anonymization](#data-privacy--column-encryption--anonymization) | pgcrypto column encryption, masking, anonymized views | `init-privacy` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 21 | [Full-Text Search](#full-text-search) | tsvector/tsquery, ts_rank, ts_headline, ybgin index | `init-fts` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 22 | [Semantic Search with pgvector](#semantic-search-with-pgvector) | L2/cosine/IP distance operators, ybhnsw ANN index | `init-pgvector` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 23 | [Data Migration — MySQL → YugabyteDB](#data-migration--mysql--yugabytedb) | Voyager: assess → export → import → finalize | `init-voyager-mysql` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
-| 24 | [Data Migration — MariaDB → YugabyteDB](#data-migration--mariadb--yugabytedb) | Voyager offline migration from MariaDB | `init-voyager-mariadb` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
-| 25 | [Data Migration — Oracle → YugabyteDB](#data-migration--oracle--yugabytedb) | Voyager offline migration from Oracle Free container | `init-voyager-oracle` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM · 64 GB disk |
-| 26 | [Live Data Migration — PostgreSQL → YugabyteDB](#live-data-migration--postgresql--yugabytedb) | Voyager live migration with CDC stream and cutover | `init-voyager-postgres` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
-| 27 | [Keycloak — Identity & Access Management](#keycloak--identity--access-management) | Keycloak backed by YugabyteDB via smart JDBC driver | `init-keycloak` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 28 | [Kong Gateway — API Gateway](#kong-gateway--api-gateway-with-yugabytedb) | Kong config stored in YugabyteDB via PostgreSQL protocol | `init-kong` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 29 | [WSO2 API Manager — Enterprise API Gateway](#wso2-api-manager--enterprise-api-gateway-with-yugabytedb) | WSO2 APIM two-database setup with smart JDBC driver | `init-wso2` | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
+#### SQL Fundamentals
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 1 | [Distributed SQL Universe](#distributed-sql-universe) | YSQL & YCQL basics, sharding, tablet distribution | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 2 | [Query Tuning Tips & Tricks](#query-tuning-tips--tricks) | Index strategies, EXPLAIN ANALYZE, join optimisation | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 3 | [Query Plan Management (QPM)](#query-plan-management-qpm) | Detect plan regressions, pin known-good query plans | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ev2025.2.3+ |
+
+#### Data Placement & Architecture
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 4 | [Colocation & Distributed Tables](#colocation--distributed-tables) | Co-locate small reference tables, keep others distributed | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 5 | [Tablespaces & Online Data Migration](#tablespaces--online-data-migration) | Placement tablespaces and live ALTER SET TABLESPACE | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+
+#### Scalability & HA
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 6 | [Data Distribution and Scalability](#data-distribution-and-scalability) | Tablet auto-splitting and scale-out under live load | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
+| 7 | [Fault Tolerance and High Availability](#fault-tolerance-and-high-availability) | Kill nodes, verify Raft replication and zero data loss | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
+
+#### Multi-Region & Disaster Recovery
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 8 | [Geo-distribution & Tablespaces](#geo-distribution--tablespaces) | Multi-region placement, geo-partitioning, follower reads | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 9 | [xCluster Replication & Disaster Recovery](#xcluster-replication--disaster-recovery) | xCluster with auto DDL propagation and planned failover | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 GB RAM |
+
+#### Data Protection & Recovery
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 10 | [Point-in-Time Recovery (PITR)](#point-in-time-recovery-pitr) | Online restore to any second within retention window | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
+| 11 | [DB Clone/Branch — Instant Database Copies](#db-clone--instant-database-copies) | Instant `CREATE DATABASE … AS OF` snapshot copy | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
+| 12 | [Time Travel](#time-travel--yb_read_time) | Historical read timestamps for forensic queries | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
+
+#### Streaming & CDC
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 13 | [Change Data Capture — YugabyteDB → PostgreSQL](#change-data-capture--yugabytedb--postgresql) | YB Debezium connector → PostgreSQL via JDBC sink | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
+| 14 | [Change Data Capture — SQL Server → YugabyteDB](#change-data-capture--sql-server--yugabytedb) | SQL Server CDC captured into YugabyteDB via Debezium | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
+
+#### Observability
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 15 | [Observability & Performance Diagnosis](#observability--performance-diagnosis) | pg_stat_statements, ASH, pg_locks, query diagnostics | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 16 | [OpenSearch — Log Observability](#opensearch--log-observability-with-yugabytedb) | OTel tails GLog + pgaudit logs into OpenSearch | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 17 | [Elasticsearch — Logs & Metrics Observability](#elasticsearch--logs--metrics-observability-with-yugabytedb) | OTel ships GLog + Prometheus metrics into Elasticsearch | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+
+#### Security
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 18 | [Encryption at Rest (EAR) + Key Rotation](#encryption-at-rest-ear--key-rotation) | yb-admin key rotation on live cluster, no restart | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
+| 19 | [Row Level Security & Multi-tenancy](#row-level-security--multi-tenancy) | CREATE POLICY tenant isolation with session variables | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 20 | [Data Privacy — Column Encryption & Anonymization](#data-privacy--column-encryption--anonymization) | pgcrypto column encryption, masking, anonymized views | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+
+#### Search & Extensions
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 21 | [Full-Text Search](#full-text-search) | tsvector/tsquery, ts_rank, ts_headline, ybgin index | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 22 | [Semantic Search with pgvector](#semantic-search-with-pgvector) | L2/cosine/IP distance operators, ybhnsw ANN index | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+
+#### Migration (YB Voyager)
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 23 | [Data Migration — MySQL → YugabyteDB](#data-migration--mysql--yugabytedb) | Voyager: assess → export → import → finalize | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
+| 24 | [Data Migration — MariaDB → YugabyteDB](#data-migration--mariadb--yugabytedb) | Voyager offline migration from MariaDB | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
+| 25 | [Data Migration — Oracle → YugabyteDB](#data-migration--oracle--yugabytedb) | Voyager offline migration from Oracle Free container | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM · 64 GB disk |
+| 26 | [Live Data Migration — PostgreSQL → YugabyteDB](#live-data-migration--postgresql--yugabytedb) | Voyager live migration with CDC stream and cutover | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
+
+#### Ecosystem
+
+| # | Exercise | Description | Roles | Notes |
+|---|---|---|---|---|
+| 27 | [Keycloak — Identity & Access Management](#keycloak--identity--access-management) | Keycloak backed by YugabyteDB via smart JDBC driver | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 28 | [Kong Gateway — API Gateway](#kong-gateway--api-gateway-with-yugabytedb) | Kong config stored in YugabyteDB via PostgreSQL protocol | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 29 | [WSO2 API Manager — Enterprise API Gateway](#wso2-api-manager--enterprise-api-gateway-with-yugabytedb) | WSO2 APIM two-database setup with smart JDBC driver | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
 
 ---
 
