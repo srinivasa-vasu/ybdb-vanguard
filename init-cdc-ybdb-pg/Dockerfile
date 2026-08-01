@@ -2,4 +2,4 @@
 # .devcontainer/init-cdc-ybdb-pg/override.json
 FROM quay.io/debezium/zookeeper:3.1.3.Final AS zookeeper
 FROM quay.io/debezium/kafka:3.1.3.Final AS kafka
-FROM quay.io/debezium/connect:3.1.3.Final AS connect
+FROM quay.io/debezium/connect:3.6.0.Final AS connect
