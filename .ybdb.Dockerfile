@@ -5,7 +5,7 @@
 # Dependabot monitors this line for new YugabyteDB releases.
 # When Dependabot opens a PR bumping this tag, also update YB_VERSION + YB_BUILD below.
 # BuildKit skips unreferenced stages so this image is never pulled during a real build.
-FROM yugabytedb/yugabyte:2025.2.3.2-b1 AS yb_version_pin
+FROM yugabytedb/yugabyte:2026.1.0.1-b1 AS yb_version_pin
 
 FROM mcr.microsoft.com/devcontainers/python:3.11
 
