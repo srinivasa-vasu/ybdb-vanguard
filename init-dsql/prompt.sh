@@ -111,10 +111,11 @@ p "ORDER BY on the PK is free — rows arrive in physical order, no Sort node."
 
 pe "ysqlsh -h 127.0.0.1 -X -c \"
 CREATE TABLE dsql_products (
-  product_id  TEXT  PRIMARY KEY ASC,
+  product_id  TEXT ,
   category    TEXT,
   price       DECIMAL,
-  status      TEXT
+  status      TEXT,
+  PRIMARY KEY (product_id ASC)
 );
 INSERT INTO dsql_products (product_id, category, price, status)
 SELECT 'prod-' || lpad(i::text, 4, '0'),
