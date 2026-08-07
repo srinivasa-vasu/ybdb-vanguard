@@ -160,11 +160,12 @@ SELECT * FROM audit_events WHERE tenant = 'Acme';
 \echo '--- 2.1  Single-column range (auto-split)'
 
 CREATE TABLE products (
-  product_id  TEXT  PRIMARY KEY ASC,
+  product_id  TEXT  ,
   category    TEXT,
   price       DECIMAL,
   status      TEXT,
-  supplier    TEXT
+  supplier    TEXT,
+  PRIMARY KEY (product_id ASC)
 );
 
 INSERT INTO products (product_id, category, price, status, supplier)
@@ -257,9 +258,10 @@ SELECT * FROM metrics WHERE ts > NOW() - '30 minutes'::INTERVAL;
 \echo '--- 2.4  ASC vs DESC storage order comparison'
 
 CREATE TABLE products_desc (
-  product_id  TEXT  PRIMARY KEY DESC,
+  product_id  TEXT ,
   name        TEXT,
-  price       DECIMAL
+  price       DECIMAL,
+  PRIMARY KEY (product_id DESC)
 );
 
 INSERT INTO products_desc (product_id, name, price)
