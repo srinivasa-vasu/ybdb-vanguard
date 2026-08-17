@@ -1,0 +1,154 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Lane A → B.  Reads site A's replication slot, writes to site B.
+#
+# The mirror of this file is application-b2a.yml. Everything that identifies a
+# lane differs between the two, and that is not cosmetic — two lanes sharing a
+# slot name, an origin prefix, an offset table or an apply-state table would
+# corrupt each other's bookkeeping. Diff the two files; every difference is
+# deliberate.
+#
+# Started with: bash applier.sh start a2b
+# ─────────────────────────────────────────────────────────────────────────────
+
+spring:
+  application:
+    name: cdc-a2b
+  # SUBSCRIBER side of this lane: site B.
+  datasource:
+    url: jdbc:yugabytedb://${B_HOST:127.0.0.11}:5433/${DB_OBJECT:yugabyte}
+    username: ${DB_USER:yugabyte}
+    password: ${DB_SECRET:yugabyte}
+    driver-class-name: com.yugabyte.Driver
+
+# Both lanes run as separate JVMs in one container. The applier exposes no HTTP
+# endpoints, but spring-boot-starter-web still starts Tomcat, so the two lanes
+# need distinct ports or the second one dies with "Port 8080 was already in use".
+server:
+  port: ${A2B_PORT:8081}
+
+# ── PUBLISHER side of this lane: site A ──────────────────────────────────────
+producer:
+  name: cdc-a2b
+  connector-class: io.debezium.connector.postgresql.YugabyteDBConnector
+
+  offset-storage: io.debezium.storage.jdbc.offset.JdbcOffsetBackingStore
+  offset-storage-jdbc-url: jdbc:postgresql://${A_HOST:127.0.0.1}:5433/${DB_OBJECT:yugabyte}?currentSchema=${SCHEMA:public}
+  offset-storage-jdbc-user: ${DB_USER:yugabyte}
+  offset-storage-jdbc-password: ${DB_SECRET:yugabyte}
+  offset-storage-jdbc-table: ${A2B_OFFSET_TABLE:cdc_offset_a2b}
+  offset-flush-interval-ms: 10000
+
+  hostname: ${A_HOST:127.0.0.1}
+  port: 5433
+  user: ${DB_USER:yugabyte}
+  password: ${DB_SECRET:yugabyte}
+  db-name: ${DB_OBJECT:yugabyte}
+
+  plugin-name: yboutput
+  replication-slot: ${A2B_SLOT:a2b_slot}
+  publication-name: ${A2B_PUB:a2b_pub}
+  publication-mode: filtered
+  table-list: ${SCHEMA:public}.orders,${SCHEMA:public}.stock
+  schema-list: ${SCHEMA:public}
+
+  server-id: cdc-a2b
+  server-name: cdc-a2b
+  topic-prefix: cdc_a2b
+  task-max: 1
+
+  # NEVER, not initial. A snapshot reads table state rather than WAL, so the
+  # rows it emits carry no replication origin and the peer lane cannot tell
+  # them from local writes — each site would echo the other's snapshot back.
+  # Both sites are seeded identically before the slots exist, so there is
+  # nothing to snapshot; streaming starts from slot creation.
+  snapshot-mode: never
+
+  timestamp-precision-mode: adaptive_time_microseconds
+  log-errors-include-messages: true
+  provide-transaction-metadata: true
+  heartbeat-interval-ms: 10000
+  poll-interval-ms: 100
+  max-batch-size: 5000
+  max-queue-size: 10000
+
+# ── APPLY behaviour ──────────────────────────────────────────────────────────
+consumer:
+  enable-transaction-boundary: true
+  transactions-per-commit: 1
+  batch-size: 500
+  max-buffered-rows: 50000
+  flush-interval-ms: 2000
+  drain-interval-ms: 30000
+
+  apply-state-table: ${A2B_APPLY_STATE:cdc_apply_state_a2b}
+  apply-state-schema: ${SCHEMA:public}
+
+  unknown-columns: skipIfNull
+  sink-recheck-interval-ms: 30000
+  skip-applied-lsn: false
+
+  # ── Conflict resolution: last-writer-wins on a timestamp column ──────────
+  # Loop prevention stops changes circulating. It says nothing about two sites
+  # writing the same row, and with `none` the result is permanent divergence:
+  # each site applies the other's change last and keeps a different value.
+  #
+  # `timestamp` applies a change only when the sink row is OLDER, compared on a
+  # column the table already carries. It works with no schema change and no
+  # trigger precisely because the column is in the row: a local write maintains
+  # it exactly as a replicated write does.
+  #
+  # It rests on the application setting that column on every UPDATE. A
+  # `DEFAULT now()` fires on INSERT only — an UPDATE that forgets it leaves the
+  # row's version stale and the guard will reject changes it should accept.
+  conflict-resolution: timestamp
+  # Candidates, matched per table against columns that exist with a time-like
+  # type. Here: orders.last_modified and stock.updated_at. Each table logs the
+  # column that guards it, and a table matching none logs that it is applied
+  # unconditionally — "some tables are guarded" is a very different posture from
+  # "all are", and otherwise invisible.
+  conflict-columns: [updated_at, modified_at, last_modified, updated_on]
+  # For a table naming its version column something else entirely:
+  #   conflict-column-overrides:
+  #     public.orders: placed_on
+
+  # Equal timestamps would diverge if left alone — each side rejects the other's
+  # change and keeps its own. `nodeId` settles it with a rule both sides
+  # evaluate to the SAME answer: the change from the higher node id wins. The
+  # ids are mirrored between the lanes (node/peer here is peer/node there), so
+  # exactly one lane accepts a tie. Identical ids are rejected at startup,
+  # because that reproduces the very divergence the tiebreak prevents.
+  conflict-tiebreak: nodeId
+  conflict-node-id: ${SITE_A_ID:a}
+  conflict-peer-id: ${SITE_B_ID:b}
+
+  # A rejection is a real edit being discarded. Off, that fact survives only as
+  # a log line; on, it is queryable and can be reconciled. This is a conflict
+  # LOG, not a dead-letter queue — nothing here should be replayed, because
+  # last-writer-wins already decided.
+  conflict-log: true
+  conflict-log-table: ${A2B_CONFLICT_LOG:cdc_conflict_log_a2b}
+
+  # ── Loop prevention: the write half ──────────────────────────────────────
+  # A PREFIX. The applier composes <prefix>_<slot>_<lane> = atob_a2b_slot_1 and
+  # claims it on the apply connection, so every row this lane writes into site B
+  # carries that origin in B's WAL. The B→A lane is what reads it.
+  apply-origin-name: ${A2B_ORIGIN:atob}
+
+  # ── Loop prevention: the read half ───────────────────────────────────────
+  # Discard every change that carries ANY origin. A write made by an
+  # application carries none; a write made by a replication apply does. That
+  # single rule breaks the loop without this lane needing to know the peer
+  # lane's origin name, or the two configs having to be kept in step.
+  #
+  # The alternative is to name the peer's family explicitly:
+  #     ignore-replicated-changes: false
+  #     ignore-origins: [btoa_b2a_slot]
+  # which is what you want in an A→B→C chain, where C must still receive
+  # changes that reached B from A. It is matched as a PREFIX, so it survives
+  # the peer recreating its slot. See the README.
+  ignore-replicated-changes: true
+  ignore-origins: []
+
+logging:
+  level:
+    io.cdc.stream: INFO

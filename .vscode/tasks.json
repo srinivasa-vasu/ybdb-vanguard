@@ -35,7 +35,7 @@
       "label": "clean",
       "detail": "Stop YugabyteDB + Docker Compose stacks, remove all runtime data (ybdb/, voyager-data/, keys, pscript files)",
       "type": "shell",
-      "command": "bash -c 'echo \"🛑 Stopping YugabyteDB nodes...\" && yugabyted destroy --base_dir=ybdb/ybd1 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd2 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd3 2>/dev/null; yugabyted destroy --base_dir=ybdb/source 2>/dev/null; yugabyted destroy --base_dir=ybdb/target 2>/dev/null; echo \"🐳 Stopping Docker Compose stacks...\" && for f in init-cdc-ybdb-pg/compose.yml init-voyager-postgres/compose.yml init-voyager-mysql/compose.yml init-voyager-mariadb/compose.yml init-voyager-oracle/compose.yml; do [ -f \"$f\" ] && docker-compose -f \"$f\" down --remove-orphans 2>/dev/null || true; done; echo \"🐳 Stopping ecosystem containers...\" && docker rm -f keycloak-ybdb kong-gateway wso2-apim opensearch-ybdb opensearch-dashboards-ybdb init-cdc-sqlserver-ybdb-zookeeper-1 init-cdc-sqlserver-ybdb-kafka-1 init-cdc-sqlserver-ybdb-connect-1 sqlserver 2>/dev/null || true; echo \"🧹 Removing runtime data...\" && rm -rf ybdb voyager-data init-ear/keys init-cdc-ybdb-pg/kafka-plugins init-cdc-sqlserver-ybdb/kafka-plugins init-voyager-postgres/voyager-data init-voyager-mysql/voyager-data init-voyager-mariadb/voyager-data init-voyager-oracle/voyager-data && find . -name pscript -not -path \"./.git/*\" -delete && echo \"✅ All runtime data removed and services stopped.\"'",
+      "command": "bash -c 'echo \"🛑 Stopping CDC appliers...\" && for p in /tmp/cdc-applier.pid /tmp/cdc-applier-a2b.pid /tmp/cdc-applier-b2a.pid; do [ -f \"$p\" ] && kill \"$(cat \"$p\")\" 2>/dev/null; done; rm -f /tmp/cdc-applier*.pid /tmp/cdc-applier*.log; echo \"🛑 Stopping YugabyteDB nodes...\" && yugabyted destroy --base_dir=ybdb/ybd1 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd2 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd3 2>/dev/null; yugabyted destroy --base_dir=ybdb/source 2>/dev/null; yugabyted destroy --base_dir=ybdb/target 2>/dev/null; echo \"🐳 Stopping Docker Compose stacks...\" && for f in init-cdc-ybdb-pg/compose.yml init-voyager-postgres/compose.yml init-voyager-mysql/compose.yml init-voyager-mariadb/compose.yml init-voyager-oracle/compose.yml; do [ -f \"$f\" ] && docker-compose -f \"$f\" down --remove-orphans 2>/dev/null || true; done; echo \"🐳 Stopping ecosystem containers...\" && docker rm -f keycloak-ybdb kong-gateway wso2-apim opensearch-ybdb opensearch-dashboards-ybdb init-cdc-sqlserver-ybdb-zookeeper-1 init-cdc-sqlserver-ybdb-kafka-1 init-cdc-sqlserver-ybdb-connect-1 sqlserver 2>/dev/null || true; echo \"🧹 Removing runtime data...\" && rm -rf ybdb voyager-data init-ear/keys init-cdc-ybdb-pg/kafka-plugins init-cdc-sqlserver-ybdb/kafka-plugins init-voyager-postgres/voyager-data init-voyager-mysql/voyager-data init-voyager-mariadb/voyager-data init-voyager-oracle/voyager-data && find . -name pscript -not -path \"./.git/*\" -delete && echo \"✅ All runtime data removed and services stopped.\"'",
       "presentation": {
         "reveal": "always",
         "panel": "shared",
@@ -856,6 +856,150 @@
         "group": "sqlserver",
         "showReuseMessage": false,
         "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-pubsub-ybdb  — Pub/Sub CDC: YugabyteDB → YugabyteDB, embedded Debezium
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "pubsub-demo",
+      "detail": "\"The Middleware-less Pipeline\" — embedded Debezium applier: snapshot, live INSERT/UPDATE/DELETE, atomic transactions (init-pubsub-ybdb/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pubsub-ybdb' ] || exit 0; cd init-pubsub-ybdb && echo '📡 pubsub-demo  —  Pub/Sub CDC (YugabyteDB → YugabyteDB, no Kafka)' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "pubsub-demo",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "pubsub-ws",
+      "detail": "Workshop shell for manual pub/sub commands — applier.sh, ysqlsh (init-pubsub-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pubsub-ybdb' ] || exit 0; cd init-pubsub-ybdb && echo '📡 pubsub-ws  —  Workshop shell' && echo '   Run manual applier.sh and ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "pubsub-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ysql-pub",
+      "detail": "Open a YSQL shell on the PUBLISHER cluster (127.0.0.1) (init-pubsub-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pubsub-ybdb' ] || exit 0; echo '🟢 Publisher cluster (127.0.0.1)' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ysql-pub",
+        "showReuseMessage": false,
+        "clear": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ysql-sub",
+      "detail": "Open a YSQL shell on the SUBSCRIBER cluster (127.0.0.11) (init-pubsub-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pubsub-ybdb' ] || exit 0; echo '🔵 Subscriber cluster (127.0.0.11)' && until (echo >/dev/tcp/127.0.0.11/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.11",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ysql-sub",
+        "showReuseMessage": false,
+        "clear": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-pubsub-bidir-ybdb  — Two-way Pub/Sub CDC: YugabyteDB ⇄ YugabyteDB
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "bidir-demo",
+      "detail": "\"Both Ways at Once\" — two-way CDC: loop detection via replication origins, conflict divergence, disjoint ownership (init-pubsub-bidir-ybdb/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pubsub-bidir-ybdb' ] || exit 0; cd init-pubsub-bidir-ybdb && echo '⇄  bidir-demo  —  Two-way Pub/Sub CDC (YugabyteDB ⇄ YugabyteDB)' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "bidir-demo",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "bidir-ws",
+      "detail": "Workshop shell for manual two-way CDC commands — applier.sh, ysqlsh (init-pubsub-bidir-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pubsub-bidir-ybdb' ] || exit 0; cd init-pubsub-bidir-ybdb && echo '⇄  bidir-ws  —  Workshop shell' && echo '   Run manual applier.sh and ysqlsh commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "bidir-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ysql-a",
+      "detail": "Open a YSQL shell on SITE A (127.0.0.1) (init-pubsub-bidir-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pubsub-bidir-ybdb' ] || exit 0; echo '🟢 Site A (127.0.0.1)' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ysql-a",
+        "showReuseMessage": false,
+        "clear": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ysql-b",
+      "detail": "Open a YSQL shell on SITE B (127.0.0.11) (init-pubsub-bidir-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-pubsub-bidir-ybdb' ] || exit 0; echo '🔵 Site B (127.0.0.11)' && until (echo >/dev/tcp/127.0.0.11/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.11",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "ysql-b",
+        "showReuseMessage": false,
+        "clear": false,
         "close": true
       },
       "problemMatcher": []

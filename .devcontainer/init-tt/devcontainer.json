@@ -44,6 +44,8 @@
           "init-pgvector": true,
           "init-pitr": true,
           "init-privacy": true,
+          "init-pubsub-bidir-ybdb": true,
+          "init-pubsub-ybdb": true,
           "init-qpm": true,
           "init-qt": true,
           "init-rls": true,

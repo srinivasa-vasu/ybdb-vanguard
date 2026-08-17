@@ -1,0 +1,67 @@
+{
+  "name": "Two-way Pub/Sub CDC — YugabyteDB ⇄ YugabyteDB (loop prevention)",
+  "containerEnv": {
+    "ART_PATH": "init-pubsub-bidir-ybdb",
+
+    "JDK_VERSION": "21",
+    "MAVEN_VERSION": "3.9.16",
+    "YBDB_CONNECTOR_VERSION": "dz.2.5.2.yb.2025.2.3",
+    "DEBEZIUM_ARTIFACT_VERSION": "2.5.2.Final",
+
+    "APPLIER_REPO": "https://github.com/srinivasa-vasu/spring-boot-cdc-stream.git",
+    "APPLIER_BRANCH": "feat/cdc-txn-apply",
+    "APPLIER_HOME": "/home/vscode/cdc-applier",
+    "APPLIER_JAVA_OPTS": "-Xms256m -Xmx768m",
+
+    "A_HOST": "127.0.0.1",
+    "B_HOST": "127.0.0.11",
+    "DB_USER": "yugabyte",
+    "DB_SECRET": "yugabyte",
+    "DB_OBJECT": "yugabyte",
+    "SCHEMA": "public",
+    "REPLICA_IDENTITY": "FULL",
+
+    "SITE_A_ID": "a",
+    "SITE_B_ID": "b",
+
+    "A2B_SLOT": "a2b_slot",
+    "A2B_PUB": "a2b_pub",
+    "A2B_OFFSET_TABLE": "cdc_offset_a2b",
+    "A2B_APPLY_STATE": "cdc_apply_state_a2b",
+    "A2B_ORIGIN": "atob",
+    "A2B_PORT": "8081",
+    "A2B_LOG": "/tmp/cdc-applier-a2b.log",
+    "A2B_CONFLICT_LOG": "cdc_conflict_log_a2b",
+
+    "B2A_SLOT": "b2a_slot",
+    "B2A_PUB": "b2a_pub",
+    "B2A_OFFSET_TABLE": "cdc_offset_b2a",
+    "B2A_APPLY_STATE": "cdc_apply_state_b2a",
+    "B2A_ORIGIN": "btoa",
+    "B2A_PORT": "8082",
+    "B2A_LOG": "/tmp/cdc-applier-b2a.log",
+    "B2A_CONFLICT_LOG": "cdc_conflict_log_b2a",
+
+    "LOOP_PROOF_ROWS": "12000"
+  },
+  "extensions": [],
+  "postCreateCommand": "bash -c 'bash .devcontainer/scripts/setup-pubsub-ybdb.sh && echo \"✅ Two-way pub/sub exercise ready\"'",
+  "waitFor": "postCreateCommand",
+  "hostRequirements": {
+    "cpus": 8,
+    "memory": "16gb",
+    "storage": "32gb"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-pubsub-bidir-ybdb.sh && echo \"\" && echo \"▶  Terminal → Run Task → bidir-demo   (guided two-way CDC demo)\" && echo \"▶  Terminal → Run Task → bidir-ws     (Workshop shell for manual commands)\" && echo \"▶  Terminal → Run Task → ysql-a       (YSQL shell → site A)\" && echo \"▶  Terminal → Run Task → ysql-b       (YSQL shell → site B)\"'",
+  "portsAttributes": {
+    "7000":  { "label": "yb-master-web (A)",  "onAutoForward": "ignore" },
+    "9000":  { "label": "yb-tserver-web (A)", "onAutoForward": "ignore" },
+    "7100":  { "label": "yb-master-rpc (A)",  "onAutoForward": "ignore" },
+    "9100":  { "label": "yb-tserver-rpc (A)", "onAutoForward": "ignore" },
+    "5433":  { "label": "ysql (A)",           "onAutoForward": "ignore" },
+    "15433": { "label": "yugabyted-ui (A)",   "onAutoForward": "notify" },
+    "13000": { "label": "ysql-api (A)",       "onAutoForward": "ignore" },
+    "9042":  { "label": "ycql (A)",           "onAutoForward": "ignore" },
+    "12000": { "label": "ycql-api (A)",       "onAutoForward": "ignore" }
+  }
+}

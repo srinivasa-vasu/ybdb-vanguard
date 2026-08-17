@@ -1,0 +1,151 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Applier profile for the ybdb-vanguard pub/sub exercise.
+#
+# Loaded by Spring Boot from this directory via
+#   --spring.config.additional-location=file:<exercise-dir>/
+# so it sits beside the walkthrough rather than inside the cloned applier — edit
+# it here, restart the applier, and the change takes effect. The applier's own
+# application.yml (retry policy, Hikari sizing) still applies underneath.
+#
+# Every host, credential and object name is a ${VAR} resolved from the
+# devcontainer environment (see .devcontainer/init-pubsub-ybdb/override.json).
+# The defaults after each ':' are only there so the file still reads as a
+# complete example outside the container.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── SUBSCRIBER (the sink the applier writes to) ──────────────────────────────
+# The YugabyteDB smart driver. maximum-pool-size stays at 1, set in the
+# applier's own application.yml: the apply path is single-threaded, and
+# consumer.apply-origin-name below *requires* exactly one connection because a
+# replication origin can be held by only one session at a time.
+spring:
+  datasource:
+    url: jdbc:yugabytedb://${TAR_HOST:127.0.0.11}:5433/${TAR_DB_OBJECT:yugabyte}
+    username: ${TAR_USER:yugabyte}
+    password: ${TAR_SECRET:yugabyte}
+    driver-class-name: com.yugabyte.Driver
+
+# ── PUBLISHER (capture side) ─────────────────────────────────────────────────
+# Debezium's embedded engine, running in-process. No Kafka, no Kafka Connect,
+# no sink connector — the change events are handed straight to the applier.
+producer:
+  name: ybdb-pubsub
+  connector-class: io.debezium.connector.postgresql.YugabyteDBConnector
+
+  # Debezium's own offset store, kept on the PUBLISHER in a plain table. It
+  # records how far the engine has read. It is deliberately NOT in table-list
+  # below, so the pipeline does not capture its own bookkeeping.
+  offset-storage: io.debezium.storage.jdbc.offset.JdbcOffsetBackingStore
+  offset-storage-jdbc-url: jdbc:postgresql://${SRC_HOST:127.0.0.1}:5433/${SRC_DB_OBJECT:yugabyte}?currentSchema=${SCHEMA:public}
+  offset-storage-jdbc-user: ${SRC_USER:yugabyte}
+  offset-storage-jdbc-password: ${SRC_SECRET:yugabyte}
+  offset-storage-jdbc-table: ${OFFSET_TABLE:cdc_offset}
+  offset-flush-interval-ms: 10000
+
+  hostname: ${SRC_HOST:127.0.0.1}
+  port: 5433
+  user: ${SRC_USER:yugabyte}
+  password: ${SRC_SECRET:yugabyte}
+  db-name: ${SRC_DB_OBJECT:yugabyte}
+
+  # yboutput is YugabyteDB's native logical replication output plugin. Do NOT
+  # use pgoutput with the YugabyteDB connector.
+  plugin-name: yboutput
+  replication-slot: ${REPL_SLOT:pubsub_slot}
+  publication-name: ${PUBLICATION:pubsub_pub}
+  publication-mode: filtered
+
+  # Adding a table here needs a restart, and gets streaming only — an existing
+  # slot never backfills rows a table already holds. Backfilling needs a
+  # separate slot; see "Adding a table to the capture set" in the README.
+  table-list: ${SCHEMA:public}.customers,${SCHEMA:public}.products,${SCHEMA:public}.orders
+  schema-list: ${SCHEMA:public}
+
+  server-id: ybdb-pubsub
+  server-name: ybdb-pubsub
+  topic-prefix: ybdb_pubsub
+  task-max: 1
+
+  # Reads the existing rows of every captured table at slot creation, then
+  # streams. This is the one chance to snapshot: a table added later is past
+  # the slot's consistent point and is never backfilled.
+  snapshot-mode: initial
+
+  timestamp-precision-mode: adaptive_time_microseconds
+  log-errors-include-messages: true
+
+  # Supplies the BEGIN/END markers that delimit a source transaction. Required
+  # by consumer.enable-transaction-boundary below.
+  provide-transaction-metadata: true
+
+  # Keeps the slot's confirmed LSN advancing while the captured tables are idle,
+  # so WAL and intents do not accumulate on the publisher.
+  heartbeat-interval-ms: 10000
+
+  poll-interval-ms: 100
+  max-batch-size: 5000
+  max-queue-size: 10000
+
+  # NOTE: replica identity is intentionally NOT set here. The publisher is
+  # started with ysql_yb_default_replica_identity=FULL, so every table already
+  # has FULL from creation. Setting replica-identity would make the connector
+  # ALTER tables it does not need to — and YugabyteDB fixes a table's effective
+  # replica identity at slot creation anyway, so a late ALTER would be a no-op
+  # for this slot regardless.
+
+# ── APPLY BEHAVIOUR (subscriber side) ────────────────────────────────────────
+consumer:
+  # true  -> buffer each source transaction and commit it atomically, so a
+  #          reader of the subscriber never observes half a publisher
+  #          transaction. Requires producer.provide-transaction-metadata.
+  # false -> commit ordered batches of batch-size rows; order is still
+  #          preserved, but one source transaction may span several commits.
+  enable-transaction-boundary: true
+
+  # Group N adjacent source transactions into one sink commit. This is the
+  # throughput lever — not concurrency. The apply path is single-threaded by
+  # design, because the slot already delivers changes in commit order.
+  transactions-per-commit: 1
+
+  batch-size: 500
+  max-buffered-rows: 50000
+  flush-interval-ms: 2000
+  drain-interval-ms: 30000
+
+  # Written on the subscriber, inside the same transaction as the rows, so a
+  # failed apply rolls the watermark back with them. Stays empty until the
+  # first transaction commits.
+  apply-state-table: ${APPLY_STATE_TABLE:cdc_apply_state}
+  apply-state-schema: ${SCHEMA:public}
+
+  # A column the events carry that the subscriber lacks: leave it out while its
+  # value is null, and stop the pipeline naming the column on the first
+  # non-null one. Set to 'fail' to refuse the table outright instead.
+  unknown-columns: skipIfNull
+  sink-recheck-interval-ms: 30000
+
+  # Off deliberately. A YugabyteDB slot's LSNs restart low when the slot is
+  # recreated, which would make every new transaction look already-applied.
+  # Every statement generated is idempotent, so replay is safe without it.
+  skip-applied-lsn: false
+
+  # ── Loop prevention ──────────────────────────────────────────────────────
+  # A PREFIX, not the origin itself: the applier composes
+  # <prefix>_<slot>_<lane> and registers it on the subscriber with
+  # pg_replication_origin_create, then claims it on the apply connection. Every
+  # row this pipeline writes to the subscriber therefore carries that origin,
+  # and a pipeline reading the subscriber can tell replicated rows from
+  # application writes. Unused in this one-way exercise — it is here so the
+  # catalog entry is visible, and so pointing a second applier back at the
+  # publisher is a config change rather than a rewrite.
+  apply-origin-name: ${APPLY_ORIGIN:pubsub}
+  ignore-origins: []
+  # Discard every change that carries ANY replication origin. Application
+  # writes carry none; replicated writes do. This is the rule that makes a
+  # bidirectional topology terminate without either side knowing the other's
+  # origin name.
+  ignore-replicated-changes: true
+
+logging:
+  level:
+    io.cdc.stream: INFO

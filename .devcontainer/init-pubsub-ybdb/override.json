@@ -1,0 +1,55 @@
+{
+  "name": "Pub/Sub CDC — YugabyteDB → YugabyteDB (embedded Debezium)",
+  "containerEnv": {
+    "ART_PATH": "init-pubsub-ybdb",
+
+    "JDK_VERSION": "21",
+    "MAVEN_VERSION": "3.9.16",
+    "YBDB_CONNECTOR_VERSION": "dz.2.5.2.yb.2025.2.3",
+    "DEBEZIUM_ARTIFACT_VERSION": "2.5.2.Final",
+
+    "APPLIER_REPO": "https://github.com/srinivasa-vasu/spring-boot-cdc-stream.git",
+    "APPLIER_BRANCH": "feat/cdc-txn-apply",
+    "APPLIER_HOME": "/home/vscode/cdc-applier",
+    "APPLIER_PROFILE": "lab",
+    "APPLIER_LOG": "/tmp/cdc-applier.log",
+    "APPLIER_PID": "/tmp/cdc-applier.pid",
+
+    "SRC_HOST": "127.0.0.1",
+    "SRC_USER": "yugabyte",
+    "SRC_SECRET": "yugabyte",
+    "SRC_DB_OBJECT": "yugabyte",
+    "TAR_HOST": "127.0.0.11",
+    "TAR_USER": "yugabyte",
+    "TAR_SECRET": "yugabyte",
+    "TAR_DB_OBJECT": "yugabyte",
+    "SCHEMA": "public",
+
+    "REPLICA_IDENTITY": "FULL",
+    "REPL_SLOT": "pubsub_slot",
+    "PUBLICATION": "pubsub_pub",
+    "OFFSET_TABLE": "cdc_offset",
+    "APPLY_STATE_TABLE": "cdc_apply_state",
+    "APPLY_ORIGIN": "pubsub"
+  },
+  "extensions": [],
+  "postCreateCommand": "bash -c 'bash .devcontainer/scripts/setup-pubsub-ybdb.sh && echo \"✅ Pub/Sub exercise ready\"'",
+  "waitFor": "postCreateCommand",
+  "hostRequirements": {
+    "cpus": 8,
+    "memory": "16gb",
+    "storage": "32gb"
+  },
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-pubsub-ybdb.sh && echo \"\" && echo \"▶  Terminal → Run Task → pubsub-demo   (guided pub/sub CDC demo)\" && echo \"▶  Terminal → Run Task → pubsub-ws     (Workshop shell for manual commands)\" && echo \"▶  Terminal → Run Task → ysql-pub      (YSQL shell → publisher cluster)\" && echo \"▶  Terminal → Run Task → ysql-sub      (YSQL shell → subscriber cluster)\"'",
+  "portsAttributes": {
+    "7000":  { "label": "yb-master-web (pub)",  "onAutoForward": "ignore" },
+    "9000":  { "label": "yb-tserver-web (pub)", "onAutoForward": "ignore" },
+    "7100":  { "label": "yb-master-rpc (pub)",  "onAutoForward": "ignore" },
+    "9100":  { "label": "yb-tserver-rpc (pub)", "onAutoForward": "ignore" },
+    "5433":  { "label": "ysql (pub)",           "onAutoForward": "ignore" },
+    "15433": { "label": "yugabyted-ui (pub)",   "onAutoForward": "notify" },
+    "13000": { "label": "ysql-api (pub)",       "onAutoForward": "ignore" },
+    "9042":  { "label": "ycql (pub)",           "onAutoForward": "ignore" },
+    "12000": { "label": "ycql-api (pub)",       "onAutoForward": "ignore" }
+  }
+}
