@@ -115,7 +115,7 @@ Open Command Palette → **Dev Containers: Open Folder in Container…** → sel
 |---|---|---|---|---|
 | 1 | [Distributed SQL Universe](#distributed-sql-universe) | YSQL & YCQL basics, sharding, tablet distribution | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
 | 2 | [Query Tuning Tips & Tricks](#query-tuning-tips--tricks) | Index strategies, EXPLAIN ANALYZE, join optimisation | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 3 | [Query Plan Management (QPM)](#query-plan-management-qpm) | Detect plan regressions, pin known-good query plans | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ev2025.2.3+ |
+| 3 | [Query Plan Management (QPM)](#query-plan-management-qpm) | Detect plan regressions, pin known-good query plans | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | v2025.2.3+ |
 
 #### Data Placement & Architecture
 
