@@ -1,0 +1,60 @@
+version: '3.9'
+
+# ── MySQL to YugabyteDB CDC stack ──────────────────────────────────────────────
+
+services:
+
+  zookeeper:
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION:-3.1.3.Final}
+    platform: linux/amd64
+    network_mode: host
+    restart: on-failure
+
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION:-3.1.3.Final}
+    platform: linux/amd64
+    network_mode: host
+    depends_on: [zookeeper]
+    environment:
+      - ZOOKEEPER_CONNECT=127.0.0.1:2181
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_ADVERTISED_HOST_NAME=127.0.0.1
+    restart: on-failure
+
+  connect:
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION:-3.1.3.Final}
+    platform: linux/amd64
+    network_mode: host
+    depends_on: [kafka]
+    environment:
+      - BOOTSTRAP_SERVERS=127.0.0.1:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=cdc_connect_configs
+      - OFFSET_STORAGE_TOPIC=cdc_connect_offsets
+      - STATUS_STORAGE_TOPIC=cdc_connect_statuses
+      # Commit consumer offsets every 5s (default 60s) so the demo's LAG column
+      # catches up with what has already been written to YugabyteDB.
+      - OFFSET_FLUSH_INTERVAL_MS=5000
+    volumes:
+      - kafka-plugins:/kafka/connect/yugabytedb
+    restart: on-failure
+
+  mysql:
+    container_name: mysql-cdc
+    image: mysql:8.4
+    network_mode: host
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-yugabyte}
+    # Binlog settings Debezium relies on. log-bin, ROW format and FULL row image
+    # are already the MySQL 8.x defaults; they are spelled out here for clarity.
+    # GTIDs let the connector resume from a position-independent offset.
+    command:
+      - --server-id=1
+      - --log-bin=mysql-bin
+      - --binlog-row-image=FULL
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
+    restart: on-failure
+
+volumes:
+  kafka-plugins:

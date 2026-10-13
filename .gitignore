@@ -41,6 +41,7 @@ init-ear/keys/
 # ── Kafka connector plugins (cdc) ───────────────────────────────────────
 init-cdc-ybdb-pg/kafka-plugins/
 init-cdc-sqlserver-ybdb/kafka-plugins/
+init-cdc-mysql-ybdb/kafka-plugins/
 
 
 # ── demo-magic helper script ─────────────────────────────────────────────────
