@@ -152,48 +152,49 @@ Open Command Palette → **Dev Containers: Open Folder in Container…** → sel
 |---|---|---|---|---|
 | 13 | [Change Data Capture — YugabyteDB → PostgreSQL](#change-data-capture--yugabytedb--postgresql) | YB Debezium connector → PostgreSQL via JDBC sink | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
 | 14 | [Change Data Capture — SQL Server → YugabyteDB](#change-data-capture--sql-server--yugabytedb) | SQL Server CDC captured into YugabyteDB via Debezium | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
-| 15 | [Pub/Sub CDC — YugabyteDB → YugabyteDB](#pubsub-cdc--yugabytedb--yugabytedb) | Embedded Debezium applier, no Kafka; atomic transaction apply | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
-| 16 | [Two-way Pub/Sub CDC — YugabyteDB ⇄ YugabyteDB](#two-way-pubsub-cdc--yugabytedb--yugabytedb) | Active-active: replication origins break the loop, timestamp LWW makes the sites converge | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
+| 15 | [Change Data Capture — MySQL → YugabyteDB](#change-data-capture--mysql--yugabytedb) | MySQL binlog captured into YugabyteDB via Debezium | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
+| 16 | [Pub/Sub CDC — YugabyteDB → YugabyteDB](#pubsub-cdc--yugabytedb--yugabytedb) | Embedded Debezium applier, no Kafka; atomic transaction apply | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
+| 17 | [Two-way Pub/Sub CDC — YugabyteDB ⇄ YugabyteDB](#two-way-pubsub-cdc--yugabytedb--yugabytedb) | Active-active: replication origins break the loop, timestamp LWW makes the sites converge | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
 
 #### Observability
 
 | # | Exercise | Description | Roles | Notes |
 |---|---|---|---|---|
-| 17 | [Observability & Performance Diagnosis](#observability--performance-diagnosis) | pg_stat_statements, ASH, pg_locks, query diagnostics | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 18 | [OpenSearch — Log Observability](#opensearch--log-observability-with-yugabytedb) | OTel tails GLog + pgaudit logs into OpenSearch | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 19 | [Elasticsearch — Logs & Metrics Observability](#elasticsearch--logs--metrics-observability-with-yugabytedb) | OTel ships GLog + Prometheus metrics into Elasticsearch | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 18 | [Observability & Performance Diagnosis](#observability--performance-diagnosis) | pg_stat_statements, ASH, pg_locks, query diagnostics | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 19 | [OpenSearch — Log Observability](#opensearch--log-observability-with-yugabytedb) | OTel tails GLog + pgaudit logs into OpenSearch | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 20 | [Elasticsearch — Logs & Metrics Observability](#elasticsearch--logs--metrics-observability-with-yugabytedb) | OTel ships GLog + Prometheus metrics into Elasticsearch | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
 
 #### Security
 
 | # | Exercise | Description | Roles | Notes |
 |---|---|---|---|---|
-| 20 | [Encryption at Rest (EAR) + Key Rotation](#encryption-at-rest-ear--key-rotation) | yb-admin key rotation on live cluster, no restart | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
-| 21 | [Row Level Security & Multi-tenancy](#row-level-security--multi-tenancy) | CREATE POLICY tenant isolation with session variables | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 22 | [Data Privacy — Column Encryption & Anonymization](#data-privacy--column-encryption--anonymization) | pgcrypto column encryption, masking, anonymized views | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 21 | [Encryption at Rest (EAR) + Key Rotation](#encryption-at-rest-ear--key-rotation) | yb-admin key rotation on live cluster, no restart | ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
+| 22 | [Row Level Security & Multi-tenancy](#row-level-security--multi-tenancy) | CREATE POLICY tenant isolation with session variables | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 23 | [Data Privacy — Column Encryption & Anonymization](#data-privacy--column-encryption--anonymization) | pgcrypto column encryption, masking, anonymized views | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
 
 #### Search & Extensions
 
 | # | Exercise | Description | Roles | Notes |
 |---|---|---|---|---|
-| 23 | [Full-Text Search](#full-text-search) | tsvector/tsquery, ts_rank, ts_headline, ybgin index | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 24 | [Semantic Search with pgvector](#semantic-search-with-pgvector) | L2/cosine/IP distance operators, ybhnsw ANN index | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 24 | [Full-Text Search](#full-text-search) | tsvector/tsquery, ts_rank, ts_headline, ybgin index | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 25 | [Semantic Search with pgvector](#semantic-search-with-pgvector) | L2/cosine/IP distance operators, ybhnsw ANN index | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
 
 #### Migration (YB Voyager)
 
 | # | Exercise | Description | Roles | Notes |
 |---|---|---|---|---|
-| 25 | [Data Migration — MySQL → YugabyteDB](#data-migration--mysql--yugabytedb) | Voyager: assess → export → import → finalize | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
-| 26 | [Data Migration — MariaDB → YugabyteDB](#data-migration--mariadb--yugabytedb) | Voyager offline migration from MariaDB | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
-| 27 | [Data Migration — Oracle → YugabyteDB](#data-migration--oracle--yugabytedb) | Voyager offline migration from Oracle Free container | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM · 64 GB disk |
-| 28 | [Live Data Migration — PostgreSQL → YugabyteDB](#live-data-migration--postgresql--yugabytedb) | Voyager live migration with CDC stream and cutover | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
+| 26 | [Data Migration — MySQL → YugabyteDB](#data-migration--mysql--yugabytedb) | Voyager: assess → export → import → finalize | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
+| 27 | [Data Migration — MariaDB → YugabyteDB](#data-migration--mariadb--yugabytedb) | Voyager offline migration from MariaDB | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | |
+| 28 | [Data Migration — Oracle → YugabyteDB](#data-migration--oracle--yugabytedb) | Voyager offline migration from Oracle Free container | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM · 64 GB disk |
+| 29 | [Live Data Migration — PostgreSQL → YugabyteDB](#live-data-migration--postgresql--yugabytedb) | Voyager live migration with CDC stream and cutover | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge) | |
 
 #### Ecosystem
 
 | # | Exercise | Description | Roles | Notes |
 |---|---|---|---|---|
-| 29 | [Keycloak — Identity & Access Management](#keycloak--identity--access-management) | Keycloak backed by YugabyteDB via smart JDBC driver | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 30 | [Kong Gateway — API Gateway](#kong-gateway--api-gateway-with-yugabytedb) | Kong config stored in YugabyteDB via PostgreSQL protocol | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
-| 31 | [WSO2 API Manager — Enterprise API Gateway](#wso2-api-manager--enterprise-api-gateway-with-yugabytedb) | WSO2 APIM two-database setup with smart JDBC driver | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
+| 30 | [Keycloak — Identity & Access Management](#keycloak--identity--access-management) | Keycloak backed by YugabyteDB via smart JDBC driver | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 31 | [Kong Gateway — API Gateway](#kong-gateway--api-gateway-with-yugabytedb) | Kong config stored in YugabyteDB via PostgreSQL protocol | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | |
+| 32 | [WSO2 API Manager — Enterprise API Gateway](#wso2-api-manager--enterprise-api-gateway-with-yugabytedb) | WSO2 APIM two-database setup with smart JDBC driver | ![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge) ![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge) ![Arc](https://img.shields.io/badge/arc-red?style=for-the-badge) | ⚠ 8 CPU · 16 GB RAM |
 
 ---
 
@@ -382,6 +383,18 @@ Stream changes from YugabyteDB to PostgreSQL using the **YugabyteDB Debezium con
 Stream changes from **Microsoft SQL Server** to **YugabyteDB** using the **Debezium SQL Server connector** (capturing SQL Server's native CDC change tables) and a Debezium JDBC sink connector. Guided demo: register connectors, snapshot, live INSERT/UPDATE/DELETE propagation.
 
 > **Note:** Requires 8 CPUs · 16 GB RAM.
+
+---
+
+#### Change Data Capture — MySQL → YugabyteDB
+
+![Dev](https://img.shields.io/badge/dev-orange?style=for-the-badge)
+![Ops](https://img.shields.io/badge/ops-blue?style=for-the-badge)
+![SRE](https://img.shields.io/badge/sre-purple?style=for-the-badge)
+
+[README →](init-cdc-mysql-ybdb/README.md) | devcontainer: `init-cdc-mysql-ybdb`
+
+Stream changes from **MySQL** to **YugabyteDB** using the **Debezium MySQL connector** (reading MySQL's row-based binary log as a replica) and a Debezium JDBC sink connector. Guided demo: register connectors, snapshot, live INSERT/UPDATE/DELETE propagation.
 
 ---
 
@@ -649,6 +662,7 @@ WSO2 API Manager stores all platform state — API definitions, subscriptions, t
 | **Streaming & CDC** | | | | | |
 | CDC (Debezium) | `init-cdc-ybdb-pg` | 1 | 4 | 8 GB | 32 GB |
 | CDC (SQL Server) | `init-cdc-sqlserver-ybdb` | 1 | **8** | **16 GB** | 32 GB |
+| CDC (MySQL) | `init-cdc-mysql-ybdb` | 1 | 4 | 8 GB | 32 GB |
 | Pub/Sub CDC (embedded Debezium) | `init-pubsub-ybdb` | 1+1 | **8** | **16 GB** | 32 GB |
 | Two-way Pub/Sub CDC (active-active) | `init-pubsub-bidir-ybdb` | 1+1 | **8** | **16 GB** | 32 GB |
 | **Observability** | | | | | |

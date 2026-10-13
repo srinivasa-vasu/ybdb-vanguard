@@ -54,6 +54,7 @@
           "voyager-data": true,
           ".devcontainer": true,
           ".github": true,
+          "init-cdc-mysql-ybdb": true,
           "init-cdc-sqlserver-ybdb": true,
           "init-cdc-ybdb-pg": true,
           "init-clone": true,

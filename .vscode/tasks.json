@@ -35,7 +35,7 @@
       "label": "clean",
       "detail": "Stop YugabyteDB + Docker Compose stacks, remove all runtime data (ybdb/, voyager-data/, keys, pscript files)",
       "type": "shell",
-      "command": "bash -c 'echo \"🛑 Stopping CDC appliers...\" && for p in /tmp/cdc-applier.pid /tmp/cdc-applier-a2b.pid /tmp/cdc-applier-b2a.pid; do [ -f \"$p\" ] && kill \"$(cat \"$p\")\" 2>/dev/null; done; rm -f /tmp/cdc-applier*.pid /tmp/cdc-applier*.log; echo \"🛑 Stopping YugabyteDB nodes...\" && yugabyted destroy --base_dir=ybdb/ybd1 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd2 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd3 2>/dev/null; yugabyted destroy --base_dir=ybdb/source 2>/dev/null; yugabyted destroy --base_dir=ybdb/target 2>/dev/null; echo \"🐳 Stopping Docker Compose stacks...\" && for f in init-cdc-ybdb-pg/compose.yml init-voyager-postgres/compose.yml init-voyager-mysql/compose.yml init-voyager-mariadb/compose.yml init-voyager-oracle/compose.yml; do [ -f \"$f\" ] && docker-compose -f \"$f\" down --remove-orphans 2>/dev/null || true; done; echo \"🐳 Stopping ecosystem containers...\" && docker rm -f keycloak-ybdb kong-gateway wso2-apim opensearch-ybdb opensearch-dashboards-ybdb init-cdc-sqlserver-ybdb-zookeeper-1 init-cdc-sqlserver-ybdb-kafka-1 init-cdc-sqlserver-ybdb-connect-1 sqlserver 2>/dev/null || true; echo \"🧹 Removing runtime data...\" && rm -rf ybdb voyager-data init-ear/keys init-cdc-ybdb-pg/kafka-plugins init-cdc-sqlserver-ybdb/kafka-plugins init-voyager-postgres/voyager-data init-voyager-mysql/voyager-data init-voyager-mariadb/voyager-data init-voyager-oracle/voyager-data && find . -name pscript -not -path \"./.git/*\" -delete && echo \"✅ All runtime data removed and services stopped.\"'",
+      "command": "bash -c 'echo \"🛑 Stopping CDC appliers...\" && for p in /tmp/cdc-applier.pid /tmp/cdc-applier-a2b.pid /tmp/cdc-applier-b2a.pid; do [ -f \"$p\" ] && kill \"$(cat \"$p\")\" 2>/dev/null; done; rm -f /tmp/cdc-applier*.pid /tmp/cdc-applier*.log; echo \"🛑 Stopping YugabyteDB nodes...\" && yugabyted destroy --base_dir=ybdb/ybd1 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd2 2>/dev/null; yugabyted destroy --base_dir=ybdb/ybd3 2>/dev/null; yugabyted destroy --base_dir=ybdb/source 2>/dev/null; yugabyted destroy --base_dir=ybdb/target 2>/dev/null; echo \"🐳 Stopping Docker Compose stacks...\" && for f in init-cdc-ybdb-pg/compose.yml init-voyager-postgres/compose.yml init-voyager-mysql/compose.yml init-voyager-mariadb/compose.yml init-voyager-oracle/compose.yml; do [ -f \"$f\" ] && docker-compose -f \"$f\" down --remove-orphans 2>/dev/null || true; done; echo \"🐳 Stopping ecosystem containers...\" && docker rm -f keycloak-ybdb kong-gateway wso2-apim opensearch-ybdb opensearch-dashboards-ybdb init-cdc-sqlserver-ybdb-zookeeper-1 init-cdc-sqlserver-ybdb-kafka-1 init-cdc-sqlserver-ybdb-connect-1 sqlserver init-cdc-mysql-ybdb-zookeeper-1 init-cdc-mysql-ybdb-kafka-1 init-cdc-mysql-ybdb-connect-1 mysql-cdc 2>/dev/null || true; echo \"🧹 Removing runtime data...\" && rm -rf ybdb voyager-data init-ear/keys init-cdc-ybdb-pg/kafka-plugins init-cdc-sqlserver-ybdb/kafka-plugins init-cdc-mysql-ybdb/kafka-plugins init-voyager-postgres/voyager-data init-voyager-mysql/voyager-data init-voyager-mariadb/voyager-data init-voyager-oracle/voyager-data && find . -name pscript -not -path \"./.git/*\" -delete && echo \"✅ All runtime data removed and services stopped.\"'",
       "presentation": {
         "reveal": "always",
         "panel": "shared",
@@ -854,6 +854,61 @@
         "reveal": "always",
         "panel": "dedicated",
         "group": "sqlserver",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // init-cdc-mysql-ybdb  — Change Data Capture from MySQL to YugabyteDB
+    // ═══════════════════════════════════════════════════════════════════════
+
+    {
+      "label": "cdc-mysql-ybdb-demo",
+      "detail": "\"The Live Sync Pipeline\" — guided MySQL CDC demo: register connectors, snapshot, live INSERT/UPDATE/DELETE (init-cdc-mysql-ybdb/prompt.sh)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc-mysql-ybdb' ] || exit 0; cd init-cdc-mysql-ybdb && echo '🔄 cdc-mysql-ybdb-demo  —  CDC pipeline demo (MySQL → Kafka → YugabyteDB)' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "cdc-mysql-ybdb-demo",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "cdc-mysql-ybdb-ws",
+      "detail": "Workshop shell for manual CDC commands — curl, mysql, ysqlsh (init-cdc-mysql-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc-mysql-ybdb' ] || exit 0; cd init-cdc-mysql-ybdb && echo '🔌 cdc-mysql-ybdb-ws  —  Workshop shell' && echo '   Run manual curl and docker exec commands here' && exec bash",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "cdc-mysql-ybdb-ws",
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "mysql-cdc",
+      "detail": "Open a MySQL command-line client on the chinook database (init-cdc-mysql-ybdb)",
+      "type": "shell",
+      "command": "[ '${env:ART_PATH}' = 'init-cdc-mysql-ybdb' ] || exit 0; echo '⏳ Waiting for MySQL chinook database on :3306...'; until docker exec -e MYSQL_PWD=yugabyte mysql-cdc mysql -h127.0.0.1 -uroot -e 'SELECT 1' chinook >/dev/null 2>&1; do sleep 2; done; exec docker exec -it -e MYSQL_PWD=yugabyte mysql-cdc mysql -uroot chinook",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "mysql-cdc",
         "showReuseMessage": false,
         "clear": true,
         "close": true
