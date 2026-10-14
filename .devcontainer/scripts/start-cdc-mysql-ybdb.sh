@@ -7,7 +7,9 @@ set -euo pipefail
 sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
 
 KAFKA_CONNECT_PORT="${KAFKA_CONNECT_PORT:-8083}"
-DEBEZIUM_VERSION="${DEBEZIUM_VERSION:-3.1.3.Final}"
+# Versions come from containerEnv in .devcontainer/init-cdc-mysql-ybdb/override.json
+: "${DEBEZIUM_VERSION:?DEBEZIUM_VERSION not set (see override.json)}"
+: "${MYSQL_VERSION:?MYSQL_VERSION not set (see override.json)}"
 MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-yugabyte}"
 WORKDIR="init-cdc-mysql-ybdb"
 
@@ -41,7 +43,6 @@ $DOCKER run -d \
     --name init-cdc-mysql-ybdb-zookeeper-1 \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
 
 echo "Waiting for ZooKeeper on 127.0.0.1:2181 (up to 60s)..."
@@ -62,7 +63,6 @@ $DOCKER run -d \
     --name init-cdc-mysql-ybdb-kafka-1 \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     -e ZOOKEEPER_CONNECT=127.0.0.1:2181 \
     -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 \
     -e KAFKA_ADVERTISED_HOST_NAME=127.0.0.1 \
@@ -102,7 +102,6 @@ $DOCKER run -d \
     --name init-cdc-mysql-ybdb-connect-1 \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     -e BOOTSTRAP_SERVERS=127.0.0.1:9092 \
     -e GROUP_ID=1 \
     -e CONFIG_STORAGE_TOPIC=cdc_connect_configs \
@@ -120,7 +119,7 @@ $DOCKER run -d \
     --net "container:${DC_ID}" \
     --restart on-failure \
     -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
-    mysql:8.4 \
+    mysql:${MYSQL_VERSION} \
     --server-id=1 \
     --log-bin=mysql-bin \
     --binlog-row-image=FULL \

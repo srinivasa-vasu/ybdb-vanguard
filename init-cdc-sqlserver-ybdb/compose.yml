@@ -1,18 +1,14 @@
-version: '3.9'
-
 # ── SQL Server to YugabyteDB CDC stack ─────────────────────────────────────────
 
 services:
 
   zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION:-3.1.3.Final}
-    platform: linux/amd64
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION:?}
     network_mode: host
     restart: on-failure
 
   kafka:
-    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION:-3.1.3.Final}
-    platform: linux/amd64
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION:?}
     network_mode: host
     depends_on: [zookeeper]
     environment:
@@ -22,8 +18,7 @@ services:
     restart: on-failure
 
   connect:
-    image: quay.io/debezium/connect:${DEBEZIUM_VERSION:-3.1.3.Final}
-    platform: linux/amd64
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION:?}
     network_mode: host
     depends_on: [kafka]
     environment:
@@ -39,7 +34,7 @@ services:
   sqlserver:
     container_name: sqlserver
     image: mcr.microsoft.com/mssql/server:2022-latest
-    platform: linux/amd64
+    platform: linux/amd64   # SQL Server publishes amd64-only images
     network_mode: host
     environment:
       - ACCEPT_EULA=Y

@@ -7,7 +7,8 @@ set -euo pipefail
 sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
 
 KAFKA_CONNECT_PORT="${KAFKA_CONNECT_PORT:-8083}"
-DEBEZIUM_VERSION="${DEBEZIUM_VERSION:-3.1.3.Final}"
+# Versions come from containerEnv in .devcontainer/init-cdc-sqlserver-ybdb/override.json
+: "${DEBEZIUM_VERSION:?DEBEZIUM_VERSION not set (see override.json)}"
 MSSQL_SA_PASSWORD="${MSSQL_SA_PASSWORD:-Yugabyte@123}"
 WORKDIR="init-cdc-sqlserver-ybdb"
 
@@ -25,6 +26,14 @@ DC_ID=$(grep -oE '/docker/[0-9a-f]+' /proc/1/cpuset 2>/dev/null \
         | head -1 | cut -d/ -f3 || hostname)
 echo "Devcontainer ID: ${DC_ID:0:12}..."
 
+# -- Platform flag -------------------------------------------------------------
+# Debezium images are multi-arch and run natively. SQL Server publishes
+# amd64-only images, so on arm64 hosts it alone is pinned to linux/amd64
+# (same approach as yb-voyager-wrapper.sh).
+MSSQL_PLATFORM=()
+[ "$(uname -m)" != "x86_64" ] && MSSQL_PLATFORM=("--platform" "linux/amd64")
+echo "Architecture: $(uname -m)"
+
 # -- 1. YugabyteDB ------------------------------------------------------------
 echo "Starting YugabyteDB..."
 bash .devcontainer/scripts/start-ybdb.sh 1 ""
@@ -41,7 +50,6 @@ $DOCKER run -d \
     --name init-cdc-sqlserver-ybdb-zookeeper-1 \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
 
 echo "Waiting for ZooKeeper on 127.0.0.1:2181 (up to 60s)..."
@@ -62,7 +70,6 @@ $DOCKER run -d \
     --name init-cdc-sqlserver-ybdb-kafka-1 \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     -e ZOOKEEPER_CONNECT=127.0.0.1:2181 \
     -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 \
     -e KAFKA_ADVERTISED_HOST_NAME=127.0.0.1 \
@@ -102,7 +109,6 @@ $DOCKER run -d \
     --name init-cdc-sqlserver-ybdb-connect-1 \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     -e BOOTSTRAP_SERVERS=127.0.0.1:9092 \
     -e GROUP_ID=1 \
     -e CONFIG_STORAGE_TOPIC=cdc_connect_configs \
@@ -115,7 +121,7 @@ $DOCKER run -d \
     --name sqlserver \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
+    ${MSSQL_PLATFORM[@]+"${MSSQL_PLATFORM[@]}"} \
     -e ACCEPT_EULA=Y \
     -e MSSQL_SA_PASSWORD="${MSSQL_SA_PASSWORD}" \
     -e MSSQL_PID=Developer \

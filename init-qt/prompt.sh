@@ -7,7 +7,7 @@
 #
 #   Part 1 · Query Execution Patterns — point lookup, range scan, ORDER BY, keyset
 #   Part 2 · Pushdown Operations      — aggregate, expression pushdown
-#   Part 3 · Index Strategies         — hash, covering, partial
+#   Part 3 · Index Strategies         — hash, covering, redundant, partial, hotspot-safe range
 #   Part 4 · Join Optimisation        — Batch Nested Loop batch size
 #   Part 5 · Advanced SQL             — window functions, recursive CTE, materialised view
 #
@@ -55,7 +55,11 @@ p "No index on unitprice: Seq Scan across all tablets (high Rows Scanned vs retu
 
 pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM track WHERE unitprice > 0.99;\""
 
-pe "ysqlsh -h 127.0.0.1 -X -c \"CREATE INDEX IF NOT EXISTS idx_track_price ON track (unitprice ASC);\""
+p ""
+p "unitprice has only 2 values (0.99, 1.99): never HASH a low-cardinality column."
+p "Range-shard it and pre-split on the known values — one tablet per price from day one:"
+
+pe "ysqlsh -h 127.0.0.1 -X -c \"CREATE INDEX IF NOT EXISTS idx_track_price ON track (unitprice ASC) SPLIT AT VALUES ((1.99));\""
 
 p ""
 p "Range index: scan touches only relevant tablets (Rows Scanned ≈ Rows Returned):"
@@ -68,18 +72,23 @@ p "Hash PK: scatter all tablets + Sort node. Range index: streaming scan, no Sor
 
 pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM track ORDER BY trackid ASC LIMIT 10;\""
 
-pe "ysqlsh -h 127.0.0.1 -X -c \"CREATE INDEX IF NOT EXISTS idx_invoice_date ON invoice (invoicedate ASC);\""
+p ""
+p "invoiceid is the tie-breaker for invoices on the same date — keyset pagination needs it in the index:"
+
+pe "ysqlsh -h 127.0.0.1 -X -c \"CREATE INDEX IF NOT EXISTS idx_invoice_date ON invoice (invoicedate ASC, invoiceid ASC);\""
 
 pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM invoice ORDER BY invoicedate ASC LIMIT 10;\""
 
 p ""
 p "-- 1.4 Keyset pagination vs OFFSET"
 p "OFFSET N reads and discards N rows — O(OFFSET). Keyset cursor is always O(log N)."
+p "OFFSET scans OFFSET + LIMIT rows (210):"
 
 pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT invoiceid, invoicedate, total FROM invoice ORDER BY invoicedate ASC, invoiceid ASC LIMIT 10 OFFSET 200;\""
 
 p ""
-p "Keyset: pass last page's values as cursor — Rows Scanned ≈ LIMIT:"
+p "Keyset: pass last page's values as cursor — Index Cond on (invoicedate, invoiceid), Rows Scanned = LIMIT (10)."
+p "(With invoicedate alone in the index, the cursor becomes a Filter and scans every row past the date.)"
 
 pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT invoiceid, invoicedate, total FROM invoice WHERE (invoicedate, invoiceid) > ('2009-03-04'::DATE, 100) ORDER BY invoicedate ASC, invoiceid ASC LIMIT 10;\""
 
@@ -138,22 +147,77 @@ p "SELECT * still needs the main table — milliseconds, unitprice not in INCLUD
 pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM track WHERE albumid = 1;\""
 
 p ""
+p "idx_track_albumid is now redundant: same key (albumid HASH), and the covering index"
+p "serves every query it did — including the track.albumid FK check. Every index costs a write:"
+
+pe "ysqlsh -h 127.0.0.1 -X -c \"DROP INDEX IF EXISTS idx_track_albumid;\""
+
+pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM track WHERE albumid = 1;\""
+
+p ""
 p "-- 3.3 Partial index — index only the rows you actually query"
+p "Key it on the column the query sorts or seeks on — never on the predicate column itself"
+p "(ON employee (city) WHERE city = 'Calgary' puts every entry on one key, and can't seek)."
 
 pe "ysqlsh -h 127.0.0.1 -X -c \"
 CREATE INDEX IF NOT EXISTS idx_employee_calgary
-  ON employee (city HASH)
+  ON employee (lastname ASC)
   WHERE city = 'Calgary';\""
 
 p ""
-p "Predicate-compatible → partial index used:"
+p "Predicate-compatible → partial index used, rows arrive sorted (no Sort node):"
 
-pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM employee WHERE city = 'Calgary';\""
+pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM employee WHERE city = 'Calgary' ORDER BY lastname;\""
 
 p ""
-p "Predicate not compatible → falls back to full scan:"
+p "Predicate not compatible → falls back to full scan + Sort:"
 
-pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM employee WHERE city = 'Lethbridge';\""
+pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM employee WHERE city = 'Lethbridge' ORDER BY lastname;\""
+
+p ""
+p "Gotcha — bound parameters: a generic plan can't prove \$1 = 'Calgary', so it can't use the"
+p "partial index. ORMs/JDBC bind every value; prepared statements go generic after 5 executions:"
+
+# Quoted heredoc so pe's eval passes $1 to ysqlsh untouched (and it displays as plain $1)
+pe "ysqlsh -h 127.0.0.1 -X <<'SQL'
+PREPARE emp_by_city(text) AS
+  SELECT * FROM employee WHERE city = \$1 ORDER BY lastname;
+SET plan_cache_mode = force_generic_plan;
+EXPLAIN (ANALYZE, DIST) EXECUTE emp_by_city('Calgary');
+RESET plan_cache_mode;
+DEALLOCATE emp_by_city;
+SQL"
+
+p ""
+p "Seq Scan + Sort, even with enable_seqscan=off — use partial indexes only with literal predicates."
+
+p ""
+p "-- 3.4 Hotspot-safe range index on a monotonic column"
+p "invoicedate only ever grows: with a plain ASC index every insert hits the LAST tablet."
+p "Prefix a range-sharded bucket and pre-split one tablet per bucket (N=3 → 2 split points):"
+
+pe "ysqlsh -h 127.0.0.1 -X -c \"
+DROP INDEX IF EXISTS idx_invoice_date;
+CREATE INDEX IF NOT EXISTS idx_invoice_date_bucketed
+  ON invoice ((yb_hash_code(invoicedate) % 3) ASC, invoicedate ASC)
+  SPLIT AT VALUES ((1), (2));\""
+
+p ""
+p "3 tablets, rows spread evenly across buckets:"
+
+pe "ysqlsh -h 127.0.0.1 -X -c \"
+SELECT num_tablets FROM yb_table_properties('idx_invoice_date_bucketed'::regclass);
+SELECT yb_hash_code(invoicedate) % 3 AS bucket, count(*) FROM invoice GROUP BY 1 ORDER BY 1;\""
+
+p ""
+p "Range query needs no bucket filter — skip scan seeks into each bucket:"
+
+pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM invoice WHERE invoicedate >= '2011-01-01' AND invoicedate < '2011-04-01';\""
+
+p ""
+p "Trade-off: rows are sorted only within a bucket — top-N may need a Sort over all rows:"
+
+pe "ysqlsh -h 127.0.0.1 -X -c \"EXPLAIN (ANALYZE, DIST) SELECT * FROM invoice ORDER BY invoicedate ASC LIMIT 10;\""
 
 # ── Scene 5: Join Optimisation ─────────────────────────────────────────────
 
@@ -273,6 +337,15 @@ p "  Range PK → streaming scan, no Sort node"
 p ""
 p "Join:"
 p "  yb_bnl_batch_size=1024 → 1 RPC per 1024 inner keys (default, best for OLTP)"
+p ""
+p "Schema design:"
+p "  Spell out HASH / ASC on every key       → same layout regardless of cluster defaults"
+p "  Index every FK column in the child      → parent DELETE/UPDATE doesn't scan the child"
+p "  Low-cardinality column                  → never HASH; range index + SPLIT AT VALUES"
+p "  Monotonic column (dates, sequences)     → bucket prefix + SPLIT AT VALUES, not plain ASC"
+p "  Partial index                           → key on non-predicate columns; literals only"
+p "  Index order: Equality → Sort → Range    → keyset cursors need the tie-breaker column"
+p "  Redundant index (same leading key)      → drop it — every index costs a write"
 
 cmd
 

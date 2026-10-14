@@ -82,7 +82,8 @@ A range index seeks to the start of the range and walks forward, touching only r
 ```
 
 ```sql
-CREATE INDEX IF NOT EXISTS idx_track_price ON track (unitprice ASC);
+-- unitprice has only 2 values (0.99, 1.99): range-shard it and pre-split on the known values
+CREATE INDEX IF NOT EXISTS idx_track_price ON track (unitprice ASC) SPLIT AT VALUES ((1.99));
 
 -- Range scan after index creation
 :explain SELECT * FROM track WHERE unitprice > 0.99;
@@ -90,6 +91,12 @@ CREATE INDEX IF NOT EXISTS idx_track_price ON track (unitprice ASC);
 
 > Before: `Seq Scan`, high `Storage Table Rows Scanned`.
 > After: `Index Scan`, rows scanned ≈ rows returned.
+
+> **Low-cardinality column?** Never make it a `HASH` key: 2 distinct values means at most 2 hash
+> buckets. A range index works because every entry is physically keyed on
+> `(unitprice, hash(trackid), trackid)`; the HASH PK suffix keeps spreading rows of one price as
+> the index splits. A new range index starts as one tablet, so `SPLIT AT VALUES` gives one tablet
+> per price from day one.
 
 Leading-wildcard LIKE cannot use any index — always a full scan:
 
@@ -110,7 +117,7 @@ Range PK → rows already arrive in order from storage — no sort node needed.
 ```
 
 ```sql
-CREATE INDEX IF NOT EXISTS idx_invoice_date ON invoice (invoicedate ASC);
+CREATE INDEX IF NOT EXISTS idx_invoice_date ON invoice (invoicedate ASC, invoiceid ASC);
 
 -- Range index: streaming scan, no Sort node
 :explain SELECT * FROM invoice ORDER BY invoicedate ASC LIMIT 10;
@@ -123,6 +130,10 @@ DROP INDEX IF EXISTS idx_invoice_date;
 
 > Look for the presence or absence of a `Sort` node in the plan.
 
+> `invoiceid` is the tie-breaker for invoices on the same date — keyset pagination (1.5) needs it
+> in the index. `invoicedate` only ever grows, so in a write-heavy table this index is a hotspot;
+> see 3.7 for the hotspot-safe layout.
+
 ---
 
 ### 1.4 LIMIT pushdown
@@ -134,7 +145,7 @@ CREATE TABLE IF NOT EXISTS listings (
   price      DECIMAL,
   listing_id TEXT,
   name       TEXT,
-  PRIMARY KEY (price ASC, listing_id)
+  PRIMARY KEY (price ASC, listing_id ASC)
 ) SPLIT AT VALUES ((0.99), (1.99));
 
 INSERT INTO listings
@@ -160,8 +171,12 @@ DROP TABLE IF EXISTS listings;
 OFFSET N: DocDB reads and discards N rows. Cost is O(OFFSET) — page 1000 is 1000× slower than page 1.
 Keyset cursor: always O(log N) — same cost at any depth.
 
+The index must carry **every** `ORDER BY` column, tie-breaker included. With `invoicedate` alone,
+the `(invoicedate, invoiceid) > (…)` cursor becomes a `Filter` + `Incremental Sort` and scans every
+row past the date instead of ≈ LIMIT rows.
+
 ```sql
-CREATE INDEX IF NOT EXISTS idx_invoice_date ON invoice (invoicedate ASC);
+CREATE INDEX IF NOT EXISTS idx_invoice_date ON invoice (invoicedate ASC, invoiceid ASC);
 ```
 
 ```sql
@@ -183,7 +198,8 @@ ORDER BY invoicedate ASC, invoiceid ASC
 LIMIT 10;
 ```
 
-> OFFSET plan shows high `Storage Table Rows Scanned`. Keyset plan scans ≈ LIMIT rows.
+> OFFSET plan scans OFFSET + LIMIT rows (210). Keyset plan shows the cursor as an `Index Cond` and
+> scans exactly LIMIT rows (10).
 
 ---
 
@@ -271,7 +287,7 @@ CREATE INDEX IF NOT EXISTS idx_track_albumid ON track (albumid HASH);
 -- Before: full scan
 :explain SELECT * FROM invoice WHERE invoicedate > '2010-01-01';
 
-CREATE INDEX IF NOT EXISTS idx_invoice_date ON invoice (invoicedate ASC);
+CREATE INDEX IF NOT EXISTS idx_invoice_date ON invoice (invoicedate ASC, invoiceid ASC);
 
 -- After: range scan (only touches relevant tablets)
 :explain SELECT * FROM invoice WHERE invoicedate > '2010-01-01';
@@ -299,9 +315,18 @@ CREATE INDEX IF NOT EXISTS idx_track_albumid_cover
 
 -- SELECT * still needs the main table (milliseconds, unitprice not in INCLUDE)
 :explain SELECT * FROM track WHERE albumid = 1;
+
+-- idx_track_albumid is now redundant: same key (albumid HASH), and the covering
+-- index serves every query it did — including the track.albumid FK check
+DROP INDEX IF EXISTS idx_track_albumid;
+:explain SELECT * FROM track WHERE albumid = 1;
 ```
 
 > `Index Only Scan` confirms the second RPC was eliminated.
+
+> **Redundant indexes cost writes, not reads.** Every INSERT/UPDATE on `track` writes every index,
+> often on another tablet. Drop an index when another one has the same leading key columns (same
+> HASH/ASC), a compatible predicate, and covers its INCLUDE columns.
 
 ---
 
@@ -309,18 +334,40 @@ CREATE INDEX IF NOT EXISTS idx_track_albumid_cover
 
 Index only rows matching a WHERE condition — smaller, faster, lower write amplification.
 
+Key the partial index on the column the query **sorts or seeks on**, never on the predicate
+column itself. `ON employee (city) WHERE city = 'Calgary'` gives every entry the same key (one
+hash value → one tablet), and the planner drops `city = 'Calgary'` because the predicate already
+implies it — you'd see `Storage Index Filter` instead of a seek.
+
 ```sql
--- Index only Calgary employees (most common query target)
-CREATE INDEX IF NOT EXISTS idx_employee_city
-  ON employee (city HASH)
+-- Index only Calgary employees (most common query target), sorted by last name
+CREATE INDEX IF NOT EXISTS idx_employee_calgary
+  ON employee (lastname ASC)
   WHERE city = 'Calgary';
 
--- ✅ Predicate-compatible — uses the index
-:explain SELECT * FROM employee WHERE city = 'Calgary';
+-- ✅ Predicate-compatible — uses the index, rows arrive sorted (no Sort node)
+:explain SELECT * FROM employee WHERE city = 'Calgary' ORDER BY lastname;
 
--- ❌ Predicate not compatible — falls back to full scan
-:explain SELECT * FROM employee WHERE city = 'Lethbridge';
+-- ❌ Predicate not compatible — falls back to full scan + Sort
+:explain SELECT * FROM employee WHERE city = 'Lethbridge' ORDER BY lastname;
 ```
+
+**Gotcha — bound parameters.** A generic plan can't prove `$1 = 'Calgary'`, so it can't use the
+partial index. ORMs and JDBC drivers bind every value, and a prepared statement switches to the
+generic plan after 5 executions:
+
+```sql
+PREPARE emp_by_city(text) AS
+  SELECT * FROM employee WHERE city = $1 ORDER BY lastname;
+
+SET plan_cache_mode = force_generic_plan;  -- what you get after 5+ executions
+:explain EXECUTE emp_by_city('Calgary');   -- ❌ Seq Scan + Sort, even with enable_seqscan=off
+RESET plan_cache_mode;
+
+DEALLOCATE emp_by_city;
+```
+
+> Use a partial index only when the application sends the predicate value as a **literal**.
 
 ---
 
@@ -328,8 +375,11 @@ CREATE INDEX IF NOT EXISTS idx_employee_city
 
 A single range index serves both ASC and DESC queries efficiently.
 
+`supportrepid` is also a foreign key (to `employee`) with just 3 values (3, 4, 5) — so this index
+does double duty as the FK index, range-sharded and pre-split on the known values.
+
 ```sql
-CREATE INDEX IF NOT EXISTS idx_customer_repid ON customer (supportrepid ASC);
+CREATE INDEX IF NOT EXISTS idx_customer_repid ON customer (supportrepid ASC) SPLIT AT VALUES ((4), (5));
 
 -- Forward scan (matches index direction)
 :explain SELECT * FROM customer ORDER BY supportrepid ASC;
@@ -338,7 +388,8 @@ CREATE INDEX IF NOT EXISTS idx_customer_repid ON customer (supportrepid ASC);
 :explain SELECT * FROM customer ORDER BY supportrepid DESC;
 ```
 
-> Both plans show `Index Scan` — no `Sort` node in either direction.
+> Both plans show `Index Scan` — no `Sort` node in either direction. `Read Requests: 3` = one
+> per pre-split tablet.
 
 ---
 
@@ -356,6 +407,37 @@ CREATE INDEX IF NOT EXISTS idx_customer_lower_email
 -- ❌ Raw column — expression index cannot help
 :explain SELECT * FROM customer WHERE email = 'user1@example.com';
 ```
+
+---
+
+### 3.7 Hotspot-safe range index on a monotonic column
+
+`invoicedate ASC` (1.3) is great for reads, but new invoices always carry the latest date, so every
+insert lands on the **last tablet** of the index. Splitting doesn't help — the new last tablet
+becomes the hotspot. Prefix the index with a range-sharded bucket and pre-split one tablet per
+bucket (`N` buckets → `N−1` split points):
+
+```sql
+DROP INDEX IF EXISTS idx_invoice_date;
+
+CREATE INDEX IF NOT EXISTS idx_invoice_date_bucketed
+  ON invoice ((yb_hash_code(invoicedate) % 3) ASC, invoicedate ASC)
+  SPLIT AT VALUES ((1), (2));
+
+-- 3 tablets, rows spread evenly across buckets
+SELECT num_tablets FROM yb_table_properties('idx_invoice_date_bucketed'::regclass);
+SELECT yb_hash_code(invoicedate) % 3 AS bucket, count(*) FROM invoice GROUP BY 1 ORDER BY 1;
+
+-- ✅ Range query needs no bucket filter: skip scan seeks into each bucket
+:explain SELECT * FROM invoice WHERE invoicedate >= '2011-01-01' AND invoicedate < '2011-04-01';
+
+-- ⚠️ Rows are sorted only within a bucket — top-N may need a Sort over all rows
+:explain SELECT * FROM invoice ORDER BY invoicedate ASC LIMIT 10;
+```
+
+> Pick N ≥ the replication factor (3 here); it can't be reduced later. Use this layout when the
+> table's PK is HASH (as here). Before adopting it for top-N / pagination queries, check the
+> `ORDER BY … LIMIT` plan on your version.
 
 ---
 
@@ -703,4 +785,13 @@ Partial Aggregate → COUNT/SUM computed per tablet, only partial results cross 
 
 BNL batch 1    → 1 RPC per inner row  (worst case)
 BNL batch 1024 → 1 RPC per 1024 rows  (much faster for multi-table joins)
+
+Schema design:
+  Spell out HASH / ASC on every key       → same layout regardless of cluster defaults
+  Index every FK column in the child      → parent DELETE/UPDATE doesn't scan the child
+  Low-cardinality column                  → never HASH; range index + SPLIT AT VALUES
+  Monotonic column (dates, sequences)     → bucket prefix + SPLIT AT VALUES, not plain ASC
+  Partial index                           → key on non-predicate columns; literals only
+  Index order: Equality → Sort → Range    → keyset cursors need the tie-breaker column
+  Redundant index (same leading key)      → drop it — every index costs a write
 ```

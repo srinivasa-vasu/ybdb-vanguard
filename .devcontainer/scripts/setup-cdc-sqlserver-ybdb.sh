@@ -7,6 +7,14 @@
 # -----------------------------------------------------------------------------
 set -euo pipefail
 
+# Versions come from containerEnv in .devcontainer/init-cdc-sqlserver-ybdb/override.json
+: "${DEBEZIUM_VERSION:?DEBEZIUM_VERSION not set (see override.json)}"
+: "${YBDB_JDBC_VERSION:?YBDB_JDBC_VERSION not set (see override.json)}"
+
+# SQL Server publishes amd64-only images; pull that variant on arm64 hosts.
+MSSQL_PLATFORM=()
+[ "$(uname -m)" != "x86_64" ] && MSSQL_PLATFORM=("--platform" "linux/amd64")
+
 # -- Fix Docker socket permissions --------------------------------------------
 [ -S /var/run/docker.sock ] && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
 
@@ -32,11 +40,11 @@ mkdir -p "${STAGING}"
 
 # -- Download YugabyteDB JDBC driver ------------------------------------------
 # Placed alongside the connectors so Kafka Connect can load it.
-YB_JDBC_JAR="jdbc-yugabytedb-42.7.3-yb-4.jar"
-echo "Downloading YugabyteDB JDBC driver..."
+YB_JDBC_JAR="jdbc-yugabytedb-${YBDB_JDBC_VERSION}.jar"
+echo "Downloading YugabyteDB JDBC driver ${YBDB_JDBC_VERSION}..."
 curl -# -L --fail \
     -o "${STAGING}/${YB_JDBC_JAR}" \
-    "https://github.com/yugabyte/pgjdbc/releases/download/v42.7.3-yb-4/${YB_JDBC_JAR}"
+    "https://github.com/yugabyte/pgjdbc/releases/download/v${YBDB_JDBC_VERSION}/${YB_JDBC_JAR}"
 python3 -c "import sys; d=open('${STAGING}/${YB_JDBC_JAR}','rb').read(4); sys.exit(0 if d[:2]==b'PK' else 1)" 2>/dev/null \
     || { echo "ERROR: Downloaded file is not a valid JAR (no PK header)."; exit 1; }
 echo "  OK: $(ls -lh "${STAGING}/${YB_JDBC_JAR}" | awk '{print $5}') — valid JAR"
@@ -60,10 +68,10 @@ $DOCKER run --rm -v init-cdc-sqlserver-ybdb_kafka-plugins:/plugins busybox ls -l
 
 # -- Pre-pull Debezium and SQL Server images -------------------------------------------
 echo "Pulling Debezium and SQL Server Docker images..."
-$DOCKER pull mcr.microsoft.com/mssql/server:2022-latest
-$DOCKER pull quay.io/debezium/zookeeper:3.1.3.Final
-$DOCKER pull quay.io/debezium/kafka:3.1.3.Final
-$DOCKER pull quay.io/debezium/connect:3.1.3.Final
+$DOCKER pull ${MSSQL_PLATFORM[@]+"${MSSQL_PLATFORM[@]}"} mcr.microsoft.com/mssql/server:2022-latest
+$DOCKER pull quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
+$DOCKER pull quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+$DOCKER pull quay.io/debezium/connect:${DEBEZIUM_VERSION}
 echo "Docker images ready."
 
 echo ""

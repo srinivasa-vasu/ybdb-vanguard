@@ -221,7 +221,7 @@ Get started with YugabyteDB: hash vs range sharding, YSQL and YCQL basics, table
 
 [README →](init-qt/README.md) | devcontainer: `init-qt`
 
-Query execution patterns, pushdown operations, index strategies (hash, range, covering, partial, expression), join optimisation, advanced SQL, and programmability — all with `EXPLAIN (ANALYZE, DIST)`.
+Query execution patterns, pushdown operations, index strategies (hash, range, covering, partial, expression, hotspot-safe range), schema design rules (explicit sharding, FK indexes, low-cardinality and redundant indexes), join optimisation, advanced SQL, and programmability — all with `EXPLAIN (ANALYZE, DIST)`.
 
 ---
 
@@ -692,4 +692,4 @@ All exercises default to Ubuntu-based devcontainer image on `linux/amd64` and `l
 
 ## YugabyteDB Version
 
-This repo is pinned to **YugabyteDB 2025.2.5.2-b5**.
+This repo is pinned to **YugabyteDB 2025.2.7.0-b107**.

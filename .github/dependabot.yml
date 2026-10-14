@@ -29,6 +29,16 @@ updates:
       day: monday
     labels: [dependencies]
 
+  # ── CDC MySQL — Debezium stack + MySQL source ────────────────────────────────
+  # When bumped, also update DEBEZIUM_VERSION / MYSQL_VERSION in
+  # .devcontainer/init-cdc-mysql-ybdb/override.json.
+  - package-ecosystem: docker
+    directory: /init-cdc-mysql-ybdb
+    schedule:
+      interval: monthly
+      day: monday
+    labels: [dependencies]
+
   # ── Voyager source databases ─────────────────────────────────────────────────
   - package-ecosystem: docker
     directory: /init-voyager-mysql

@@ -29,8 +29,7 @@ yb-voyager assess-migration --export-dir /workspaces/ybdb-vanguard/init-voyager-
         --source-db-host ${SRC_HOST:-mysql} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID} \
-        --source-db-schema ${SRC_DB_ID}
+        --source-db-name ${SRC_DB_ID}
 ```
 
 Review the generated report under `init-voyager-mysql/voyager-data/reports/`.
@@ -43,8 +42,7 @@ yb-voyager export schema --export-dir /workspaces/ybdb-vanguard/init-voyager-mys
         --source-db-host ${SRC_HOST:-mysql} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID} \
-        --source-db-schema ${SRC_DB_ID}
+        --source-db-name ${SRC_DB_ID}
 ```
 
 ### Step 3: Analyze Schema
@@ -61,8 +59,7 @@ yb-voyager export data --export-dir /workspaces/ybdb-vanguard/init-voyager-mysql
         --source-db-host ${SRC_HOST:-mysql} \
         --source-db-user ${SRC_USER} \
         --source-db-password ${SRC_SECRET} \
-        --source-db-name ${SRC_DB_ID} \
-        --source-db-schema ${SRC_DB_ID}
+        --source-db-name ${SRC_DB_ID}
 ```
 
 Check export progress:

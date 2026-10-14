@@ -15,62 +15,86 @@ DROP TABLE IF EXISTS playlisttrack, playlist, invoiceline, invoice,
                      track, album, artist, customer, employee CASCADE;
 
 -- ── Schema ────────────────────────────────────────────────────────────────────
+-- Sharding is spelled out (HASH / ASC) on every key: the default depends on
+-- yb_use_hash_splitting_by_default, so explicit DDL behaves the same everywhere.
 
 CREATE TABLE artist (
-  artistid  INT  PRIMARY KEY,
-  name      TEXT NOT NULL
+  artistid  INT  NOT NULL,
+  name      TEXT NOT NULL,
+  PRIMARY KEY (artistid HASH)
 );
 
 CREATE TABLE album (
-  albumid   INT  PRIMARY KEY,
+  albumid   INT  NOT NULL,
   title     TEXT NOT NULL,
-  artistid  INT  NOT NULL REFERENCES artist(artistid)
+  artistid  INT  NOT NULL REFERENCES artist(artistid),
+  PRIMARY KEY (albumid HASH)
 );
 
 CREATE TABLE track (
-  trackid      INT            PRIMARY KEY,
+  trackid      INT            NOT NULL,
   name         TEXT           NOT NULL,
   albumid      INT            NOT NULL REFERENCES album(albumid),
   milliseconds INT            NOT NULL,
-  unitprice    NUMERIC(5,2)   NOT NULL DEFAULT 0.99
+  unitprice    NUMERIC(5,2)   NOT NULL DEFAULT 0.99,
+  PRIMARY KEY (trackid HASH)
 );
 
 CREATE TABLE employee (
-  employeeid  INT  PRIMARY KEY,
+  employeeid  INT  NOT NULL,
   lastname    TEXT NOT NULL,
   firstname   TEXT NOT NULL,
   title       TEXT,
   reportsto   INT  REFERENCES employee(employeeid),
   hiredate    DATE,
-  city        TEXT
+  city        TEXT,
+  PRIMARY KEY (employeeid HASH)
 );
 
 CREATE TABLE customer (
-  customerid   INT  PRIMARY KEY,
+  customerid   INT  NOT NULL,
   firstname    TEXT NOT NULL,
   lastname     TEXT NOT NULL,
   email        TEXT NOT NULL,
   country      TEXT,
-  supportrepid INT  REFERENCES employee(employeeid)
+  supportrepid INT  REFERENCES employee(employeeid),
+  PRIMARY KEY (customerid HASH)
 );
 
 CREATE TABLE invoice (
-  invoiceid    INT           PRIMARY KEY,
+  invoiceid    INT           NOT NULL,
   customerid   INT           NOT NULL REFERENCES customer(customerid),
   invoicedate  DATE          NOT NULL,
-  total        NUMERIC(10,2) NOT NULL
+  total        NUMERIC(10,2) NOT NULL,
+  PRIMARY KEY (invoiceid HASH)
 );
 
 CREATE TABLE playlist (
-  playlistid  INT  PRIMARY KEY,
-  name        TEXT NOT NULL
+  playlistid  INT  NOT NULL,
+  name        TEXT NOT NULL,
+  PRIMARY KEY (playlistid HASH)
 );
 
 CREATE TABLE playlisttrack (
   playlistid  INT NOT NULL REFERENCES playlist(playlistid),
   trackid     INT NOT NULL REFERENCES track(trackid),
-  PRIMARY KEY (playlistid, trackid)
+  -- Child sharded by the parent's key: one playlist's rows share a tablet,
+  -- and the PK's leading column doubles as the playlistid FK index.
+  PRIMARY KEY (playlistid HASH, trackid ASC)
 );
+
+-- ── Foreign-key indexes ───────────────────────────────────────────────────────
+-- Every FK column needs an index in the child table; without one, a DELETE or
+-- key UPDATE on the parent scans the whole child table across all tablets.
+-- Two are left out on purpose: the exercises build them by hand.
+--   track.albumid         → Part 3.1 / 3.3 (hash index, then covering index)
+--   customer.supportrepid → Part 3.5 (range index, pre-split)
+CREATE INDEX idx_album_artistid        ON album         (artistid HASH);
+CREATE INDEX idx_invoice_customerid    ON invoice       (customerid HASH);
+CREATE INDEX idx_playlisttrack_trackid ON playlisttrack (trackid HASH);
+-- Nullable FK (the top manager has no manager): index only non-NULL rows
+CREATE INDEX idx_employee_reportsto    ON employee      (reportsto HASH)
+  WHERE reportsto IS NOT NULL;
 
 -- ── Seed data ─────────────────────────────────────────────────────────────────
 
@@ -116,6 +140,7 @@ FROM generate_series(1, 6000) i;
 \echo ''
 \echo '✅ Tables ready: artist(200) album(400) track(3000) customer(60) invoice(412)'
 \echo '   employee(8) playlist(20) playlisttrack(~5000)'
+\echo '   + FK indexes on album, invoice, playlisttrack, employee (track/customer: Part 3)'
 \echo ''
 \echo 'Set the EXPLAIN shorthand for this session:'
 \echo '   \set explain '"'"'EXPLAIN (ANALYZE, DIST, COSTS ON, BUFFERS OFF)'"'"''

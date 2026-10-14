@@ -7,6 +7,11 @@
 # -----------------------------------------------------------------------------
 set -euo pipefail
 
+# Versions come from containerEnv in .devcontainer/init-cdc-mysql-ybdb/override.json
+: "${DEBEZIUM_VERSION:?DEBEZIUM_VERSION not set (see override.json)}"
+: "${YBDB_JDBC_VERSION:?YBDB_JDBC_VERSION not set (see override.json)}"
+: "${MYSQL_VERSION:?MYSQL_VERSION not set (see override.json)}"
+
 # -- Fix Docker socket permissions --------------------------------------------
 [ -S /var/run/docker.sock ] && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
 
@@ -32,11 +37,11 @@ mkdir -p "${STAGING}"
 
 # -- Download YugabyteDB JDBC driver ------------------------------------------
 # Placed alongside the connectors so Kafka Connect can load it.
-YB_JDBC_JAR="jdbc-yugabytedb-42.7.3-yb-4.jar"
-echo "Downloading YugabyteDB JDBC driver..."
+YB_JDBC_JAR="jdbc-yugabytedb-${YBDB_JDBC_VERSION}.jar"
+echo "Downloading YugabyteDB JDBC driver ${YBDB_JDBC_VERSION}..."
 curl -# -L --fail \
     -o "${STAGING}/${YB_JDBC_JAR}" \
-    "https://github.com/yugabyte/pgjdbc/releases/download/v42.7.3-yb-4/${YB_JDBC_JAR}"
+    "https://github.com/yugabyte/pgjdbc/releases/download/v${YBDB_JDBC_VERSION}/${YB_JDBC_JAR}"
 python3 -c "import sys; d=open('${STAGING}/${YB_JDBC_JAR}','rb').read(4); sys.exit(0 if d[:2]==b'PK' else 1)" 2>/dev/null \
     || { echo "ERROR: Downloaded file is not a valid JAR (no PK header)."; exit 1; }
 echo "  OK: $(ls -lh "${STAGING}/${YB_JDBC_JAR}" | awk '{print $5}') — valid JAR"
@@ -60,10 +65,10 @@ $DOCKER run --rm -v init-cdc-mysql-ybdb_kafka-plugins:/plugins busybox ls -lh /p
 
 # -- Pre-pull Debezium and MySQL images ---------------------------------------
 echo "Pulling Debezium and MySQL Docker images..."
-$DOCKER pull mysql:8.4
-$DOCKER pull quay.io/debezium/zookeeper:3.1.3.Final
-$DOCKER pull quay.io/debezium/kafka:3.1.3.Final
-$DOCKER pull quay.io/debezium/connect:3.1.3.Final
+$DOCKER pull mysql:${MYSQL_VERSION}
+$DOCKER pull quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
+$DOCKER pull quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+$DOCKER pull quay.io/debezium/connect:${DEBEZIUM_VERSION}
 echo "Docker images ready."
 
 echo ""

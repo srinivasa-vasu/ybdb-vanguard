@@ -17,13 +17,11 @@ services:
 
   zookeeper:
     image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION:-3.1.3.Final}
-    platform: linux/amd64
     network_mode: host
     restart: on-failure
 
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION:-3.1.3.Final}
-    platform: linux/amd64
     network_mode: host
     depends_on: [zookeeper]
     environment:
@@ -34,7 +32,6 @@ services:
 
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION:-3.1.3.Final}
-    platform: linux/amd64
     network_mode: host
     depends_on: [kafka]
     environment:

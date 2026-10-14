@@ -198,7 +198,11 @@ while [ "$_attempts" -lt 30 ]; do
   _attempts=$(( _attempts + 1 ))
 done
 echo ""
-echo "   connector state: RUNNING ✅"
+if [ "$_state" = "RUNNING" ]; then
+  echo "   connector state: RUNNING ✅"
+else
+  echo "   connector state: ${_state:-UNKNOWN} ❌ after $(( _attempts * 2 ))s — check: curl -s ${KC_URL}/connectors/mssqlsource/status"
+fi
 echo ""
 
 p "Source connector + task status:"
@@ -271,7 +275,11 @@ while [ "$_attempts" -lt 30 ]; do
   _attempts=$(( _attempts + 1 ))
 done
 echo ""
-echo "   ybsink task state: RUNNING ✅"
+if [ "$_task_state" = "RUNNING" ]; then
+  echo "   ybsink task state: RUNNING ✅"
+else
+  echo "   ybsink task state: ${_task_state:-UNKNOWN} ❌ after $(( _attempts * 2 ))s — check: curl -s ${KC_URL}/connectors/ybsink/status"
+fi
 echo ""
 
 p ""

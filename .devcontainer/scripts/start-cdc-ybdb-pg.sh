@@ -52,7 +52,6 @@ $DOCKER run -d \
     --name init-cdc-ybdb-pg-zookeeper-1 \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
 
 echo "Waiting for ZooKeeper on 127.0.0.1:2181 (up to 60s)..."
@@ -76,7 +75,6 @@ $DOCKER run -d \
     --name init-cdc-ybdb-pg-kafka-1 \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     -e ZOOKEEPER_CONNECT=127.0.0.1:2181 \
     -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 \
     -e KAFKA_ADVERTISED_HOST_NAME=127.0.0.1 \
@@ -116,7 +114,6 @@ $DOCKER run -d \
     --name init-cdc-ybdb-pg-connect-1 \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     -e BOOTSTRAP_SERVERS=127.0.0.1:9092 \
     -e GROUP_ID=1 \
     -e CONFIG_STORAGE_TOPIC=cdc_connect_configs \
@@ -130,7 +127,6 @@ $DOCKER run -d \
     --name init-cdc-ybdb-pg-postgres \
     --net "container:${DC_ID}" \
     --restart on-failure \
-    --platform linux/amd64 \
     -e POSTGRES_PASSWORD=yugabyte \
     -e POSTGRES_DB=postgres \
     -v init-cdc-ybdb-pg_postgresql_data:/var/lib/postgresql/data \
