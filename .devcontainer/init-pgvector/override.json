@@ -4,5 +4,18 @@
     "ART_PATH": "init-pgvector",
     "SCRIPT_PATH": "init-pgvector"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → pgvector-demo   (guided semantic search demo)\" && echo \"▶  Terminal → Run Task → ysql             (YSQL shell)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → pgvector-demo   (guided semantic search demo)\" && echo \"▶  Terminal → Run Task → ysql             (YSQL shell)\"'",
+  "tasks": [
+    {
+      "label": "pgvector-demo",
+      "detail": "\"The Recommendation Engine Problem\" — L2/cosine/IP distance, ybhnsw index, hybrid search (init-pgvector/prompt.sh)",
+      "command": "cd init-pgvector && echo '🧮 pgvector-demo  —  Semantic Search with pgvector' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": "pgvector"
+    },
+    {
+      "label": "pgvector-ws",
+      "detail": "Workshop shell for manual pgvector commands — ysqlsh (init-pgvector)",
+      "command": "cd init-pgvector && echo '🧮 pgvector-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    }
+  ]
 }

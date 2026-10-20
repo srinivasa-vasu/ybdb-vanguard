@@ -5,5 +5,17 @@
     "SCRIPT_PATH": "init-pitr",
     "MASTERS": "127.0.0.1:7100"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pitr-demo   (PITR recovery demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql          (YSQL shell)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pitr-ws       (Workshop shell for manual exercises)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pitr-demo   (PITR recovery demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql          (YSQL shell)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pitr-ws       (Workshop shell for manual exercises)\"'",
+  "tasks": [
+    {
+      "label": "pitr-ws",
+      "detail": "Workshop shell for manual PITR commands — yb-admin (init-pitr)",
+      "command": "cd init-pitr && echo '⏪ pitr-ws — Workshop shell' && echo '   Run manual yb-admin commands here' && exec bash"
+    },
+    {
+      "label": "pitr-demo",
+      "detail": "\"The 2 AM Incident\" — enable PITR, simulate DELETE disaster, recover online (init-pitr/prompt.sh)",
+      "command": "cd init-pitr && echo '⏪ pitr-demo  —  Point-in-Time Recovery demo' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    }
+  ]
 }

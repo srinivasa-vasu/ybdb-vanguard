@@ -6,6 +6,13 @@ SQL-native full-text search in YugabyteDB: stemming, boolean queries, relevance 
 
 ---
 
+**Quick start:** Three terminals open automatically:
+- **`fts-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`fts-ws`** — workshop shell for the manual commands below
+- **`ysql`** — YSQL shell for the SQL below
+
+---
+
 > **Run queries interactively**: Select any SQL block → **`Ctrl+Shift+Enter`** (Windows/Linux) or **`Cmd+Shift+Enter`** (Mac) → runs in the active terminal.
 
 ---
@@ -23,7 +30,7 @@ The demo loads the schema and 10 sample articles from `articles.sql` via `ysqlsh
 
 ## Workshop
 
-> Use the **`ysql`** terminal — it opens automatically when the container starts.
+> Run the SQL below in the **`ysql`** terminal and any shell commands in **`fts-ws`** — both open automatically when the container starts. The **`fts-demo`** terminal is for the guided walkthrough.
 
 ### Part 1 · Why LIKE falls short
 

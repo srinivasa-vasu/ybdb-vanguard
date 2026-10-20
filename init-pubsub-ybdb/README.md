@@ -13,11 +13,12 @@ There is no Kafka, no Kafka Connect, and no sink connector anywhere in this pipe
 | **Applier** | JVM process; source from [`srinivasa-vasu/spring-boot-cdc-stream`](https://github.com/srinivasa-vasu/spring-boot-cdc-stream/tree/feat/cdc-txn-apply), cloned and built at container create |
 | **Config** | [`application-lab.yml`](application-lab.yml) — edit it, restart the applier, done |
 
-**Quick start:** Four terminals open automatically:
+**Quick start:** Five terminals open automatically:
 - **`pubsub-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
 - **`pubsub-ws`** — Workshop shell for the manual commands below
 - **`ysql-pub`** — YSQL shell on the publisher
 - **`ysql-sub`** — YSQL shell on the subscriber
+- **`ysql`** — general YSQL shell (`127.0.0.1`, the publisher)
 
 ## Workshop
 

@@ -6,9 +6,10 @@ YugabyteDB acts as the CDC source using **PostgreSQL logical replication** (`ybo
 The **YugabyteDB Debezium connector** (`io.debezium.connector.postgresql.YugabyteDBConnector`) consumes the replication stream and publishes change events to Kafka.
 A **Debezium JDBC sink connector** (`io.debezium.connector.jdbc.JdbcSinkConnector`) writes those events to the PostgreSQL sink.
 
-**Quick start:** Two terminals open automatically:
+**Quick start:** Three terminals open automatically:
 - **`cdc-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
 - **`cdc-ws`** — Workshop shell for the manual commands below
+- **`ysql`** — YSQL shell on the source YugabyteDB
 
 Run all manual `curl` / `docker exec` commands from the `cdc-ws` shell.
 

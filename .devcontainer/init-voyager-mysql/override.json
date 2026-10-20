@@ -24,5 +24,24 @@
   "extraPortsAttributes": {
     "3306": { "label": "mysql", "onAutoForward": "ignore" }
   },
-  "extraExclude": ["init-voyager-mysql/voyager-data"]
+  "extraExclude": ["init-voyager-mysql/voyager-data"],
+  "tasks": [
+    {
+      "label": "mysql-ws",
+      "detail": "Workshop shell for manual MySQL migration commands — yb-voyager, ysqlsh (init-voyager-mysql)",
+      "command": "cd init-voyager-mysql && echo '🐬 mysql-ws  —  Workshop shell' && echo '   Run manual yb-voyager commands here' && exec bash"
+    },
+    {
+      "label": "mysql",
+      "detail": "Open a MySQL client session against the source database (init-voyager-mysql)",
+      "command": "echo '⏳ Waiting for MySQL on :3306...'; until docker-compose -f init-voyager-mysql/compose.yml exec -T mysql mysql -h127.0.0.1 -uroot -p${env:SRC_SECRET} -e 'SELECT 1' >/dev/null 2>&1; do sleep 3; done; docker-compose -f init-voyager-mysql/compose.yml exec mysql mysql -uroot -p${env:SRC_SECRET}",
+      "group": null
+    },
+    {
+      "label": "mysql-demo",
+      "detail": "\"The MySQL Migration\" — assess, export, import, finalise (init-voyager-mysql/prompt.sh)",
+      "command": "cd init-voyager-mysql && echo '🐬 mysql-demo  —  MySQL → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": null
+    }
+  ]
 }

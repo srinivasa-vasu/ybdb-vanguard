@@ -2,8 +2,12 @@
 
 ## Data migration workflow from MySQL to YugabyteDB
 
-**Quick start:** The `mysql-demo` terminal opens automatically — run `bash prompt.sh` for the guided demo.
-The `yb-voyager` terminal is available for running commands manually.
+**Quick start:** Five terminals open automatically:
+- **`mysql-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`mysql-ws`** — workshop shell for the manual commands below
+- **`mysql`** — MySQL client on the source database
+- **`yb-voyager`** — migration shell for the `yb-voyager` commands below
+- **`ysql`** — YSQL shell on the target YugabyteDB
 
 Run **`bash prompt.sh`** from the `mysql-demo` shell — it loads Chinook and runs all steps automatically.
 

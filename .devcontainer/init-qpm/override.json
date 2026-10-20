@@ -4,5 +4,17 @@
     "ART_PATH": "init-qpm",
     "SCRIPT_PATH": "init-qpm"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && ysqlsh -h 127.0.0.1 -X -f init-qpm/setup.sql && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 qpm-demo   (guided QPM demo: bash prompt.sh)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 qpm-ws     (Workshop shell for manual exercises)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && ysqlsh -h 127.0.0.1 -X -f init-qpm/setup.sql && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 qpm-demo   (guided QPM demo: bash prompt.sh)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 qpm-ws     (Workshop shell for manual exercises)\"'",
+  "tasks": [
+    {
+      "label": "qpm-demo",
+      "detail": "\"Catch and Pin the Plan\" — detect a regression, correct it by pinning a good plan, prevent future ones (YFTT #157 demo) (init-qpm/prompt.sh)",
+      "command": "cd init-qpm && echo '📌 qpm-demo  —  Query Plan Management' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "qpm-ws",
+      "detail": "Workshop shell for manual QPM commands — ysqlsh, ysqlsh -f (init-qpm)",
+      "command": "cd init-qpm && echo '📌 qpm-ws — Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    }
+  ]
 }

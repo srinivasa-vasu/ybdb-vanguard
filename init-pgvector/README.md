@@ -6,6 +6,13 @@ Vector similarity search in YugabyteDB using the bundled pgvector extension: L2 
 
 ---
 
+**Quick start:** Three terminals open automatically:
+- **`pgvector-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`pgvector-ws`** — workshop shell for the manual commands below
+- **`ysql`** — YSQL shell for the SQL below
+
+---
+
 > **Run queries interactively**: Select any SQL block → **`Ctrl+Shift+Enter`** (Windows/Linux) or **`Cmd+Shift+Enter`** (Mac) → runs in the active terminal.
 
 ---
@@ -21,7 +28,7 @@ Vector similarity search in YugabyteDB using the bundled pgvector extension: L2 
 
 ## Workshop
 
-> Use the **`ysql`** terminal — it opens automatically when the container starts.
+> Run the SQL below in the **`ysql`** terminal and any shell commands in **`pgvector-ws`** — both open automatically when the container starts. The **`pgvector-demo`** terminal is for the guided walkthrough.
 
 ### Part 1 · Enable pgvector
 

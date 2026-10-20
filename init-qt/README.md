@@ -6,8 +6,9 @@ Hands-on exercises covering the full query optimisation stack in YugabyteDB — 
 
 ---
 
-**Quick start:** Two terminals open automatically:
+**Quick start:** Three terminals open automatically:
 - **`qt-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`qt-ws`** — workshop shell for the manual commands below
 - **`ysql`** — interactive YSQL shell for the manual exercises below
 
 ---

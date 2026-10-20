@@ -32,6 +32,7 @@ ysqlsh -h 127.0.0.1
 |---|---|
 | **Terminal → Run Task → `pitr-demo`** | "The 2 AM Incident" (`prompt.sh`) |
 | **Terminal → Run Task → `pitr-ws`** | Workshop shell for manual commands below |
+| **Terminal → Run Task → `ysql`** | YSQL shell (`ysqlsh`) — opens automatically |
 
 The demo walks through a realistic disaster-recovery scenario:
 

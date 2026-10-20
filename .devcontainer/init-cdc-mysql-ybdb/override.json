@@ -30,5 +30,22 @@
     "2181": { "label": "zookeeper",     "onAutoForward": "ignore" },
     "9092": { "label": "kafka-broker",  "onAutoForward": "ignore" },
     "8083": { "label": "kafka-connect", "onAutoForward": "notify" }
-  }
+  },
+  "tasks": [
+    {
+      "label": "cdc-mysql-ybdb-demo",
+      "detail": "\"The Live Sync Pipeline\" — guided MySQL CDC demo: register connectors, snapshot, live INSERT/UPDATE/DELETE (init-cdc-mysql-ybdb/prompt.sh)",
+      "command": "cd init-cdc-mysql-ybdb && echo '🔄 cdc-mysql-ybdb-demo  —  CDC pipeline demo (MySQL → Kafka → YugabyteDB)' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "cdc-mysql-ybdb-ws",
+      "detail": "Workshop shell for manual CDC commands — curl, mysql, ysqlsh (init-cdc-mysql-ybdb)",
+      "command": "cd init-cdc-mysql-ybdb && echo '🔌 cdc-mysql-ybdb-ws  —  Workshop shell' && echo '   Run manual curl and docker exec commands here' && exec bash"
+    },
+    {
+      "label": "mysql-cdc",
+      "detail": "Open a MySQL command-line client on the chinook database (init-cdc-mysql-ybdb)",
+      "command": "echo '⏳ Waiting for MySQL chinook database on :3306...'; until docker exec -e MYSQL_PWD=yugabyte mysql-cdc mysql -h127.0.0.1 -uroot -e 'SELECT 1' chinook >/dev/null 2>&1; do sleep 2; done; exec docker exec -it -e MYSQL_PWD=yugabyte mysql-cdc mysql -uroot chinook"
+    }
+  ]
 }

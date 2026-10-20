@@ -21,5 +21,17 @@
       "label": "Kong Admin API",
       "onAutoForward": "silent"
     }
-  }
+  },
+  "tasks": [
+    {
+      "label": "kong-demo",
+      "detail": "Kong Gateway with YugabyteDB as backing store — API gateway demo (init-kong/prompt.sh)",
+      "command": "cd init-kong && echo '🦍 kong-demo  —  Kong Gateway + YugabyteDB' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "kong-ws",
+      "detail": "Workshop shell for Kong Gateway + YugabyteDB manual exercises (init-kong/)",
+      "command": "bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:8001/' 'Kong Admin API :8001' && cd init-kong && echo '🦍 kong-ws  —  Workshop shell' && echo '   Run manual curl / ysqlsh commands here' && exec bash"
+    }
+  ]
 }

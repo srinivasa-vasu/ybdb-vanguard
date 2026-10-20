@@ -69,7 +69,7 @@ The startup script (`start-elasticsearch.sh`) handles:
 
 ## Workshop
 
-> **Note:** The `elasticsearch-demo` terminal auto-runs the guided demo script. Use `elasticsearch-ws` for all manual workshop steps below. Both terminals open in `init-elasticsearch/`.
+> **Note:** The `elasticsearch-demo` terminal auto-runs the guided demo script. Use `elasticsearch-ws` for all manual workshop steps below. Both terminals open in `init-elasticsearch/`. A **`ysql`** terminal (YSQL shell on YugabyteDB) also opens automatically.
 
 ### Step 1: Verify Elasticsearch is healthy
 

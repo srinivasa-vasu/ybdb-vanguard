@@ -2,9 +2,12 @@
 
 ## Data migration workflow from Oracle to YugabyteDB
 
-**Quick start:** Two terminals open automatically:
+**Quick start:** Five terminals open automatically:
 - **`oracle-demo`** — run `bash prompt.sh` for the guided demo
+- **`oracle-ws`** — workshop shell for the manual commands below
+- **`oracle`** — SQL*Plus session on the source Oracle database
 - **`yb-voyager`** — available for running migration commands manually
+- **`ysql`** — YSQL shell on the target YugabyteDB
 
 Allow 2–3 minutes for Oracle Free to be ready on port 1521 before running any commands.
 

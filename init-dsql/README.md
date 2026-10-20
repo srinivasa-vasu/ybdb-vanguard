@@ -6,8 +6,9 @@ Hands-on exercises that show how YugabyteDB physically distributes data across t
 
 ---
 
-**Quick start:** Two terminals open automatically:
+**Quick start:** Three terminals open automatically:
 - **`dsql-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`dsql-ws`** — workshop shell for the manual commands below
 - **`ysql`** — interactive YSQL shell for the manual exercises below
 
 ---

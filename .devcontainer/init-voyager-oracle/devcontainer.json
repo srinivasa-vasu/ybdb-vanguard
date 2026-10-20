@@ -9,6 +9,7 @@
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
+  "onCreateCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"\u26a0  Terminal tasks not rendered \u2014 run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"",
   "postCreateCommand": "bash -c 'sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && sudo install -m 755 .devcontainer/scripts/yb-voyager-wrapper.sh /usr/local/bin/yb-voyager && docker-compose -f init-voyager-oracle/compose.yml pull && docker pull --platform linux/amd64 yugabytedb/yb-voyager:latest && curl -fsSL https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_Oracle.sql -o init-voyager-oracle/chinook_data.sql && mkdir -p /workspaces/ybdb-vanguard/init-voyager-oracle/voyager-data && echo \"\u2705 Oracle Voyager exercise ready\"'",
   "waitFor": "postCreateCommand",
   "runArgs": [
@@ -34,7 +35,7 @@
     "memory": "16gb",
     "storage": "64gb"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && docker-compose -f init-voyager-oracle/compose.yml up -d && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 oracle       (Oracle SQLPlus shell \u2014 allow 2-3 min for DB ready on :1521)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 yb-voyager   (Voyager migration shell)\"'",
+  "postStartCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"\u26a0  Terminal tasks not rendered \u2014 run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"; bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && sudo chmod 666 /var/run/docker.sock 2>/dev/null || true && docker-compose -f init-voyager-oracle/compose.yml up -d && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 oracle       (Oracle SQLPlus shell \u2014 allow 2-3 min for DB ready on :1521)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 yb-voyager   (Voyager migration shell)\"'",
   "customizations": {
     "vscode": {
       "settings": {
@@ -80,8 +81,7 @@
       },
       "extensions": [
         "ms-azuretools.vscode-docker"
-      ],
-      "tasks": []
+      ]
     }
   },
   "forwardPorts": [

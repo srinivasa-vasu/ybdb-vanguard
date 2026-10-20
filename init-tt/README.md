@@ -6,6 +6,13 @@ Read historical snapshots of your database by setting a session-level read times
 
 ---
 
+**Quick start:** Three terminals open automatically:
+- **`tt-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`tt-ws`** — workshop shell for the manual commands below
+- **`ysql`** — YSQL shell for the SQL below
+
+---
+
 > **Run queries interactively**: Select any SQL block → **`Ctrl+Shift+Enter`** (Windows/Linux) or **`Cmd+Shift+Enter`** (Mac) → runs in the active terminal.
 
 ---
@@ -70,7 +77,7 @@ SET yb_read_time TO 0;
 
 ## Workshop
 
-> Use the **`ysql`** terminal — it opens automatically when the container starts.
+> Run the SQL below in the **`ysql`** terminal and any shell commands in **`tt-ws`** — both open automatically when the container starts. The **`tt-demo`** terminal is for the guided walkthrough.
 
 ### Setup
 

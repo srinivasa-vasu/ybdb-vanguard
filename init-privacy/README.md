@@ -6,6 +6,13 @@ Column-level encryption with `pgcrypto`, hash-based pseudonymization, tamper-evi
 
 ---
 
+**Quick start:** Three terminals open automatically:
+- **`privacy-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`privacy-ws`** — workshop shell for the manual commands below
+- **`ysql`** — YSQL shell for the SQL below
+
+---
+
 > **Run queries interactively**: Select any SQL block → **`Ctrl+Shift+Enter`** (Windows/Linux) or **`Cmd+Shift+Enter`** (Mac) → runs in the active terminal.
 
 ---
@@ -31,7 +38,7 @@ ysqlsh -h 127.0.0.1
 
 ## Workshop
 
-> Use the **`ysql`** terminal — it opens automatically when the container starts.
+> Run the SQL below in the **`ysql`** terminal and any shell commands in **`privacy-ws`** — both open automatically when the container starts. The **`privacy-demo`** terminal is for the guided walkthrough.
 
 ```sql
 -- Load the full exercise

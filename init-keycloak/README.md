@@ -62,7 +62,7 @@ The YugabyteDB JDBC JAR (`jdbc-yugabytedb-42.7.3-yb-4.jar`) is downloaded at con
 
 ## Workshop
 
-> **Note:** The `keycloak-demo` terminal waits automatically for Keycloak to be ready before starting — no manual delay needed. Both terminals open in `init-keycloak/`. Use `keycloak-ws` for the workshop steps below.
+> **Note:** The `keycloak-demo` terminal waits automatically for Keycloak to be ready before starting — no manual delay needed. Both terminals open in `init-keycloak/`. A **`ysql`** terminal (YSQL shell on YugabyteDB) also opens automatically. Use `keycloak-ws` for the workshop steps below.
 
 ### Step 1: Verify both services are running
 

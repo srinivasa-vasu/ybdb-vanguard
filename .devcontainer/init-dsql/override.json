@@ -3,5 +3,18 @@
   "containerEnv": {
     "ART_PATH": "init-dsql"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → dsql-demo  (guided demo: bash prompt.sh)\" && echo \"▶  Terminal → Run Task → ysql       (YSQL shell for manual exercises)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → dsql-demo  (guided demo: bash prompt.sh)\" && echo \"▶  Terminal → Run Task → ysql       (YSQL shell for manual exercises)\"'",
+  "tasks": [
+    {
+      "label": "dsql-demo",
+      "detail": "\"The Sharding Playbook\" — hash vs range, clustering keys, covering indexes, bucket indexes (init-dsql/prompt.sh)",
+      "command": "cd init-dsql && echo '🗃️  dsql-demo  —  Distributed SQL: Hash & Range Sharding' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": "dsql"
+    },
+    {
+      "label": "dsql-ws",
+      "detail": "Workshop shell for manual Distributed SQL commands — ysqlsh (init-dsql)",
+      "command": "cd init-dsql && echo '🗃️  dsql-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    }
+  ]
 }

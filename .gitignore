@@ -58,3 +58,8 @@ init-voyager-postgres/chinook_data.sql
 # ── devcontainer lock files ───────────────────────────────────────────────────
 devcontainer-lock.json
 yb-sample-apps.jar*
+.devcontainer/scripts/__pycache*
+
+# ── VS Code tasks: rendered per exercise inside the container ─────────────────
+# Source: .devcontainer/<exercise>/override.json "tasks" + .devcontainer/tasks.shared.json
+.vscode/tasks.json

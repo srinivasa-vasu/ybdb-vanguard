@@ -22,5 +22,17 @@
   },
   "otherPortsAttributes": {
     "onAutoForward": "ignore"
-  }
+  },
+  "tasks": [
+    {
+      "label": "opensearch-demo",
+      "detail": "YugabyteDB logs + metrics shipped via OTel into OpenSearch — observability demo (init-opensearch/prompt.sh)",
+      "command": "cd init-opensearch && echo '🔭 opensearch-demo  —  OpenSearch + YugabyteDB Observability' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "opensearch-ws",
+      "detail": "Workshop shell for OpenSearch + YugabyteDB manual exercises (init-opensearch/)",
+      "command": "bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:9200/_cluster/health' 'OpenSearch :9200' 'http://localhost:5601/api/status' 'OpenSearch Dashboards :5601' && cd init-opensearch && echo '🔭 opensearch-ws  —  Workshop shell' && echo '   Run manual curl / ysqlsh commands here' && exec bash"
+    }
+  ]
 }

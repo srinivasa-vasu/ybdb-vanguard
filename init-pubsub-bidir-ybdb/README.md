@@ -15,11 +15,12 @@ Two-way replication is just two one-way pipelines pointed at each other. Everyth
 | **Lane `a2b`** | slot `a2b_slot` on A → writes B, tags `atob_a2b_slot_1` · [`application-a2b.yml`](application-a2b.yml) |
 | **Lane `b2a`** | slot `b2a_slot` on B → writes A, tags `btoa_b2a_slot_1` · [`application-b2a.yml`](application-b2a.yml) |
 
-**Quick start:** Four terminals open automatically:
+**Quick start:** Five terminals open automatically:
 - **`bidir-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
 - **`bidir-ws`** — Workshop shell for the manual commands below
 - **`ysql-a`** — YSQL shell on site A
 - **`ysql-b`** — YSQL shell on site B
+- **`ysql`** — general YSQL shell (`127.0.0.1`, site A)
 
 ---
 

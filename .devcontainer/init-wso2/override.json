@@ -31,5 +31,17 @@
       "label": "WSO2 Gateway (HTTPS)",
       "onAutoForward": "silent"
     }
-  }
+  },
+  "tasks": [
+    {
+      "label": "wso2-demo",
+      "detail": "WSO2 APIM with YugabyteDB (wso2_amdb + wso2_shareddb) — YB JDBC driver demo (init-wso2/prompt.sh)",
+      "command": "cd init-wso2 && echo '🔷 wso2-demo  —  WSO2 API Manager + YugabyteDB' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "wso2-ws",
+      "detail": "Workshop shell for WSO2 API Manager + YugabyteDB manual exercises (init-wso2/)",
+      "command": "bash .devcontainer/scripts/wait-for-svc.sh 'https://localhost:9443/' 'WSO2 API Manager :9443' && cd init-wso2 && echo '🔷 wso2-ws  —  Workshop shell' && echo '   Run manual curl / ysqlsh commands here' && exec bash"
+    }
+  ]
 }

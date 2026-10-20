@@ -35,5 +35,22 @@
     "2181": { "label": "zookeeper",     "onAutoForward": "ignore" },
     "9092": { "label": "kafka-broker",  "onAutoForward": "ignore" },
     "8083": { "label": "kafka-connect", "onAutoForward": "notify" }
-  }
+  },
+  "tasks": [
+    {
+      "label": "cdc-sqlserver-ybdb-demo",
+      "detail": "\"The Live Sync Pipeline\" — guided SQL Server CDC demo: register connectors, snapshot, live INSERT/UPDATE/DELETE (init-cdc-sqlserver-ybdb/prompt.sh)",
+      "command": "cd init-cdc-sqlserver-ybdb && echo '🔄 cdc-sqlserver-ybdb-demo  —  CDC pipeline demo (SQL Server → Kafka → YugabyteDB)' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "cdc-sqlserver-ybdb-ws",
+      "detail": "Workshop shell for manual CDC commands — curl, yb-admin (init-cdc-sqlserver-ybdb)",
+      "command": "cd init-cdc-sqlserver-ybdb && echo '🔌 cdc-sqlserver-ybdb-ws  —  Workshop shell' && echo '   Run manual yb-admin and curl commands here' && exec bash"
+    },
+    {
+      "label": "sqlserver",
+      "detail": "Open a SQL Server command-line client (sqlcmd) (init-cdc-sqlserver-ybdb)",
+      "command": "echo '⏳ Waiting for SQL Server on :1433...'; until (echo >/dev/tcp/127.0.0.1/1433) 2>/dev/null; do sleep 2; done; exec docker exec -it sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Yugabyte@123 -C"
+    }
+  ]
 }

@@ -38,6 +38,7 @@ ysqlsh -h 127.0.0.1 -c "SHOW yb_enable_cbo; SHOW yb_pg_stat_plans_track; SHOW pg
 |---|---|
 | **Guided demo** | **Terminal → Run Task → `qpm-demo`**, then `bash prompt.sh`. Auto-types each step. |
 | **Manual workshop** | Follow the steps below. Each command is a bash one-liner you can paste and run in the **`qpm-ws`** terminal (opens automatically). |
+| **Ad-hoc SQL** | The **`ysql`** terminal (opens automatically) is a YSQL shell for your own queries. |
 
 The steps below are the same statements the guided demo runs.
 

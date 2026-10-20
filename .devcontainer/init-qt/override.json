@@ -3,5 +3,18 @@
   "containerEnv": {
     "ART_PATH": "init-qt"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → qt-demo   (guided demo: bash prompt.sh)\" && echo \"▶  Terminal → Run Task → ysql      (YSQL shell for manual exercises)\" && echo \"   Then: \\\\i init-qt/tuning.sql\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → qt-demo   (guided demo: bash prompt.sh)\" && echo \"▶  Terminal → Run Task → ysql      (YSQL shell for manual exercises)\" && echo \"   Then: \\\\i init-qt/tuning.sql\"'",
+  "tasks": [
+    {
+      "label": "qt-demo",
+      "detail": "\"The Performance Tuning Playbook\" — pushdowns, index strategies, BNL join, window functions (init-qt/prompt.sh)",
+      "command": "cd init-qt && echo '⚡ qt-demo  —  Query Tuning Tips & Tricks' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": "qt"
+    },
+    {
+      "label": "qt-ws",
+      "detail": "Workshop shell for manual Query Tuning commands — ysqlsh (init-qt)",
+      "command": "cd init-qt && echo '⚡ qt-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    }
+  ]
 }

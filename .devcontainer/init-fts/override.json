@@ -4,5 +4,18 @@
     "ART_PATH": "init-fts",
     "SCRIPT_PATH": "init-fts"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → fts-demo   (guided full-text search demo)\" && echo \"▶  Terminal → Run Task → ysql        (YSQL shell)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → fts-demo   (guided full-text search demo)\" && echo \"▶  Terminal → Run Task → ysql        (YSQL shell)\"'",
+  "tasks": [
+    {
+      "label": "fts-demo",
+      "detail": "\"The Search Engine Problem\" — LIKE vs tsvector, GIN index, ts_rank, ts_headline, trigger (init-fts/prompt.sh)",
+      "command": "cd init-fts && echo '🔍 fts-demo  —  Full-Text Search' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": "fts"
+    },
+    {
+      "label": "fts-ws",
+      "detail": "Workshop shell for manual Full-Text Search commands — ysqlsh (init-fts)",
+      "command": "cd init-fts && echo '🔍 fts-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    }
+  ]
 }

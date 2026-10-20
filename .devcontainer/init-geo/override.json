@@ -5,5 +5,18 @@
     "SCRIPT_PATH": "init-geo",
     "MASTERS": "127.0.0.1:7100,127.0.0.2:7100,127.0.0.3:7100"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-geo.sh && echo \"\" && echo \"▶  Terminal → Run Task → geo-demo   (guided geo-distribution demo)\" && echo \"▶  Terminal → Run Task → ysql        (YSQL shell)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-geo.sh && echo \"\" && echo \"▶  Terminal → Run Task → geo-demo   (guided geo-distribution demo)\" && echo \"▶  Terminal → Run Task → ysql        (YSQL shell)\"'",
+  "tasks": [
+    {
+      "label": "geo-demo",
+      "detail": "\"The Global Banking Platform\" — tablespaces, geo-partitioning, follower reads (init-geo/prompt.sh)",
+      "command": "cd init-geo && echo '🌍 geo-demo  —  Geo-distribution & Tablespaces' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": "geo"
+    },
+    {
+      "label": "geo-ws",
+      "detail": "Workshop shell for manual Geo-distribution commands — ysqlsh (init-geo)",
+      "command": "cd init-geo && echo '🌍 geo-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    }
+  ]
 }

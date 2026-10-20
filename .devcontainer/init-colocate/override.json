@@ -5,5 +5,18 @@
     "MASTERS": "127.0.0.1:7100,127.0.0.2:7100,127.0.0.3:7100"
   },
   "extensions": [],
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → colocate-demo   (guided colocation demo)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 && echo \"\" && echo \"▶  Terminal → Run Task → colocate-demo   (guided colocation demo)\"'",
+  "tasks": [
+    {
+      "label": "colocate-demo",
+      "detail": "\"The SaaS Catalog\" — colocated vs distributed tables, opt-out, yb_table_properties (init-colocate/prompt.sh)",
+      "command": "cd init-colocate && echo '📦 colocate-demo  —  Colocation & Distributed Tables' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": "colocate"
+    },
+    {
+      "label": "colocate-ws",
+      "detail": "Workshop shell for manual Colocation commands — ysqlsh (init-colocate)",
+      "command": "cd init-colocate && echo '📦 colocate-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    }
+  ]
 }

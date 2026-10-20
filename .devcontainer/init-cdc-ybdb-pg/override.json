@@ -28,5 +28,17 @@
     "2181": { "label": "zookeeper",     "onAutoForward": "ignore" },
     "9092": { "label": "kafka-broker",  "onAutoForward": "ignore" },
     "8083": { "label": "kafka-connect", "onAutoForward": "notify" }
-  }
+  },
+  "tasks": [
+    {
+      "label": "cdc-demo",
+      "detail": "\"The Live Sync Pipeline\" — guided CDC demo: register connectors, snapshot, live INSERT/UPDATE/DELETE (init-cdc-ybdb-pg/prompt.sh)",
+      "command": "cd init-cdc-ybdb-pg && echo '🔄 cdc-demo  —  CDC pipeline demo (YugabyteDB → Kafka → PostgreSQL)' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "cdc-ws",
+      "detail": "Workshop shell for manual CDC commands — curl, yb-admin (init-cdc-ybdb-pg)",
+      "command": "cd init-cdc-ybdb-pg && echo '🔌 cdc-ws  —  Workshop shell' && echo '   Run manual yb-admin and curl commands here' && exec bash"
+    }
+  ]
 }

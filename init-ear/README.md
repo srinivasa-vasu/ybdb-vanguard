@@ -32,6 +32,7 @@ ysqlsh      # YSQL shell
 |---|---|
 | **Terminal → Run Task → `ear-demo`** | "The Compliance Mandate" (`prompt.sh`) |
 | **Terminal → Run Task → `ear-ws`** | Workshop shell for manual commands below |
+| **Terminal → Run Task → `ysql`** | YSQL shell (`ysqlsh`) — opens automatically |
 
 The demo walks through: check initial state → generate key → load into masters → verify → activate → insert data → key rotation → verify again.
 

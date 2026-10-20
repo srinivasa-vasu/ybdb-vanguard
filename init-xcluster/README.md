@@ -6,9 +6,11 @@ Set up transactional xCluster replication with **automatic DDL propagation** bet
 
 **Requires YugabyteDB v2025.2.1+** (this devcontainer runs v2025.2.x ✓)
 
-**Quick start:** Two terminals open automatically:
+**Quick start:** Four terminals open automatically:
 - **`xcluster-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
 - **`xcluster-ws`** — Workshop shell for the manual commands below
+- **`ysql-source`** — YSQL shell on the SOURCE cluster (`127.0.0.1`)
+- **`ysql-target`** — YSQL shell on the TARGET cluster (`127.0.0.11`)
 
 ---
 

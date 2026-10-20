@@ -5,5 +5,18 @@
     "MASTERS": "127.0.0.1:7100,127.0.0.2:7100,127.0.0.3:7100"
   },
   "extensions": [],
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-geo.sh && echo \"\" && echo \"▶  Terminal → Run Task → tablespace-demo   (guided tablespace demo)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-geo.sh && echo \"\" && echo \"▶  Terminal → Run Task → tablespace-demo   (guided tablespace demo)\"'",
+  "tasks": [
+    {
+      "label": "tablespace-demo",
+      "detail": "\"The Data Tier Migration\" — create tablespaces, pin tables, ALTER TABLE SET TABLESPACE (init-tablespace/prompt.sh)",
+      "command": "cd init-tablespace && echo '🗂️  tablespace-demo  —  Tablespaces & Online Data Migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": null
+    },
+    {
+      "label": "tablespace-ws",
+      "detail": "Workshop shell for manual Tablespace commands — ysqlsh (init-tablespace)",
+      "command": "cd init-tablespace && echo '🗂️  tablespace-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    }
+  ]
 }

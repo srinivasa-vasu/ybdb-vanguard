@@ -30,5 +30,24 @@
   "extraPortsAttributes": {
     "1521": { "label": "oracle", "onAutoForward": "ignore" }
   },
-  "extraExclude": ["init-voyager-oracle/voyager-data"]
+  "extraExclude": ["init-voyager-oracle/voyager-data"],
+  "tasks": [
+    {
+      "label": "oracle-ws",
+      "detail": "Workshop shell for manual Oracle migration commands — yb-voyager, ysqlsh (init-voyager-oracle)",
+      "command": "cd init-voyager-oracle && echo '🔴 oracle-ws  —  Workshop shell' && echo '   Run manual yb-voyager commands here' && exec bash"
+    },
+    {
+      "label": "oracle-demo",
+      "detail": "\"The Oracle Migration\" — assess, export, import, finalise (init-voyager-oracle/prompt.sh)",
+      "command": "cd init-voyager-oracle && echo '🔴 oracle-demo  —  Oracle → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": null
+    },
+    {
+      "label": "oracle",
+      "detail": "Open a SQLPlus session against Oracle (oracle container) (init-voyager-oracle)",
+      "command": "echo '⏳ Waiting for Oracle to become ready (2-3 min on first start)...'; until docker logs oracle 2>/dev/null | grep -q 'DATABASE IS READY TO USE'; do sleep 5; done; exec docker exec -it oracle sqlplus ${env:SRC_USER}/${env:SRC_SECRET}@//localhost:1521/${env:ORACLE_PDB}",
+      "group": null
+    }
+  ]
 }

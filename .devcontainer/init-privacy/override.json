@@ -4,5 +4,18 @@
     "ART_PATH": "init-privacy",
     "SCRIPT_PATH": "init-privacy"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → privacy-demo   (guided data privacy demo)\" && echo \"▶  Terminal → Run Task → ysql            (YSQL shell)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → privacy-demo   (guided data privacy demo)\" && echo \"▶  Terminal → Run Task → ysql            (YSQL shell)\"'",
+  "tasks": [
+    {
+      "label": "privacy-demo",
+      "detail": "\"The GDPR Audit\" — pgcrypto encryption, HMAC audit logs, anonymized views (init-privacy/prompt.sh)",
+      "command": "cd init-privacy && echo '🛡️  privacy-demo  —  Data Privacy & Column Encryption' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": "privacy"
+    },
+    {
+      "label": "privacy-ws",
+      "detail": "Workshop shell for manual Privacy commands — ysqlsh, pgcrypto (init-privacy)",
+      "command": "cd init-privacy && echo '🛡️  privacy-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    }
+  ]
 }

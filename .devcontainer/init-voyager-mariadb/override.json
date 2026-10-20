@@ -24,5 +24,27 @@
   "extraPortsAttributes": {
     "3306": { "label": "mariadb", "onAutoForward": "ignore" }
   },
-  "extraExclude": ["init-voyager-mariadb/voyager-data"]
+  "extraExclude": ["init-voyager-mariadb/voyager-data"],
+  "tasks": [
+    {
+      "label": "mariadb-ws",
+      "detail": "Workshop shell for manual MariaDB migration commands — yb-voyager, ysqlsh (init-voyager-mariadb)",
+      "command": "cd init-voyager-mariadb && echo '🦭 mariadb-ws  —  Workshop shell' && echo '   Run manual yb-voyager commands here' && exec bash"
+    },
+    {
+      "//": [
+        "compose service name is 'mysql' even for the mariadb image"
+      ],
+      "label": "mariadb",
+      "detail": "Open a MariaDB client session against the source database (init-voyager-mariadb)",
+      "command": "echo '⏳ Waiting for MariaDB on :3306...'; until docker-compose -f init-voyager-mariadb/compose.yml exec -T mysql mariadb -h127.0.0.1 -uroot -p${env:SRC_SECRET} -e 'SELECT 1' >/dev/null 2>&1; do sleep 3; done; docker-compose -f init-voyager-mariadb/compose.yml exec mysql mariadb -uroot -p${env:SRC_SECRET}",
+      "group": null
+    },
+    {
+      "label": "mariadb-demo",
+      "detail": "\"The MariaDB Migration\" — assess, export, import, finalise (init-voyager-mariadb/prompt.sh)",
+      "command": "cd init-voyager-mariadb && echo '🦭 mariadb-demo  —  MariaDB → YugabyteDB migration' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": null
+    }
+  ]
 }

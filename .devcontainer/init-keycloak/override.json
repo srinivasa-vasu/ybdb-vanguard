@@ -15,5 +15,17 @@
   "extraForwardPorts": [8080],
   "extraPortsAttributes": {
     "8080": { "label": "Keycloak Admin Console", "onAutoForward": "notify" }
-  }
+  },
+  "tasks": [
+    {
+      "label": "keycloak-demo",
+      "detail": "Keycloak IAM with YugabyteDB as identity store — YB JDBC driver demo (init-keycloak/prompt.sh)",
+      "command": "cd init-keycloak && echo '🔐 keycloak-demo  —  Keycloak + YugabyteDB' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "keycloak-ws",
+      "detail": "Workshop shell for Keycloak + YugabyteDB manual exercises (init-keycloak/)",
+      "command": "bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:8080/' 'Keycloak :8080' && cd init-keycloak && echo '🔐 keycloak-ws  —  Workshop shell' && echo '   Run manual ysqlsh / curl / docker commands here' && exec bash"
+    }
+  ]
 }

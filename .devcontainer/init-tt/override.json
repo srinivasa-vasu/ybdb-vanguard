@@ -3,5 +3,18 @@
   "containerEnv": {
     "ART_PATH": "init-tt"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → tt-demo   (Time Travel / yb_read_time demo shell)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"▶  Terminal → Run Task → tt-demo   (Time Travel / yb_read_time demo shell)\"'",
+  "tasks": [
+    {
+      "label": "tt-ws",
+      "detail": "Workshop shell for manual Time Travel commands — ysqlsh (init-tt)",
+      "command": "cd init-tt && echo '⏰ tt-ws  —  Workshop shell' && echo '   Run manual ysqlsh commands here' && exec bash"
+    },
+    {
+      "label": "tt-demo",
+      "detail": "\"The Compliance Audit\" — forensic yb_read_time flashback queries, no restore needed (init-tt/prompt.sh)",
+      "command": "cd init-tt && echo '⏰ tt-demo  —  Time Travel (yb_read_time) demo' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": "tt"
+    }
+  ]
 }

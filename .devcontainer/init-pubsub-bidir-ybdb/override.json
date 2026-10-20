@@ -63,5 +63,29 @@
     "13000": { "label": "ysql-api (A)",       "onAutoForward": "ignore" },
     "9042":  { "label": "ycql (A)",           "onAutoForward": "ignore" },
     "12000": { "label": "ycql-api (A)",       "onAutoForward": "ignore" }
-  }
+  },
+  "tasks": [
+    {
+      "label": "bidir-demo",
+      "detail": "\"Both Ways at Once\" — two-way CDC: loop detection via replication origins, conflict divergence, disjoint ownership (init-pubsub-bidir-ybdb/prompt.sh)",
+      "command": "cd init-pubsub-bidir-ybdb && echo '⇄  bidir-demo  —  Two-way Pub/Sub CDC (YugabyteDB ⇄ YugabyteDB)' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "bidir-ws",
+      "detail": "Workshop shell for manual two-way CDC commands — applier.sh, ysqlsh (init-pubsub-bidir-ybdb)",
+      "command": "cd init-pubsub-bidir-ybdb && echo '⇄  bidir-ws  —  Workshop shell' && echo '   Run manual applier.sh and ysqlsh commands here' && exec bash"
+    },
+    {
+      "label": "ysql-a",
+      "detail": "Open a YSQL shell on SITE A (127.0.0.1) (init-pubsub-bidir-ybdb)",
+      "command": "echo '🟢 Site A (127.0.0.1)' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
+      "clear": false
+    },
+    {
+      "label": "ysql-b",
+      "detail": "Open a YSQL shell on SITE B (127.0.0.11) (init-pubsub-bidir-ybdb)",
+      "command": "echo '🔵 Site B (127.0.0.11)' && until (echo >/dev/tcp/127.0.0.11/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.11",
+      "clear": false
+    }
+  ]
 }

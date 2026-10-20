@@ -6,6 +6,13 @@ Database-enforced tenant isolation on YugabyteDB. No application changes, no mid
 
 ---
 
+**Quick start:** Three terminals open automatically:
+- **`rls-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`rls-ws`** — workshop shell for the manual commands below
+- **`ysql`** — YSQL shell for the SQL below
+
+---
+
 > **Run queries interactively**: Select any SQL block → **`Ctrl+Shift+Enter`** (Windows/Linux) or **`Cmd+Shift+Enter`** (Mac) → runs in the active terminal.
 
 ---
@@ -31,7 +38,7 @@ ysqlsh
 
 ## Workshop
 
-> Use the **`ysql`** terminal — it opens automatically when the container starts.
+> Run the SQL below in the **`ysql`** terminal and any shell commands in **`rls-ws`** — both open automatically when the container starts. The **`rls-demo`** terminal is for the guided walkthrough.
 
 ### Part 1 · Basic RLS syntax
 

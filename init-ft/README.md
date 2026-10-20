@@ -22,6 +22,7 @@ Once the cluster is ready, open the load generator shells from the VS Code **Ter
 | **Terminal → Run Task → `ycql-load`** | `ycql-load` | YCQL `CassandraKeyValue` load generator |
 | **Terminal → Run Task → `ft-demo`** | `ft-demo` | Chaos engineering demo script |
 | **Terminal → Run Task → `ft-ws`** | `ft-ws` | Workshop shell for manual commands |
+| **Terminal → Run Task → `ysql`** | `ysql` | YSQL shell (`ysqlsh`) — opens automatically |
 | **Terminal → Run Task → `ft: start all`** | all three | Launches all shells in parallel |
 
 Each task opens in its own **dedicated terminal panel** — you can observe metrics in `ysql-load` and `ycql-load` while running chaos experiments in `ft-demo`.

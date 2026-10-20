@@ -65,7 +65,7 @@ No schema changes, no custom driver — Kong's standard PostgreSQL support works
 
 ## Workshop
 
-> **Note:** The `kong-demo` terminal auto-starts Kong's demo script when ready. Use `kong-ws` for all manual workshop steps below. Both terminals open in `init-kong/`.
+> **Note:** The `kong-demo` terminal auto-starts Kong's demo script when ready. Use `kong-ws` for all manual workshop steps below. Both terminals open in `init-kong/`. A **`ysql`** terminal (YSQL shell on YugabyteDB) also opens automatically.
 
 ### Step 1: Verify Kong is running
 

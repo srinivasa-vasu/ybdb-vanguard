@@ -2,6 +2,15 @@
 
 ## Live data migration workflow from PostgreSQL to YugabyteDB
 
+**Quick start:** Seven terminals open automatically:
+- **`postgres-live-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`postgres-live-ws`** — workshop shell for the manual commands below
+- **`psql`** — psql session on the source PostgreSQL database
+- **`yb-voyager-export`** — Voyager export shell (assess / export schema + data)
+- **`yb-voyager-import`** — Voyager import shell (import schema + data)
+- **`yb-voyager-wa`** — Voyager cutover shell (migration report / cutover / end migration)
+- **`ysql`** — YSQL shell on the target YugabyteDB
+
 Run **pre-step** from the `psql` shell.  
 Run **Steps 0–2** from the `yb-voyager-export` shell.  
 Run **Step 3** from the `yb-voyager-import` shell.  

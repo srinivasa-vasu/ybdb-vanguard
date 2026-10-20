@@ -51,5 +51,29 @@
     "13000": { "label": "ysql-api (pub)",       "onAutoForward": "ignore" },
     "9042":  { "label": "ycql (pub)",           "onAutoForward": "ignore" },
     "12000": { "label": "ycql-api (pub)",       "onAutoForward": "ignore" }
-  }
+  },
+  "tasks": [
+    {
+      "label": "pubsub-demo",
+      "detail": "\"The Middleware-less Pipeline\" — embedded Debezium applier: snapshot, live INSERT/UPDATE/DELETE, atomic transactions (init-pubsub-ybdb/prompt.sh)",
+      "command": "cd init-pubsub-ybdb && echo '📡 pubsub-demo  —  Pub/Sub CDC (YugabyteDB → YugabyteDB, no Kafka)' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "pubsub-ws",
+      "detail": "Workshop shell for manual pub/sub commands — applier.sh, ysqlsh (init-pubsub-ybdb)",
+      "command": "cd init-pubsub-ybdb && echo '📡 pubsub-ws  —  Workshop shell' && echo '   Run manual applier.sh and ysqlsh commands here' && exec bash"
+    },
+    {
+      "label": "ysql-pub",
+      "detail": "Open a YSQL shell on the PUBLISHER cluster (127.0.0.1) (init-pubsub-ybdb)",
+      "command": "echo '🟢 Publisher cluster (127.0.0.1)' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
+      "clear": false
+    },
+    {
+      "label": "ysql-sub",
+      "detail": "Open a YSQL shell on the SUBSCRIBER cluster (127.0.0.11) (init-pubsub-ybdb)",
+      "command": "echo '🔵 Subscriber cluster (127.0.0.11)' && until (echo >/dev/tcp/127.0.0.11/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.11",
+      "clear": false
+    }
+  ]
 }

@@ -8,6 +8,7 @@
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
+  "onCreateCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"\u26a0  Terminal tasks not rendered \u2014 run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"",
   "postStopCommand": "docker rm -f opensearch-ybdb opensearch-dashboards-ybdb 2>/dev/null || true",
   "runArgs": [
     "--init"
@@ -25,7 +26,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-opensearch.sh && echo \"\" && echo \">> Terminal > Run Task > opensearch-demo   (guided YB observability demo)\" && echo \">> Terminal > Run Task > opensearch-ws     (Workshop shell for manual exercises)\"'",
+  "postStartCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"\u26a0  Terminal tasks not rendered \u2014 run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"; bash -c 'bash .devcontainer/scripts/start-opensearch.sh && echo \"\" && echo \">> Terminal > Run Task > opensearch-demo   (guided YB observability demo)\" && echo \">> Terminal > Run Task > opensearch-ws     (Workshop shell for manual exercises)\"'",
   "customizations": {
     "vscode": {
       "settings": {
@@ -70,8 +71,7 @@
       },
       "extensions": [
         "ms-azuretools.vscode-docker"
-      ],
-      "tasks": []
+      ]
     }
   },
   "forwardPorts": [

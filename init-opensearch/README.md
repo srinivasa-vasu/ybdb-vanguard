@@ -65,7 +65,7 @@ The startup script (`start-opensearch.sh`) handles:
 
 ## Workshop
 
-> **Note:** The `opensearch-demo` terminal auto-runs the guided demo script. Use `opensearch-ws` for all manual workshop steps below. Both terminals open in `init-opensearch/`.
+> **Note:** The `opensearch-demo` terminal auto-runs the guided demo script. Use `opensearch-ws` for all manual workshop steps below. Both terminals open in `init-opensearch/`. A **`ysql`** terminal (YSQL shell on YugabyteDB) also opens automatically.
 
 ### Step 1: Verify OpenSearch is healthy
 

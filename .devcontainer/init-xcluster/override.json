@@ -42,5 +42,32 @@
       "label": "ycql-api (src)",
       "onAutoForward": "ignore"
     }
-  }
+  },
+  "tasks": [
+    {
+      "label": "xcluster-demo",
+      "detail": "\"The Active-Standby Setup\" — setup replication, check lag, pause/resume, planned failover (init-xcluster/prompt.sh)",
+      "command": "cd init-xcluster && echo '🔄 xcluster-demo  —  xCluster Replication & DR' && echo '   Run when ready: bash prompt.sh' && exec bash",
+      "group": null
+    },
+    {
+      "label": "ysql-source",
+      "detail": "Open a YSQL shell on the SOURCE cluster (127.0.0.1) (init-xcluster)",
+      "command": "echo '🟢 Source cluster (127.0.0.1)' && until (echo >/dev/tcp/127.0.0.1/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.1",
+      "group": null,
+      "clear": false
+    },
+    {
+      "label": "ysql-target",
+      "detail": "Open a YSQL shell on the TARGET cluster (127.0.0.11) (init-xcluster)",
+      "command": "echo '🔵 Target cluster (127.0.0.11)' && until (echo >/dev/tcp/127.0.0.11/5433) 2>/dev/null; do sleep 2; done && ysqlsh -h 127.0.0.11",
+      "group": null,
+      "clear": false
+    },
+    {
+      "label": "xcluster-ws",
+      "detail": "Workshop shell for manual xCluster commands — yb-admin, ysqlsh (init-xcluster)",
+      "command": "cd init-xcluster && echo '🔄 xcluster-ws — Workshop shell' && echo '   Run manual yb-admin and ysqlsh commands here' && exec bash"
+    }
+  ]
 }

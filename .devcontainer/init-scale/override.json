@@ -24,6 +24,47 @@
       "jdkDistro": "ms"
     }
   },
-  "postCreateCommand": "bash -c 'wget -q https://github.com/yugabyte/yb-sample-apps/releases/download/v${YB_SAMPLE_APPS_VERSION}/yb-sample-apps.jar && echo \"✅ Scale exercise ready\"'",
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 ysql_num_tablets=-1,ysql_num_shards_per_tserver=2,yb_num_shards_per_tserver=2 && echo \"\" && echo \"▶  Terminal → Run Task → scale: ysql-load   (YSQL load generator)\" && echo \"▶  Terminal → Run Task → scale: ycql-load   (YCQL load generator)\" && echo \"▶  Terminal → Run Task → scale-demo           (guided scale-out demo)\" && echo \"▶  Terminal → Run Task → scale-ws             (Workshop shell for manual commands)\" && echo \"▶  Terminal → Run Task → scale: start all    (launch all three at once)\"'"
+  "postCreateCommand": "bash -c 'wget -q -O yb-sample-apps.jar.part https://github.com/yugabyte/yb-sample-apps/releases/download/v${YB_SAMPLE_APPS_VERSION}/yb-sample-apps.jar && mv yb-sample-apps.jar.part yb-sample-apps.jar && echo \"✅ Scale exercise ready\"'",
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 3 ysql_num_tablets=-1,ysql_num_shards_per_tserver=2,yb_num_shards_per_tserver=2 && echo \"\" && echo \"▶  Terminal → Run Task → scale: ysql-load   (YSQL load generator)\" && echo \"▶  Terminal → Run Task → scale: ycql-load   (YCQL load generator)\" && echo \"▶  Terminal → Run Task → scale-demo           (guided scale-out demo)\" && echo \"▶  Terminal → Run Task → scale-ws             (Workshop shell for manual commands)\" && echo \"▶  Terminal → Run Task → scale: start all    (launch all three at once)\"'",
+  "tasks": [
+    {
+      "label": "scale: ysql-load",
+      "detail": "Start YSQL SqlInserts load against the 3-node cluster (init-scale)",
+      "command": "echo '⏳ Waiting for yb-sample-apps.jar and YSQL :5433 on 3 nodes...'; until [ -f yb-sample-apps.jar ] && (echo >/dev/tcp/${env:HOST_LB}/5433) 2>/dev/null && (echo >/dev/tcp/${env:HOST_LB2}/5433) 2>/dev/null && (echo >/dev/tcp/${env:HOST_LB3}/5433) 2>/dev/null; do sleep 3; done; java -jar yb-sample-apps.jar --workload SqlInserts --num_reads 15000000 --num_writes 2000000 --num_threads_read 2 --num_threads_write 1 --nodes ${env:HOST_LB}:5433,${env:HOST_LB2}:5433,${env:HOST_LB3}:5433 --password ${env:SECRET} --username ${env:YB_USER}",
+      "group": "scale-load"
+    },
+    {
+      "label": "scale: ycql-load",
+      "detail": "Start YCQL CassandraKeyValue load against the 3-node cluster (init-scale)",
+      "command": "echo '⏳ Waiting for yb-sample-apps.jar and YCQL :9042 on 3 nodes...'; until [ -f yb-sample-apps.jar ] && (echo >/dev/tcp/${env:HOST_LB}/9042) 2>/dev/null && (echo >/dev/tcp/${env:HOST_LB2}/9042) 2>/dev/null && (echo >/dev/tcp/${env:HOST_LB3}/9042) 2>/dev/null; do sleep 3; done; java -jar yb-sample-apps.jar --workload CassandraKeyValue --num_reads 15000000 --num_writes 2000000 --num_threads_read 3 --num_threads_write 1 --nodes ${env:HOST_LB}:9042,${env:HOST_LB2}:9042,${env:HOST_LB3}:9042 --password ${env:SECRET} --username ${env:YB_USER}",
+      "group": "scale-load"
+    },
+    {
+      "label": "scale-demo",
+      "detail": "\"Scale-out\" — guided distribution and scalability demo (init-scale/prompt.sh)",
+      "command": "cd init-scale && echo '📈 scale-demo  —  Scale-out demo' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "raw": {
+        "label": "scale: start all",
+        "detail": "Launch scale: ysql-load, scale: ycql-load and scale-demo together",
+        "dependsOn": [
+          "scale: ysql-load",
+          "scale: ycql-load",
+          "scale-demo"
+        ],
+        "dependsOrder": "parallel",
+        "presentation": {
+          "reveal": "silent",
+          "panel": "shared"
+        },
+        "problemMatcher": []
+      }
+    },
+    {
+      "label": "scale-ws",
+      "detail": "Workshop shell for manual Scale-out commands — ysqlsh, yb-admin (init-scale)",
+      "command": "cd init-scale && echo '📈 scale-ws  —  Workshop shell' && echo '   Run manual ysqlsh and yb-admin commands here' && exec bash"
+    }
+  ]
 }

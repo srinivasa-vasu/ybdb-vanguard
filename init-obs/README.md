@@ -41,13 +41,15 @@ The devcontainer starts a **3-node cluster** with:
 
 ## Quick start
 
-Three terminals open automatically:
+Five terminals open automatically:
 
 | Terminal | What it does |
 |---|---|
 | **`run-load`** | Background query load generator — keep this running throughout |
 | **`ysql-obs`** | YSQL shell connected to `obs_demo` for manual exercises |
 | **`obs-demo`** | Guided investigation demo |
+| **`obs-ws`** | Workshop shell for the manual commands below — ysqlsh, pg_stat_statements |
+| **`ysql`** | YSQL shell on the default `yugabyte` database |
 
 **Start `run-load` first** — ASH and `pg_stat_statements` need sustained load to accumulate meaningful data.
 

@@ -7,5 +7,17 @@
     "KEY_DIR": "init-ear/keys"
   },
   "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends openssl && mkdir -p init-ear/keys && echo \"\u2705 EAR exercise ready\"'",
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ear-demo   (guided EAR demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql        (YSQL shell)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ear-ws       (Workshop shell for manual exercises)\"'"
+  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ear-demo   (guided EAR demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql        (YSQL shell)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ear-ws       (Workshop shell for manual exercises)\"'",
+  "tasks": [
+    {
+      "label": "ear-demo",
+      "detail": "\"The Compliance Mandate\" — enable EAR, verify, rotate encryption key (init-ear/prompt.sh)",
+      "command": "cd init-ear && echo '🔐 ear-demo  —  Encryption at Rest' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "ear-ws",
+      "detail": "Workshop shell for manual EAR commands — yb-admin, openssl (init-ear)",
+      "command": "cd init-ear && echo '🔐 ear-ws — Workshop shell' && echo '   Run manual yb-admin and openssl commands here' && exec bash"
+    }
+  ]
 }

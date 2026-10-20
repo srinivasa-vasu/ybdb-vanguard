@@ -5,6 +5,7 @@
     "dockerfile": "../../.ybdb.Dockerfile",
     "context": "../.."
   },
+  "onCreateCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"\u26a0  Terminal tasks not rendered \u2014 run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"",
   "runArgs": [
     "--init"
   ],
@@ -18,7 +19,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pgvector-demo   (guided semantic search demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql             (YSQL shell)\"'",
+  "postStartCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"\u26a0  Terminal tasks not rendered \u2014 run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"; bash -c 'bash .devcontainer/scripts/start-ybdb.sh 1 && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 pgvector-demo   (guided semantic search demo)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql             (YSQL shell)\"'",
   "customizations": {
     "vscode": {
       "settings": {
@@ -63,8 +64,7 @@
       },
       "extensions": [
         "ms-azuretools.vscode-docker"
-      ],
-      "tasks": []
+      ]
     }
   },
   "forwardPorts": [

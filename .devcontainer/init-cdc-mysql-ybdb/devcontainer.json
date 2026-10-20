@@ -8,6 +8,7 @@
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
+  "onCreateCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"\u26a0  Terminal tasks not rendered \u2014 run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"",
   "postCreateCommand": "bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client && bash .devcontainer/scripts/setup-cdc-mysql-ybdb.sh && echo \"\u2705 CDC MySQL exercise ready\"'",
   "waitFor": "postCreateCommand",
   "runArgs": [
@@ -37,7 +38,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  "postStartCommand": "bash -c 'bash .devcontainer/scripts/start-cdc-mysql-ybdb.sh && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 cdc-mysql-ybdb-demo   (guided CDC MySQL demo script)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 cdc-mysql-ybdb-ws     (Workshop shell for manual commands)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 mysql-cdc              (MySQL CLI)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql                   (YugabyteDB CLI)\"'",
+  "postStartCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"\u26a0  Terminal tasks not rendered \u2014 run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"; bash -c 'bash .devcontainer/scripts/start-cdc-mysql-ybdb.sh && echo \"\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 cdc-mysql-ybdb-demo   (guided CDC MySQL demo script)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 cdc-mysql-ybdb-ws     (Workshop shell for manual commands)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 mysql-cdc              (MySQL CLI)\" && echo \"\u25b6  Terminal \u2192 Run Task \u2192 ysql                   (YugabyteDB CLI)\"'",
   "customizations": {
     "vscode": {
       "settings": {
@@ -82,8 +83,7 @@
       },
       "extensions": [
         "ms-azuretools.vscode-docker"
-      ],
-      "tasks": []
+      ]
     }
   },
   "forwardPorts": [

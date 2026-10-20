@@ -22,6 +22,7 @@ Open the task shells from the VS Code **Terminal** menu:
 | **Terminal → Run Task → `scale: ycql-load`** | YCQL `CassandraKeyValue` load — 3 read threads / 1 write thread |
 | **Terminal → Run Task → `scale-demo`** | Scale-out demo script (`prompt.sh`) |
 | **Terminal → Run Task → `scale-ws`** | Workshop shell for manual commands |
+| **Terminal → Run Task → `ysql`** | YSQL shell (`ysqlsh`) — opens automatically |
 | **Terminal → Run Task → `scale: start all`** | Launches all three in parallel |
 
 **Recommended flow:**

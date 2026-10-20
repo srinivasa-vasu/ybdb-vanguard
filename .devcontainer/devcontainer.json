@@ -18,8 +18,11 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  // Start a 3-node zone-aware cluster on every Codespace resume
-  "postStartCommand": "bash .devcontainer/scripts/start-ybdb.sh 3",
+  // Render .vscode/tasks.json (git-ignored) with only this exercise's terminals —
+  // same command as base.json "renderTasksCommand"; finishes before the editor attaches
+  "onCreateCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"⚠  Terminal tasks not rendered — run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"",
+  // Re-render (no-op when unchanged), then start a 3-node zone-aware cluster on every resume
+  "postStartCommand": "python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks \"$ART_PATH\" || echo \"⚠  Terminal tasks not rendered — run: python3 .devcontainer/scripts/gen-devcontainers.py --render-tasks $ART_PATH\"; bash .devcontainer/scripts/start-ybdb.sh 3",
   "customizations": {
     "vscode": {
       "settings": {
@@ -27,16 +30,6 @@
       },
       "extensions": [
         "ms-azuretools.vscode-docker"
-      ],
-      "tasks": [
-        {
-          "label": "_auto-open",
-          "type": "shell",
-          "command": "code init-dsql/README.md 2>/dev/null || true",
-          "runOptions": { "runOn": "folderOpen" },
-          "presentation": { "reveal": "never", "panel": "shared" },
-          "problemMatcher": []
-        }
       ]
     }
   },

@@ -21,5 +21,17 @@
   },
   "otherPortsAttributes": {
     "onAutoForward": "ignore"
-  }
+  },
+  "tasks": [
+    {
+      "label": "elasticsearch-demo",
+      "detail": "YugabyteDB logs + Prometheus metrics shipped via OTel into Elasticsearch — observability demo (init-elasticsearch/prompt.sh)",
+      "command": "bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:9200/_cluster/health' 'Elasticsearch :9200' 'http://localhost:5601/api/status' 'Kibana :5601' 'pid:/tmp/elasticsearch-init/filebeat.pid' 'Filebeat' 'pid:/tmp/elasticsearch-init/metricbeat.pid' 'Metricbeat' && cd init-elasticsearch && echo '🔍 elasticsearch-demo  —  Elasticsearch + YugabyteDB Observability' && echo '   Run when ready: bash prompt.sh' && exec bash"
+    },
+    {
+      "label": "elasticsearch-ws",
+      "detail": "Workshop shell for Elasticsearch + YugabyteDB manual exercises (init-elasticsearch/)",
+      "command": "bash .devcontainer/scripts/wait-for-svc.sh 'http://localhost:9200/_cluster/health' 'Elasticsearch :9200' 'http://localhost:5601/api/status' 'Kibana :5601' 'pid:/tmp/elasticsearch-init/filebeat.pid' 'Filebeat' 'pid:/tmp/elasticsearch-init/metricbeat.pid' 'Metricbeat' && cd init-elasticsearch && echo '🔍 elasticsearch-ws  —  Workshop shell' && echo '   Run manual curl / ysqlsh commands here' && exec bash"
+    }
+  ]
 }

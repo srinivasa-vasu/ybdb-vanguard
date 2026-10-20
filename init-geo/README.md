@@ -6,6 +6,13 @@ Multi-region data placement, row-level data residency, and low-latency follower 
 
 ---
 
+**Quick start:** Three terminals open automatically:
+- **`geo-demo`** — guided demo: run `bash prompt.sh` for the full walkthrough
+- **`geo-ws`** — workshop shell for the manual commands below
+- **`ysql`** — YSQL shell for the SQL below
+
+---
+
 > **Run queries interactively**: Select any SQL block → **`Ctrl+Shift+Enter`** (Windows/Linux) or **`Cmd+Shift+Enter`** (Mac) → runs in the active terminal.
 
 ---
@@ -48,7 +55,7 @@ The demo covers: tablespace creation → geo-partitioned table → automatic par
 
 ## Workshop
 
-> Use the **`ysql`** terminal — it opens automatically when the container starts.
+> Run the SQL below in the **`ysql`** terminal and any shell commands in **`geo-ws`** — both open automatically when the container starts. The **`geo-demo`** terminal is for the guided walkthrough.
 
 ### Part 1 · Verify cluster topology
 
