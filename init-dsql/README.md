@@ -119,14 +119,11 @@ CREATE TABLE t (id TEXT, ts TIMESTAMPTZ, ...,
   PRIMARY KEY (id HASH, ts DESC));
 
 -- Range (ordered — range scans, ORDER BY, but watch for hotspots)
-CREATE TABLE t (id TEXT PRIMARY KEY ASC, ...);
+CREATE TABLE t (id TEXT , ..., PRIMARY KEY (id ASC));
 
 -- Range with pre-split
-CREATE TABLE t (id TEXT PRIMARY KEY ASC, ...)
+CREATE TABLE t (id TEXT, ..., PRIMARY KEY (id ASC))
   SPLIT AT VALUES (('G'), ('N'), ('T'));
-
--- Range split at specific values
-CREATE TABLE t (id TEXT PRIMARY KEY ASC) SPLIT AT VALUES (('D'), ('M'), ('T'));
 
 -- Composite hash key
 CREATE TABLE t (a TEXT, b TEXT, c TEXT, ...,
